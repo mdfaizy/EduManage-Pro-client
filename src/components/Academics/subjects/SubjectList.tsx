@@ -1,0 +1,157 @@
+"use client";
+
+import { useEffect, useState, useMemo } from "react";
+import { apiConnector } from "@/services/apiConnecter";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../ui/table/index";
+
+interface Subject {
+  id: number;
+  name: string;
+  code: string;
+  description?: string;
+  class: { name: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export default function SubjectsList() {
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const res = await apiConnector("GET", "/subjects/all");
+        setSubjects(res.data.data);
+      } catch {
+        toast.error("Failed to load subjects");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSubjects();
+  }, []);
+
+  const filteredSubjects = useMemo(() => {
+    return subjects.filter((s) =>
+      s.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [subjects, search]);
+
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-IN");
+
+  return (
+    <div className="p-8 bg-[#f5f7fb] min-h-screen">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+        
+        {/* Header */}
+        <div className="p-6 border-b border-slate-200 flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-slate-700">Subjects</h2>
+
+          <div className="flex gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
+              <input
+                placeholder="Search Subject"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 pr-3 py-2 border rounded-md text-sm"
+              />
+            </div>
+
+            <button
+              onClick={() => router.push("/admin/subjects/create")}
+              className="bg-orange-500 text-white px-4 py-2 rounded-md text-sm"
+            >
+              + Add Subject
+            </button>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <Table className="w-full text-sm">
+            <TableHeader className="bg-slate-50 text-slate-500 text-xs uppercase">
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>Subject</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>Class</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Created</TableCell>
+                <TableCell>Updated</TableCell>
+                <TableCell className="text-right">Action</TableCell>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    Loading subjects...
+                  </TableCell>
+                </TableRow>
+              ) : filteredSubjects.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    No subjects found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredSubjects.map((sub, index) => (
+                  <TableRow key={sub.id} className="border-t hover:bg-slate-50">
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell className="font-medium">{sub.name}</TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-xs">
+                        {sub.code}
+                      </span>
+                    </TableCell>
+                    <TableCell>{sub.class?.name}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">
+                      {sub.description || "-"}
+                    </TableCell>
+                    <TableCell>{formatDate(sub.createdAt)}</TableCell>
+                    <TableCell>{formatDate(sub.updatedAt)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => router.push(`/subjects/view/${sub.id}`)}
+                          className="px-2 py-1 bg-slate-100 rounded text-xs"
+                        >
+                          View
+                        </button>
+                        <button className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-xs">
+                          Edit
+                        </button>
+                        <button className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs">
+                          Delete
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-between items-center p-4 border-t text-sm text-slate-500">
+          <span>Showing {filteredSubjects.length} subjects</span>
+          <div className="flex gap-2">
+            <button className="px-3 py-1 border rounded-md">Previous</button>
+            <button className="px-3 py-1 bg-orange-500 text-white rounded-md">1</button>
+            <button className="px-3 py-1 border rounded-md">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
