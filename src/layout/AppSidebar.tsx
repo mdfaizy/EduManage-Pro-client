@@ -142,6 +142,13 @@ const navItems: NavItem[] = [
     name: "Academics",
     icon: <School />,
     subItems: [
+      // 
+      // grades
+
+      { name: "Add New Grades", path: "/admin/grades/create" },
+      { name: "View Master Subject", path: "/admin/grades/view-grades" },
+      { name: "Master Subjects", path: "/admin/master-subjects/create" },
+      { name: "View Master Subject", path: "/admin/master-subjects/master-subjects-table" },
       { name: "Subjects", path: "/admin/academics/subjects/create-subject" },
       { name: "View Subject", path: "/admin/academics/subjects/view-subject" },
 
