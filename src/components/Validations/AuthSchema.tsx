@@ -52,6 +52,7 @@ export type RoleFormData = z.infer<typeof roleSchema>;
 
 export const assignPermissionSchema = z.object({
   roleId: z.string().min(1, "Please select a role"),
+    teacherId: z.string().min(1, "Please select a user"),
   privileges: z
     .array(
       z.object({
@@ -66,17 +67,20 @@ export type AssignPermissionFormData = z.infer<typeof assignPermissionSchema>;
 
 
 export const subjectSchema = z.object({
-  classId: z.string().min(1, "Please select a class"),
-
   name: z
     .string()
+    .trim()
     .min(2, "Subject name must be at least 2 characters")
     .max(50, "Subject name too long"),
 
   description: z
     .string()
-    .max(200, "Description max 200 characters")
-    .optional(),
+    .trim()
+    .refine((val) => val.length > 0, {
+      message: "Description is required",
+    })
+    .min(5, "Description must be at least 5 characters")
+    .max(200, "Description must be less than 200 characters"),
 });
 
 export type SubjectFormData = z.infer<typeof subjectSchema>;

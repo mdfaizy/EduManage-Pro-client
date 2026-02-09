@@ -1,69 +1,25 @@
-// // import AssignPrivelege from "@/components/auth/AssignPrivelege";
-// // import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-// // import React from "react";
-
-
-// // export default function AssignPermissions() {
-// //   return (
-// //     <div>
-// //       <PageBreadcrumb pageTitle="Assign Permissions" />
-// //       <div className="space-y-6">
-// //         <p>Grant specific permissions to users based on their roles. Select a role, choose a user, and assign the required permissions.
-
-// // </p>
-// //         <AssignPrivelege/>
-// //       </div>
-
-      
-// //     </div>
-// //   );
-// // }
-
-
-// import React from "react";
-// import AssignPrivelege from "@/components/auth/AssignPrivelege";
-// import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-
-// export default function AssignPermissions() {
-//   return (
-//     <div className="space-y-8">
-
-//       {/* 🔹 Breadcrumb */}
-//       <PageBreadcrumb pageTitle="Assign Permissions" />
-
-//       {/* 🔹 Page Header */}
-//       <div>
-//         <h1 className="text-xl font-semibold text-slate-900">
-//           Assign Permissions
-//         </h1>
-//         <p className="mt-1 max-w-3xl text-sm text-slate-600">
-//           Grant specific permissions to users based on their assigned roles.
-//           Select a role, choose a user from that role, and assign the required
-//           permissions.
-//         </p>
-//       </div>
-
-//       {/* 🔹 Main Content Card */}
-//       <div className="rounded-xl border bg-white shadow-sm">
-//         <div className="p-6">
-//           <AssignPrivelege />
-//         </div>
-//       </div>
-
-//     </div>
-//   );
-// }
-
-
-import AssignPrivelege from "@/components/auth/UserPermissionOverrideForm";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import React from "react";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import UserPermissionOverrideForm from "@/components/auth/UserPermissionOverrideForm";
 
-export default function AssignPermissions() {
+export default function UserPermissionsPage() {
   return (
+    // <div className="space-y-8">
+
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Enhanced Breadcrumb Section */}
-      <div className="border-b border-gray-200 bg-white">
+      {/* <PageBreadcrumb pageTitle="User Permissions" />
+
+      <div>
+        <h1 className="text-xl font-semibold text-slate-900">
+          User Permission Override
+        </h1>
+        <p className="mt-1 max-w-3xl text-sm text-slate-600">
+          Assign custom permissions to individual users. These permissions
+          will override their role-based access where applicable.
+        </p>
+      </div> */}
+
+<div className="border-b border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <PageBreadcrumb pageTitle="Assign Permissions" />
           
@@ -128,23 +84,16 @@ export default function AssignPermissions() {
           </div>
         </div>
       </div>
-      
-      {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-       
-        
-        {/* Main Form Container */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-          <div className="p-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-          <div className="p-8">
-            <AssignPrivelege />
-          </div>
-        </div>
-        
-      
-      </div>
-      
-    
+      {/* <div className="rounded-xl border bg-white shadow-sm p-6">
+        <UserPermissionOverrideForm />
+      </div> */}
+       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                <div className="p-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                <div className="p-8">
+                  <UserPermissionOverrideForm />
+                </div>
+              </div>
+
     </div>
   );
 }

@@ -12,7 +12,7 @@ interface Subject {
   name: string;
   code: string;
   description?: string;
-  class: { name: string };
+   isActive: boolean; 
   createdAt: string;
   updatedAt: string;
 }
@@ -42,6 +42,22 @@ export default function SubjectsList() {
       s.name.toLowerCase().includes(search.toLowerCase())
     );
   }, [subjects, search]);
+
+  const toggleSubjectStatus = async (id: number) => {
+  try {
+    const res = await apiConnector("PATCH", `/subjects/${id}/toggle`);
+
+    setSubjects((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, isActive: res.data.data.isActive } : s
+      )
+    );
+
+    toast.success("Subject status updated");
+  } catch {
+    toast.error("Failed to update status");
+  }
+};
 
   const formatDate = (date: string) =>
     new Date(date).toLocaleDateString("en-IN");
@@ -82,7 +98,7 @@ export default function SubjectsList() {
                 <TableCell>#</TableCell>
                 <TableCell>Subject</TableCell>
                 <TableCell>Code</TableCell>
-                <TableCell>Class</TableCell>
+                <TableCell>Status</TableCell>
                 <TableCell>Description</TableCell>
                 <TableCell>Created</TableCell>
                 <TableCell>Updated</TableCell>
@@ -113,7 +129,18 @@ export default function SubjectsList() {
                         {sub.code}
                       </span>
                     </TableCell>
-                    <TableCell>{sub.class?.name}</TableCell>
+<TableCell>
+  <span
+    className={`px-2 py-1 rounded text-xs font-medium
+      ${sub.isActive
+        ? "bg-green-50 text-green-600"
+        : "bg-red-50 text-red-600"
+      }`}
+  >
+    {sub.isActive ? "Active" : "Inactive"}
+  </span>
+</TableCell>                   
+
                     <TableCell className="max-w-[200px] truncate">
                       {sub.description || "-"}
                     </TableCell>
@@ -122,12 +149,24 @@ export default function SubjectsList() {
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() => router.push(`/subjects/view/${sub.id}`)}
+  onClick={() => toggleSubjectStatus(sub.id)}
+  className={`px-2 py-1 rounded text-xs
+    ${sub.isActive
+      ? "bg-red-50 text-red-600"
+      : "bg-green-50 text-green-600"
+    }`}
+>
+  {sub.isActive ? "Deactivate" : "Activate"}
+</button>
+
+                        <button
+                          onClick={() => router.push(`/admin/academics/subjects/view/${sub.id}`)}
                           className="px-2 py-1 bg-slate-100 rounded text-xs"
                         >
                           View
                         </button>
-                        <button className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-xs">
+                        <button  onClick={() => router.push(`/admin/academics/subjects/edit/${sub.id}`)}
+                        className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-xs">
                           Edit
                         </button>
                         <button className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs">

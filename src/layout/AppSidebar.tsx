@@ -146,14 +146,16 @@ const navItems: NavItem[] = [
       // grades
 
       { name: "Add New Grades", path: "/admin/grades/create" },
-      { name: "View Master Subject", path: "/admin/grades/view-grades" },
-      { name: "Master Subjects", path: "/admin/master-subjects/create" },
-      { name: "View Master Subject", path: "/admin/master-subjects/master-subjects-table" },
+      { name: "View Grade", path: "/admin/grades/view-grades" },
+      // { name: "Master Subjects", path: "/admin/master-subjects/create" },
+      // { name: "View Master Subject", path: "/admin/master-subjects/master-subjects-table" },
       { name: "Subjects", path: "/admin/academics/subjects/create-subject" },
       { name: "View Subject", path: "/admin/academics/subjects/view-subject" },
 
       // admin/academics/subjects/view-subject
-      { name: "Syllabus", path: "/admin/academics/syllabus/class-syllabus" },
+      { name: "Syllabus", path: "/admin/academics/syllabus/create" },
+      { name: "View Syllabus", path: "/admin/academics/syllabus" },
+
       { name: "Study Materials", path: "/admin/academics/study-materials/study-materials" },
 
       // 
