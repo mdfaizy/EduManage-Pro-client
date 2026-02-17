@@ -114,7 +114,7 @@
   ///////////////////////////
   export const logoutUser = (router: AppRouter) => async (dispatch: AppDispatch) => {
   try {
-    await apiConnector("POST", "/api/auth/logout"); // backend revoke
+    await apiConnector("POST", "/auth/logout"); // backend revoke
   } catch {}
 
   localStorage.removeItem("user");

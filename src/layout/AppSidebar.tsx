@@ -37,7 +37,11 @@ const navItems: NavItem[] = [
   {
     icon:  <LayoutDashboard />,
     name: "Dashboard",
-    subItems: [{ name: "School", path: "/admin/dashboard", pro: false }],
+    subItems: [{ name: "School", path: "/admin/dashboard", pro: false },
+      // { name: "All Classes", path: "/teacher/my-classes" },
+      // { name: "All Classes", path: "/teacher/my-classes" },
+
+    ],
   },
     {
     name: "My Classes",
@@ -64,10 +68,12 @@ const navItems: NavItem[] = [
     icon: <UserCheck size={18} />,
     subItems: [
           { name: "All Teachers", path: "/admin/academics/teachers/teacher-list" },
+          { name: "Create Teacher Profile", path: "/admin/academics/teachers/add-new-teachers" },
+          // 
           { name: "Teacher TimetableForm", path: "/admin/academics/teachers/timetable" },
           { name: "Teacher Attendance", path: "/admin/academics/teachers/create" },
           { name: "Teacher Timetable", path: "/admin/academics/teachers/teacher-timetable" },
-          { name: "Teacher Assignment", path: "/admin/academics/teachers/assignment" },
+          { name: "Teacher Assignment", path: "/admin/academics/assignClassTeacher/class-teachers" },
         ],
     
   },
@@ -142,16 +148,18 @@ const navItems: NavItem[] = [
     name: "Academics",
     icon: <School />,
     subItems: [
-      // 
-      // grades
-
       { name: "Add New Grades", path: "/admin/grades/create" },
       { name: "View Grade", path: "/admin/grades/view-grades" },
-      // { name: "Master Subjects", path: "/admin/master-subjects/create" },
-      // { name: "View Master Subject", path: "/admin/master-subjects/master-subjects-table" },
       { name: "Subjects", path: "/admin/academics/subjects/create-subject" },
       { name: "View Subject", path: "/admin/academics/subjects/view-subject" },
+      { name: "Create New Session", path: "/admin/academics/years/create-year" },
+      { name: "Lists Session", path: "/admin/academics/years/year-table" },
 
+      { name: "Create New Day", path: "/admin/academics/day/create-day" },
+      { name: "Lists Day", path: "/admin/academics/day/day-list" },
+
+       {name: "Create Period", path: "/admin/academics/academic-period/create-period" },
+      { name: "List Period", path: "/admin/academics/academic-period/period-list" },
       // admin/academics/subjects/view-subject
       { name: "Syllabus", path: "/admin/academics/syllabus/create" },
       { name: "View Syllabus", path: "/admin/academics/syllabus" },

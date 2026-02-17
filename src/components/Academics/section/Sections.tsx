@@ -73,6 +73,7 @@ export default function CreateSectionForm() {
         name: data.name.trim(),
         classId: Number(data.classId),
         schoolId: Number(schoolId),
+        capacity: capacity,
       });
 
       toast.success("Section created 🎉");

@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import VerifyEmailPage from "@/components/Role/EmailVerify";
 export const metadata: Metadata = {
   title:
-    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
+    "",
+  description: "",
 };
 
 export default function Ecommerce() {

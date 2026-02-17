@@ -7,7 +7,7 @@
 //   );
 // }
 
-import TeacherTimetableForm from "@/components/Academics/teachers/TeacherTimetableForm";
+import CreateTimetableForm from "@/components/Academics/teachers/CreateTimetableForm";
 
 export default function TeacherTimetablePage() {
   return (
@@ -16,7 +16,7 @@ export default function TeacherTimetablePage() {
         <h1 className="text-3xl font-bold text-gray-900">Teacher Timetable</h1>
         <p className="text-gray-600">Manage weekly schedules for teachers</p>
       </div>
-      <TeacherTimetableForm />
+      <CreateTimetableForm />
     </div>
   );
 }

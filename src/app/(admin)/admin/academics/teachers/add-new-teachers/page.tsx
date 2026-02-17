@@ -25,7 +25,7 @@ export default function CreateTeacherProfile() {
     const fetchUsers = async () => {
       try {
         const res = await apiConnector("GET", "/users?role=TEACHER");
-
+           console.log('teachers ',res);
         // backend response: { success, data }
         setUsers(res.data.data || []);
       } catch {
