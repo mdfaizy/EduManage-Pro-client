@@ -57,6 +57,7 @@ const navItems: NavItem[] = [
   name: "User Management",
   icon: <UserCheck size={18} />,
   subItems: [
+    { name: "View All Users", path: "/admin/users/user-tables" },
     { name: "View All Roles", path: "/roles/role-table" },
     { name: "Add New Role", path: "/roles" },
     { name: "Add New User", path: "/admin/academics/teachers/add-new-teachers" },
@@ -80,9 +81,9 @@ const navItems: NavItem[] = [
   {
     name: "Students",
     icon: <GraduationCap size={18} />,
-    subItems: [ { name: "All Students", path: "/admin/students" },
-          { name: "Add Student", path: "/admin/students/create" },
-          { name: "Assign Class", path: "/students/assign-class" },
+    subItems: [ { name: "All Students", path: "/admin/student/students-list" },
+      { name: "Add Student", path: "/admin/student/create-students" },
+      { name: "Assign Class", path: "/students/assign-class" },
       { name: "Attendance", path: "/students/attendance" },
       { name: "Fees", path: "/students/fees" },
       { name: "Student Promotion", path: "/students/student-promotion" },
