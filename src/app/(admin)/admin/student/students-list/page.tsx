@@ -1,143 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-
-// type Student = {
-//   id: number;
-//   name: string;
-//   admissionNo?: string;
-//   gender?: string;
-//   isActive: boolean;
-//   createdAt: string;
-// };
-
-// export default function StudentTable() {
-//   const [students, setStudents] = useState<Student[]>([]);
-//   const [loading, setLoading] = useState(false);
-
-//   const fetchStudents = async () => {
-//     try {
-//       setLoading(true);
-
-//       const res = await fetch(
-//         "http://localhost:8000/api/students",
-//         {
-//           method: "GET",
-//           credentials: "include",
-//         }
-//       );
-
-//       const data = await res.json();
-
-//       if (data.success) {
-//         setStudents(data.data);
-//       }
-//     } catch (err) {
-//       console.error("Failed to fetch students", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchStudents();
-//   }, []);
-
-//   return (
-//     <div className="bg-white rounded-2xl shadow p-6">
-//       <div className="flex items-center justify-between mb-6">
-//         <h2 className="text-xl font-semibold">
-//           Students List
-//         </h2>
-//       </div>
-
-//       <div className="overflow-x-auto">
-//         <table className="w-full border-collapse">
-//           <thead>
-//             <tr className="bg-gray-50 text-left text-sm">
-//               <th className="p-3">#</th>
-//               <th className="p-3">Admission No</th>
-//               <th className="p-3">Name</th>
-//               <th className="p-3">Gender</th>
-//               <th className="p-3">Status</th>
-//               <th className="p-3">Created</th>
-//               <th className="p-3">Action</th>
-//             </tr>
-//           </thead>
-
-//           <tbody>
-//             {loading && (
-//               <tr>
-//                 <td colSpan={7} className="text-center p-6">
-//                   Loading...
-//                 </td>
-//               </tr>
-//             )}
-
-//             {!loading && students.length === 0 && (
-//               <tr>
-//                 <td colSpan={7} className="text-center p-6">
-//                   No students found
-//                 </td>
-//               </tr>
-//             )}
-
-//             {!loading &&
-//               students.map((student, index) => (
-//                 <tr
-//                   key={student.id}
-//                   className="border-t hover:bg-gray-50 text-sm"
-//                 >
-//                   <td className="p-3">{index + 1}</td>
-
-//                   <td className="p-3 font-medium">
-//                     {student.admissionNo || "-"}
-//                   </td>
-
-//                   <td className="p-3">{student.name}</td>
-
-//                   <td className="p-3">
-//                     {student.gender || "-"}
-//                   </td>
-
-//                   <td className="p-3">
-//                     <span
-//                       className={`px-2 py-1 rounded-full text-xs font-medium ${
-//                         student.isActive
-//                           ? "bg-green-100 text-green-700"
-//                           : "bg-red-100 text-red-700"
-//                       }`}
-//                     >
-//                       {student.isActive ? "Active" : "Inactive"}
-//                     </span>
-//                   </td>
-
-//                   <td className="p-3">
-//                     {new Date(
-//                       student.createdAt
-//                     ).toLocaleDateString()}
-//                   </td>
-
-//                   <td className="p-3">
-//                     <div className="flex gap-2">
-//                       <button className="text-blue-600 hover:underline">
-//                         View
-//                       </button>
-//                       <button className="text-red-600 hover:underline">
-//                         Delete
-//                       </button>
-//                     </div>
-//                   </td>
-//                 </tr>
-//               ))}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -152,7 +12,7 @@ import {
 type Student = {
   id: number;
   name: string;
-  admissionNo?: string;
+  studentCode?: string;
   gender?: string;
   isActive: boolean;
   createdAt: string;
@@ -164,7 +24,7 @@ export default function StudentTable() {
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
- const router = useRouter();
+  const router = useRouter();
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
@@ -213,10 +73,10 @@ export default function StudentTable() {
   }, []);
 
   const filtered = students.filter((s) =>
-  [s.name, s.admissionNo]
-    .map((v) => (v ?? "").toLowerCase())
-    .some((v) => v.includes(search.toLowerCase()))
-);
+    [s.name, s.studentCode]
+      .map((v) => (v ?? "").toLowerCase())
+      .some((v) => v.includes(search.toLowerCase()))
+  );
   return (
     <div className="min-h-screen dark:bg-gray-950 p-6 md:p-10">
       {/* Ambient glow */}
@@ -229,12 +89,12 @@ export default function StudentTable() {
         {/* Page heading */}
         <div className="mb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full dark:bg-indigo-500/10 border dark:border-indigo-500/25 mb-3">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-            <span className="text-indigo-400 text-xs font-mono font-medium tracking-widest uppercase">
+            <span className="w-1.5 h-1.5 rounded-full dark:bg-indigo-400 animate-pulse" />
+            <span className="dark:text-indigo-400 text-xs font-mono font-medium tracking-widest uppercase">
               Records
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-100 tracking-tight">Students List</h1>
+          <h1 className="text-2xl font-bold dark:text-gray-100 tracking-tight">Students List</h1>
           <p className="text-sm text-gray-500 mt-1">
             Manage and view all registered student profiles.
           </p>
@@ -267,7 +127,7 @@ export default function StudentTable() {
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-gray-800 dark:bg-gray-800/40">
-                  {["#", "Admission No", "Name", "Gender", "Status", "Created", "Action"].map((h) => (
+                  {["#", "Student Code", "Name", "Gender", "Status", "Created", "Action"].map((h) => (
                     <TableCell
                       key={h}
                       isHeader
@@ -328,24 +188,24 @@ export default function StudentTable() {
 
                       {/* Admission No */}
                       <TableCell className="px-5 py-4">
-                        <span className="text-xs font-mono bg-gray-800 border border-gray-700 text-gray-400 px-2 py-0.5 rounded-lg">
-                          {student.admissionNo || "—"}
+                        <span className="text-xs font-mono dark:bg-gray-800 border dark:border-gray-700 dark:text-gray-400 px-2 py-0.5 rounded-lg">
+                          {student.studentCode || "—"}
                         </span>
                       </TableCell>
 
                       {/* Name */}
                       <TableCell className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-xs font-bold flex-shrink-0">
+                          <div className="w-8 h-8 rounded-xl dark:bg-indigo-500/15 border dark:border-indigo-500/20 flex items-center justify-center dark:text-indigo-400 text-xs font-bold flex-shrink-0">
                             {student.name?.charAt(0)?.toUpperCase() ?? "?"}
                           </div>
-                          <span className="text-sm font-medium text-gray-200">{student.name}</span>
+                          <span className="text-sm font-medium dark:text-gray-200">{student.name}</span>
                         </div>
                       </TableCell>
 
                       {/* Gender */}
                       <TableCell className="px-5 py-4">
-                        <span className="text-sm text-gray-400 capitalize">
+                        <span className="text-sm dark:text-gray-400 capitalize">
                           {student.gender || "—"}
                         </span>
                       </TableCell>
@@ -376,42 +236,42 @@ export default function StudentTable() {
                       </TableCell>
 
                       {/* Actions */}
-                     <TableCell className="px-5 py-4">
-  <div className="flex items-center gap-2">
-    
-    {/* VIEW */}
-    <button
-      onClick={() => router.push(`/admin/student/view/${student.id}`)}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20
+                      <TableCell className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+
+                          {/* VIEW */}
+                          <button
+                            onClick={() => router.push(`/admin/student/view/${student.id}`)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20
         text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/40
         text-xs font-medium transition-all duration-150"
-    >
-      View
-    </button>
+                          >
+                            View
+                          </button>
 
-    {/* EDIT */}
-    <button
-      onClick={() => router.push(`/admin/student/edit-student-profile/${student.id}`)}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20
+                          {/* EDIT */}
+                          <button
+                            onClick={() => router.push(`/admin/student/edit-student-profile/${student.id}`)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20
         text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/40
         text-xs font-medium transition-all duration-150"
-    >
-      Edit
-    </button>
+                          >
+                            Edit
+                          </button>
 
-    {/* DELETE */}
-    <button
-      onClick={() => handleDelete(student.id)}
-      disabled={deletingId === student.id}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20
+                          {/* DELETE */}
+                          <button
+                            onClick={() => handleDelete(student.id)}
+                            disabled={deletingId === student.id}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20
         text-red-400 hover:bg-red-500/20 hover:border-red-500/40
         text-xs font-medium transition-all duration-150 disabled:opacity-50"
-    >
-      Delete
-    </button>
+                          >
+                            Delete
+                          </button>
 
-  </div>
-</TableCell>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>

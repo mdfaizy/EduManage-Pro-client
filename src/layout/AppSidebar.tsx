@@ -58,9 +58,9 @@ const navItems: NavItem[] = [
   icon: <UserCheck size={18} />,
   subItems: [
     { name: "View All Users", path: "/admin/users/user-tables" },
+    {name: "Add New User", path: "/admin/users/create-user" },
     { name: "View All Roles", path: "/roles/role-table" },
     { name: "Add New Role", path: "/roles" },
-    { name: "Add New User", path: "/admin/academics/teachers/add-new-teachers" },
     { name: "Assign Roles", path: "/admin/assign-privelege" },
   ],
 },

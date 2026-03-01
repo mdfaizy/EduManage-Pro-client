@@ -1,38 +1,156 @@
-import axios from "axios";
+// import axios from "axios";
 
-const axiosInstance = axios.create({
-//   baseURL: "https://ecommerce.magaritatech.com/api",
-  baseURL:'http://localhost:8000/api',
-  withCredentials: true,
-});
+// const axiosInstance = axios.create({
+// //   baseURL: "https://ecommerce.magaritatech.com/api",
+//   baseURL:'http://localhost:8000/api',
+//   withCredentials: true,
+// });
+
+// // axiosInstance.interceptors.response.use(
+// //   (response) => response,
+// //   async (error) => {
+// //     const originalRequest = error.config;
+
+// //     // ✅ refresh-token ko retry loop se bahar rakho
+// //     if (
+// //       error.response?.status === 401 &&
+// //       !originalRequest._retry &&
+// //       !originalRequest.url.includes("/refresh")
+// //     ) {
+// //       originalRequest._retry = true;
+
+// //       try { 
+// //         await axiosInstance.post("/refresh");
+
+// //         return axiosInstance(originalRequest);
+// //       } catch (err) {
+// //         console.error("Refresh token expired → redirect to login");
+// //         window.location.href = "/login";
+// //         return Promise.reject(err);
+// //       }
+// //     }
+
+// //     return Promise.reject(error);
+// //   }
+// // );
 
 // axiosInstance.interceptors.response.use(
-//   (response) => response,
+//   (res) => res,
 //   async (error) => {
 //     const originalRequest = error.config;
 
-//     // ✅ refresh-token ko retry loop se bahar rakho
 //     if (
 //       error.response?.status === 401 &&
 //       !originalRequest._retry &&
-//       !originalRequest.url.includes("/refresh")
+//       !originalRequest.url.includes("/auth/refresh")
 //     ) {
 //       originalRequest._retry = true;
 
-//       try { 
-//         await axiosInstance.post("/refresh");
-
+//       try {
+//         await axiosInstance.post("/auth/refresh");
 //         return axiosInstance(originalRequest);
-//       } catch (err) {
-//         console.error("Refresh token expired → redirect to login");
+//       } catch {
 //         window.location.href = "/login";
-//         return Promise.reject(err);
 //       }
 //     }
 
 //     return Promise.reject(error);
 //   }
 // );
+
+// export default axiosInstance;
+
+
+
+// import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+
+// const axiosInstance = axios.create({
+//   baseURL: "http://localhost:8000/api",
+//   withCredentials: true,
+// });
+
+// /* =========================================================
+//    🔐 REFRESH CONTROL (VERY IMPORTANT)
+// ========================================================= */
+
+// let isRefreshing = false;
+// let refreshPromise: Promise<any> | null = null;
+
+// /* =========================================================
+//    🔄 RESPONSE INTERCEPTOR
+// ========================================================= */
+
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+
+//   async (error: AxiosError) => {
+//     const originalRequest = error.config as InternalAxiosRequestConfig & {
+//       _retry?: boolean;
+//     };
+
+//     // ❌ if no response → network error
+//     if (!error.response) {
+//       return Promise.reject(error);
+//     }
+
+//     // ❌ not 401 → normal error
+//     if (error.response.status !== 401) {
+//       return Promise.reject(error);
+//     }
+
+//     // ❌ don't retry refresh itself
+//     if (originalRequest.url?.includes("/auth/refresh")) {
+//       window.location.href = "/login";
+//       return Promise.reject(error);
+//     }
+
+//     // ❌ already retried
+//     if (originalRequest._retry) {
+//       window.location.href = "/login";
+//       return Promise.reject(error);
+//     }
+
+//     originalRequest._retry = true;
+
+//     try {
+//       /* =========================================
+//          🚀 SINGLE REFRESH LOCK (CRITICAL)
+//       ========================================= */
+
+//       if (!isRefreshing) {
+//         isRefreshing = true;
+
+//         refreshPromise = axiosInstance.post("/auth/refresh");
+//       }
+
+//       await refreshPromise;
+
+//       isRefreshing = false;
+//       refreshPromise = null;
+
+//       // ✅ retry original request
+//       return axiosInstance(originalRequest);
+//     } catch (refreshError) {
+//       isRefreshing = false;
+//       refreshPromise = null;
+
+//       // 🔴 refresh failed → logout
+//       window.location.href = "/login";
+//       return Promise.reject(refreshError);
+//     }
+//   }
+// );
+
+// export default axiosInstance;
+
+
+
+import axios from "axios";
+
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:8000/api",
+  withCredentials: true, // ⭐ MUST
+});
 
 axiosInstance.interceptors.response.use(
   (res) => res,
@@ -42,14 +160,14 @@ axiosInstance.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes("/refresh")
+      !originalRequest.url.includes("/auth/refresh")
     ) {
       originalRequest._retry = true;
 
       try {
-        await axiosInstance.post("/refresh", {}, { withCredentials: true });
+        await axiosInstance.post("/auth/refresh");
         return axiosInstance(originalRequest);
-      } catch {
+      } catch (err) {
         window.location.href = "/login";
       }
     }

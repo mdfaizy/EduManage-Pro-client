@@ -66,6 +66,22 @@ export const assignPermissionSchema = z.object({
 export type AssignPermissionFormData = z.infer<typeof assignPermissionSchema>;
 
 
+export const createUserSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name too long"),
+
+  email: z
+    .string()
+    .email("Enter a valid email address"),
+
+  roleId: z
+    .string()
+    .min(1, "Please select a role"),
+});
+
+export type CreateUserFormData = z.infer<typeof createUserSchema>;
 export const subjectSchema = z.object({
   name: z
     .string()
