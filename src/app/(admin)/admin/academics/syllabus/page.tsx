@@ -1,8 +1,103 @@
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import { apiConnector } from "@/services/apiConnecter";
+// import { toast } from "react-hot-toast";
+
+// export default function SyllabusPage() {
+//   const [data, setData] = useState<any[]>([]);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     apiConnector("GET", "/syllabus/all")
+//       .then(res => setData(res.data.data))
+//       .catch(() => toast.error("Failed to load syllabus"))
+//       .finally(() => setLoading(false));
+//   }, []);
+
+//   if (loading) {
+//     return <div className="p-10">Loading syllabus...</div>;
+//   }
+
+//   return (
+//     <div className="p-8 bg-slate-100 min-h-screen">
+
+//       <div className="bg-white rounded-xl border shadow">
+//         <div className="px-6 py-4 border-b">
+//           <h2 className="text-lg font-semibold">Syllabus</h2>
+//         </div>
+
+//         {data.length === 0 ? (
+//           <p className="p-6 text-slate-400">
+//             No syllabus created yet.
+//           </p>
+//         ) : (
+//           <table className="w-full text-sm">
+//             <thead className="bg-slate-50">
+//               <tr>
+//                 <th className="p-4 text-left">Class</th>
+//                 <th className="p-4 text-left">Subject</th>
+//                 <th className="p-4 text-left">Type</th>
+//                 <th className="p-4 text-left">Chapters</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {data.map(s => (
+//                 <tr key={s.id} className="border-t">
+//                   <td className="p-4">{s.class?.name || "-"}</td>
+//                   <td className="p-4 font-medium">{s.subject?.name}</td>
+//                   <td className="p-4">{s.type}</td>
+//                   <td className="p-4 text-sm text-slate-600">
+//   {Array.isArray(s.chapters) ? (
+//     <ul className="space-y-1">
+//       {s.chapters.map((ch: any, index: number) => (
+//         <li key={index}>
+//           <span className="font-medium">{ch.title}</span>
+//           {ch.topics?.length > 0 && (
+//             <span className="text-slate-500">
+//               {" "}
+//               ({ch.topics.join(", ")})
+//             </span>
+//           )}
+//         </li>
+//       ))}
+//     </ul>
+//   ) : (
+//     "-"
+//   )}
+// </td>
+
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { apiConnector } from "@/services/apiConnecter";
 import { toast } from "react-hot-toast";
+import {
+  Loader2,
+  BookOpen,
+  FileText,
+} from "lucide-react";
+
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 
 export default function SyllabusPage() {
   const [data, setData] = useState<any[]>([]);
@@ -10,68 +105,139 @@ export default function SyllabusPage() {
 
   useEffect(() => {
     apiConnector("GET", "/syllabus/all")
-      .then(res => setData(res.data.data))
+      .then((res) => setData(res.data.data || []))
       .catch(() => toast.error("Failed to load syllabus"))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return <div className="p-10">Loading syllabus...</div>;
-  }
-
   return (
-    <div className="p-8 bg-slate-100 min-h-screen">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
 
-      <div className="bg-white rounded-xl border shadow">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold">Syllabus</h2>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
+            Syllabus Management
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Manage class-wise and subject-wise syllabus records
+          </p>
         </div>
 
-        {data.length === 0 ? (
-          <p className="p-6 text-slate-400">
-            No syllabus created yet.
-          </p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="p-4 text-left">Class</th>
-                <th className="p-4 text-left">Subject</th>
-                <th className="p-4 text-left">Type</th>
-                <th className="p-4 text-left">Chapters</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map(s => (
-                <tr key={s.id} className="border-t">
-                  <td className="p-4">{s.class?.name || "-"}</td>
-                  <td className="p-4 font-medium">{s.subject?.name}</td>
-                  <td className="p-4">{s.type}</td>
-                  <td className="p-4 text-sm text-slate-600">
-  {Array.isArray(s.chapters) ? (
-    <ul className="space-y-1">
-      {s.chapters.map((ch: any, index: number) => (
-        <li key={index}>
-          <span className="font-medium">{ch.title}</span>
-          {ch.topics?.length > 0 && (
-            <span className="text-slate-500">
-              {" "}
-              ({ch.topics.join(", ")})
-            </span>
-          )}
-        </li>
-      ))}
-    </ul>
-  ) : (
-    "-"
-  )}
-</td>
+        {/* Card */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
 
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+          {/* Top Bar */}
+          <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40">
+            <h2 className="text-lg font-semibold text-slate-700 dark:text-white">
+              Syllabus Records
+            </h2>
+          </div>
+
+          <Table className="w-full">
+
+            <TableHeader>
+              <TableRow>
+                <TableCell isHeader>Class</TableCell>
+                <TableCell isHeader>Subject</TableCell>
+                <TableCell isHeader>Type</TableCell>
+                <TableCell isHeader>Chapters</TableCell>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+
+              {/* Loading */}
+              {loading && (
+                <TableRow>
+                  <TableCell colSpan={4} className="py-10 text-center">
+                    <div className="flex justify-center items-center gap-2 text-slate-500 dark:text-slate-400">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Loading syllabus...
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {/* Empty */}
+              {!loading && data.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="py-10 text-center text-slate-500 dark:text-slate-400"
+                  >
+                    No syllabus created yet.
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {/* Data */}
+              {!loading &&
+                data.map((s) => (
+                  <TableRow
+                    key={s.id}
+                    className="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition"
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <BookOpen
+                          size={16}
+                          className="text-indigo-500"
+                        />
+                        <span className="font-medium text-slate-800 dark:text-white">
+                          {s.class?.name || "-"}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="font-semibold text-slate-800 dark:text-white">
+                      {s.subject?.name}
+                    </TableCell>
+
+                    <TableCell>
+                      <span className="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                        {s.type}
+                      </span>
+                    </TableCell>
+
+                    <TableCell>
+                      {Array.isArray(s.chapters) ? (
+                        <div className="space-y-3">
+                          {s.chapters.map(
+                            (ch: any, index: number) => (
+                              <div
+                                key={index}
+                                className="p-3 rounded-lg bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-700"
+                              >
+                                <div className="flex items-center gap-2 mb-1">
+                                  <FileText
+                                    size={14}
+                                    className="text-slate-500"
+                                  />
+                                  <span className="font-medium text-slate-800 dark:text-white">
+                                    {ch.title}
+                                  </span>
+                                </div>
+
+                                {ch.topics?.length > 0 && (
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 ml-6">
+                                    {ch.topics.join(", ")}
+                                  </p>
+                                )}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      ) : (
+                        "-"
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

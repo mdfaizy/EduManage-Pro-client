@@ -90,13 +90,37 @@ export const subjectSchema = z.object({
     .max(50, "Subject name too long"),
 
   description: z
-    .string()
-    .trim()
-    .refine((val) => val.length > 0, {
-      message: "Description is required",
-    })
-    .min(5, "Description must be at least 5 characters")
-    .max(200, "Description must be less than 200 characters"),
+  .string()
+  .trim()
+  .min(5, "Description must be at least 5 characters")
+  .max(200, "Description must be less than 200 characters")
+  .optional(),
+
+  //   maxMarks: z
+  //   .string()
+  //   .optional()
+  //   .refine(
+  //     (val) => !val || Number(val) > 0,
+  //     "Max marks must be positive"
+  //   ),
+
+  // passMarks: z
+  //   .string()
+  //   .optional()
+  //   .refine(
+  //     (val) => !val || Number(val) >= 0,
+  //     "Pass marks invalid"
+  //   ),
+
+  maxMarks: z
+  .coerce.number()
+  .positive("Max marks must be positive")
+  .optional(),
+
+passMarks: z
+  .coerce.number()
+  .min(0, "Pass marks must be 0 or more")
+  .optional(),
 });
 
 export type SubjectFormData = z.infer<typeof subjectSchema>;
@@ -107,14 +131,14 @@ export const classSchema = z.object({
     .string()
     .min(2, "Class name must be at least 2 characters"),
 
-  studentLimit: z
-    .string()
-    .min(1, "Student limit required")
-    .refine((val) => Number(val) > 0, {
-      message: "Must be greater than 0",
-    }),
+  // studentLimit: z
+  //   .string()
+  //   .min(1, "Student limit required")
+  //   .refine((val) => Number(val) > 0, {
+  //     message: "Must be greater than 0",
+  //   }),
 
-  gradeId: z.string().min(1, "Please select a grade"),
+  // gradeId: z.string().min(1, "Please select a grade"),
 });
 
 export type ClassFormData = z.infer<typeof classSchema>;

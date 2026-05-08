@@ -19,6 +19,8 @@ export default function EditSubject() {
   const [form, setForm] = useState<SubjectFormData>({
     name: "",
     description: "",
+      maxMarks: undefined,
+  passMarks: undefined,
   });
 
   const [errors, setErrors] = useState<
@@ -36,6 +38,8 @@ export default function EditSubject() {
         setForm({
           name: res.data.data.name,
           description: res.data.data.description || "",
+          maxMarks: res.data.data.maxMarks ?? undefined,
+passMarks: res.data.data.passMarks ?? undefined,
         });
       } catch {
         toast.error("Failed to load subject");
@@ -48,18 +52,29 @@ export default function EditSubject() {
   }, [id]);
 
   /* ================= CHANGE ================= */
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  setForm({
+    ...form,
+    [name]:
+      name === "maxMarks" || name === "passMarks"
+        ? value === ""
+          ? undefined
+          : Number(value)
+        : value === ""
+        ? undefined
+        : value,
+  });
+};
 
   /* ================= SUBMIT ================= */
  const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setErrors({});
 
-  const result = subjectSchema.safeParse(form);
+  // const result = subjectSchema.safeParse(form);
+  const result = subjectSchema.partial().safeParse(form);
 
   if (!result.success) {
     const fieldErrors: Partial<Record<keyof SubjectFormData, string>> = {};
@@ -168,6 +183,39 @@ export default function EditSubject() {
               </p>
             )}
           </div>
+
+          <div>
+    <label className="text-sm font-medium text-slate-700">
+      Max Marks
+    </label>
+    <input
+      type="number"
+      name="maxMarks"
+      value={form.maxMarks ?? ""}
+      onChange={handleChange}
+      className="mt-1 w-full rounded-md px-3 py-2 text-sm border border-slate-300 focus:ring-indigo-500"
+    />
+    {errors.maxMarks && (
+      <p className="text-xs text-red-600">{errors.maxMarks}</p>
+    )}
+  </div>
+
+  {/* Pass Marks */}
+  <div>
+    <label className="text-sm font-medium text-slate-700">
+      Pass Marks
+    </label>
+    <input
+      type="number"
+      name="passMarks"
+      value={form.passMarks ?? ""}
+      onChange={handleChange}
+      className="mt-1 w-full rounded-md px-3 py-2 text-sm border border-slate-300 focus:ring-indigo-500"
+    />
+    {errors.passMarks && (
+      <p className="text-xs text-red-600">{errors.passMarks}</p>
+    )}
+  </div>
         </div>
 
         {/* Footer */}

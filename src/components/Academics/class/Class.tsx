@@ -28,7 +28,7 @@ interface GradeType {
 export default function CreateClassForm() {
   const router = useRouter();
 
-  const [grades, setGrades] = useState<GradeType[]>([]);
+  // const [grades, setGrades] = useState<GradeType[]>([]);
   const [adminData, setAdminData] = useState<AdminData | null>(null);
   const [classes, setClasses] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,6 @@ export default function CreateClassForm() {
         const me = await apiConnector("GET", "/auth/me");
         setAdminData({ schoolName: me.data.data.schoolName });
         await fetchClasses();
-        await fetchGrades();
       } catch {
         toast.error("Failed to load school info");
       } finally {
@@ -61,10 +60,10 @@ export default function CreateClassForm() {
     init();
   }, []);
 
-  const fetchGrades = async () => {
-    const res = await apiConnector("GET", "/grades");
-    setGrades(res.data.data || []);
-  };
+  // const fetchGrades = async () => {
+  //   const res = await apiConnector("GET", "/grades");
+  //   setGrades(res.data.data || []);
+  // };
 
   const fetchClasses = async () => {
     const res = await apiConnector("GET", "/classes");
@@ -76,8 +75,8 @@ export default function CreateClassForm() {
       setLoading(true);
       await apiConnector("POST", "/classes", {
         name: data.name.trim(),
-        maxStudents: Number(data.studentLimit),
-        gradeId: Number(data.gradeId),
+        maxStudents: data.studentLimit ? Number(data.studentLimit) : null
+        // gradeId: Number(data.gradeId),
       });
       toast.success("Class created 🎉");
       reset();
@@ -141,19 +140,19 @@ export default function CreateClassForm() {
           </div>
 
           <div>
-            <Label>Student Limit *</Label>
+            <Label>Student Limit </Label>
             <Input type="number" {...register("studentLimit")} />
-            {errors.studentLimit && <p className="text-red-500 text-xs">{errors.studentLimit.message}</p>}
+            {/* {errors.studentLimit && <p className="text-red-500 text-xs">{errors.studentLimit.message}</p>} */}
           </div>
 
-          <div>
+          {/* <div>
             <Label>Grade *</Label>
             <select {...register("gradeId")} className="w-full border rounded-lg px-3 py-2">
               <option value="">Select Grade</option>
               {grades.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
             </select>
             {errors.gradeId && <p className="text-red-500 text-xs">{errors.gradeId.message}</p>}
-          </div>
+          </div> */}
 
           <button
             type="submit"

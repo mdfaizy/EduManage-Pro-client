@@ -38,7 +38,8 @@ const navItems: NavItem[] = [
     icon:  <LayoutDashboard />,
     name: "Dashboard",
     subItems: [{ name: "School", path: "/admin/dashboard", pro: false },
-      // { name: "All Classes", path: "/teacher/my-classes" },
+      { name: "Admisssion", path: "/admin/academics/admissions/new-adminssion" },
+      { name: "Admisssion List", path: "/admin/academics/admissions/admission-list" },
       // { name: "All Classes", path: "/teacher/my-classes" },
 
     ],
@@ -83,14 +84,12 @@ const navItems: NavItem[] = [
     icon: <GraduationCap size={18} />,
     subItems: [ { name: "All Students", path: "/admin/student/students-list" },
       { name: "Add Student", path: "/admin/student/create-students" },
+      { name: "Enable Login", path: "/admin/student/enable-login" },
       { name: "Assign Class", path: "/students/assign-class" },
       { name: "Attendance", path: "/students/attendance" },
       { name: "Fees", path: "/students/fees" },
       { name: "Student Promotion", path: "/students/student-promotion" },
       { name: "Student ID Card", path: "/students/student-id-card" },
-
-
-          
     ],
   },
   {
@@ -120,50 +119,51 @@ const navItems: NavItem[] = [
 
         // 🎓 ACADEMICS
 
-         {
-        name: "Classes",
-        icon: <HatGlasses size={18} />,
-        subItems: [
-           { name: "Classes", path: "/admin/academics/class/create-class" },
-      { name: "View Classe", path: "/admin/academics/class/class-table" },
-      // { name: "Assign Classe", path: "/admin/academics/class/assign-teacher-class" },
-      // { name: "Class Timetable", path: "/admin/academics/class/class-time-table" },
-
-      // 
-        ],
-      },
-       {
-        name: "Sections",
-        icon: <Section size={18} />,
-        subItems: [
+      //    {
+      //   name: "Classes",
+      //   icon: <HatGlasses size={18} />,
+      //   subItems: [
       //      { name: "Classes", path: "/admin/academics/class/create-class" },
       // { name: "View Classe", path: "/admin/academics/class/class-table" },
-      // { name: "Assign Classe", path: "/admin/academics/class/class-table" },
-      { name: "Sections", path: "/admin/academics/sections/create-section" },
+      // // { name: "Assign Classe", path: "/admin/academics/class/assign-teacher-class" },
+      // // { name: "Class Timetable", path: "/admin/academics/class/class-time-table" },
 
-            { name: "View Sections", path: "/admin/academics/sections/section-table" },
-            { name: "Assign Sections", path: "/admin/academics/sections/section-table" },
-        ],
-      },
+      // // 
+      //   ],
+      // },
+      //  {
+      //   name: "Sections",
+      //   icon: <Section size={18} />,
+      //   subItems: [
+      // //      { name: "Classes", path: "/admin/academics/class/create-class" },
+      // // { name: "View Classe", path: "/admin/academics/class/class-table" },
+      // // { name: "Assign Classe", path: "/admin/academics/class/class-table" },
+      // { name: "Sections", path: "/admin/academics/sections/create-section" },
+
+      //       { name: "View Sections", path: "/admin/academics/sections/section-table" },
+      //       { name: "Assign Sections", path: "/admin/academics/sections/section-table" },
+      //   ],
+      // },
   {
     name: "Academics",
     icon: <School />,
     subItems: [
-      { name: "Add New Grades", path: "/admin/grades/create" },
-      { name: "View Grade", path: "/admin/grades/view-grades" },
+      // { name: "Add New Grades", path: "/admin/grades/create" },
+      // { name: "View Grade", path: "/admin/grades/view-grades" },
+      { name: "Classes", path: "/admin/academics/class/create-class" },
+      { name: "Classe List", path: "/admin/academics/class/class-table" },
+      { name: "Sections", path: "/admin/academics/sections/create-section" },
+      { name: "Sections List", path: "/admin/academics/sections/section-table" },
       { name: "Subjects", path: "/admin/academics/subjects/create-subject" },
-      { name: "View Subject", path: "/admin/academics/subjects/view-subject" },
+      { name: "Subject List", path: "/admin/academics/subjects/view-subject" },
       { name: "Create New Session", path: "/admin/academics/years/create-year" },
       { name: "Lists Session", path: "/admin/academics/years/year-table" },
-
       { name: "Create New Day", path: "/admin/academics/day/create-day" },
-      { name: "Lists Day", path: "/admin/academics/day/day-list" },
-
+      { name: "Day List", path: "/admin/academics/day/day-list" },
        {name: "Create Period", path: "/admin/academics/academic-period/create-period" },
-      { name: "List Period", path: "/admin/academics/academic-period/period-list" },
-      // admin/academics/subjects/view-subject
+      { name: "Period List", path: "/admin/academics/academic-period/period-list" },
       { name: "Syllabus", path: "/admin/academics/syllabus/create" },
-      { name: "View Syllabus", path: "/admin/academics/syllabus" },
+      { name: "Syllabus List", path: "/admin/academics/syllabus" },
 
       { name: "Study Materials", path: "/admin/academics/study-materials/study-materials" },
 
@@ -187,6 +187,8 @@ const navItems: NavItem[] = [
       // { name: "Results", path: "/admin/results" },
     ],
   },
+
+  
 
   // 📋 OPERATIONS
   {

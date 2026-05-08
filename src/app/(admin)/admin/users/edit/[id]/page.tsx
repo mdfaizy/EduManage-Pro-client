@@ -1,128 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { useParams, useRouter } from "next/navigation";
-// import { apiConnector } from "@/services/apiConnecter";
-// import { toast } from "react-hot-toast";
-
-// interface User {
-//   id: number;
-//   name: string;
-//   email: string;
-//   isActive: boolean;
-// }
-
-// export default function EditUserPage() {
-//   const { id } = useParams();
-//   const router = useRouter();
-
-//   const [form, setForm] = useState({
-//     name: "",
-//     email: "",
-//     isActive: true,
-//   });
-
-//   const [loading, setLoading] = useState(true);
-//   const [saving, setSaving] = useState(false);
-
-//   const fetchUser = async () => {
-//     try {
-//       const res = await apiConnector("GET", `/users/${id}`);
-//       const u = res.data.data;
-
-//       setForm({
-//         name: u.name,
-//         email: u.email,
-//         isActive: u.isActive,
-//       });
-//     } catch {
-//       toast.error("Failed to load user");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (id) fetchUser();
-//   }, [id]);
-
-//   const handleChange = (e: any) => {
-//     const { name, value, type, checked } = e.target;
-//     setForm((prev) => ({
-//       ...prev,
-//       [name]: type === "checkbox" ? checked : value,
-//     }));
-//   };
-
-//   const handleSubmit = async (e: any) => {
-//     e.preventDefault();
-//     try {
-//       setSaving(true);
-
-//       await apiConnector("PATCH", `/users/${id}/status`, {
-//         isActive: form.isActive,
-//       });
-
-//       toast.success("User updated");
-//       router.push("/admin/users");
-//     } catch {
-//       toast.error("Update failed");
-//     } finally {
-//       setSaving(false);
-//     }
-//   };
-
-//   if (loading) return <div className="p-8">Loading...</div>;
-
-//   return (
-//     <div className="p-8 bg-slate-50 min-h-screen">
-//       <div className="max-w-xl bg-white rounded-xl border shadow-sm p-6">
-//         <h1 className="text-xl font-semibold mb-6">Edit User</h1>
-
-//         <form onSubmit={handleSubmit} className="space-y-4 text-sm">
-//           <div>
-//             <label className="block text-slate-600 mb-1">Name</label>
-//             <input
-//               name="name"
-//               value={form.name}
-//               disabled
-//               className="w-full border rounded px-3 py-2 bg-slate-100"
-//             />
-//           </div>
-
-//           <div>
-//             <label className="block text-slate-600 mb-1">Email</label>
-//             <input
-//               name="email"
-//               value={form.email}
-//               disabled
-//               className="w-full border rounded px-3 py-2 bg-slate-100"
-//             />
-//           </div>
-
-//           <div className="flex items-center gap-2">
-//             <input
-//               type="checkbox"
-//               name="isActive"
-//               checked={form.isActive}
-//               onChange={handleChange}
-//             />
-//             <label>Active User</label>
-//           </div>
-
-//           <button
-//             disabled={saving}
-//             className="px-4 py-2 bg-indigo-600 text-white rounded text-sm disabled:opacity-50"
-//           >
-//             {saving ? "Saving..." : "Update User"}
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -131,26 +6,23 @@ import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import { apiConnector } from "@/services/apiConnecter";
 import { updateUserService } from "@/services/userService";
 
-import Input from "@/components/form/input/InputField";
-import Label from "@/components/form/Label";
-import Form from "@/components/form/Form";
-
-import { z } from "zod";
-
-/* ================= VALIDATION ================= */
-
 const editUserSchema = z.object({
   name: z.string().min(2, "Name required"),
   isActive: z.boolean(),
+  roleId: z.string().min(1, "Role required"),
 });
 
 type EditUserForm = z.infer<typeof editUserSchema>;
 
-/* ================= PAGE ================= */
+interface Role {
+  id: number;
+  name: string;
+}
 
 export default function EditUserPage() {
   const { id } = useParams();
@@ -158,35 +30,42 @@ export default function EditUserPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  /* ================= RHF ================= */
+  const [roles, setRoles] = useState<Role[]>([]);
 
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
+    reset,
     formState: { errors },
   } = useForm<EditUserForm>({
     resolver: zodResolver(editUserSchema),
     defaultValues: {
       name: "",
       isActive: true,
+      roleId: "",
     },
   });
 
-  const isActive = watch("isActive");
-
-  /* ================= FETCH USER ================= */
-
-  const fetchUser = async () => {
+  const fetchInitialData = async () => {
     try {
-      const res = await apiConnector("GET", `/users/${id}`);
-      const u = res?.data?.data;
+      const [userRes, roleRes] = await Promise.all([
+        apiConnector("GET", `/users/${id}`),
+        apiConnector("GET", `/roles`),
+      ]);
 
-      setValue("name", u.name);
-      setValue("isActive", u.isActive);
-    } catch {
+      const user = userRes?.data?.data;
+      const roleData = roleRes?.data?.roles || [];
+
+      setRoles(roleData);
+
+      reset({
+        name: user?.name || "",
+        isActive: user?.isActive ?? true,
+        roleId: String(user?.roles?.[0]?.roleId || ""),
+      });
+
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to load user");
     } finally {
       setLoading(false);
@@ -194,10 +73,10 @@ export default function EditUserPage() {
   };
 
   useEffect(() => {
-    if (id) fetchUser();
+    if (id) {
+      fetchInitialData();
+    }
   }, [id]);
-
-  /* ================= SUBMIT ================= */
 
   const onSubmit = async (data: EditUserForm) => {
     try {
@@ -206,9 +85,10 @@ export default function EditUserPage() {
       await updateUserService(Number(id), {
         name: data.name,
         isActive: data.isActive,
+        roleId: Number(data.roleId),
       });
 
-      toast.success("User updated successfully ✅");
+      toast.success("User updated successfully");
       router.push("/admin/users/user-tables");
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Update failed");
@@ -217,70 +97,106 @@ export default function EditUserPage() {
     }
   };
 
-  /* ================= UI ================= */
-
   if (loading) {
     return (
-      <div className="p-10 flex justify-center">
-        <Loader2 className="animate-spin" />
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center p-8">
-      <div className="w-full max-w-2xl">
-
-        {/* Header */}
+    <div className="min-h-screen bg-slate-100 py-10 px-4">
+      <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-800">
-            Edit User
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-800">Edit User</h1>
           <p className="text-slate-500 mt-1">
-            Update user profile and status
+            Manage user details, permissions and account status
           </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-          <Form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+          <div className="px-8 py-5 border-b bg-slate-50">
+            <h2 className="text-lg font-semibold text-slate-700">
+              User Information
+            </h2>
+          </div>
 
-            {/* Name */}
+          <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6">
+
             <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Full Name
+              </label>
+              <input
                 {...register("name")}
-                className="mt-1"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
               />
               {errors.name && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-sm mt-1">
                   {errors.name.message}
                 </p>
               )}
             </div>
 
-            {/* Status */}
-            <div className="flex items-center gap-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                User Role
+              </label>
+              <select
+                {...register("roleId")}
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+              >
+                <option value="">Select Role</option>
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+
+              {errors.roleId && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.roleId.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between rounded-xl border p-4">
+              <div>
+                <h3 className="font-medium text-slate-700">Account Status</h3>
+                <p className="text-sm text-slate-500">
+                  Enable or disable user access
+                </p>
+              </div>
+
               <input
                 type="checkbox"
                 {...register("isActive")}
-                className="w-4 h-4"
+                className="w-5 h-5"
               />
-              <Label>Active User</Label>
             </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition disabled:opacity-50"
-            >
-              {saving && <Loader2 className="animate-spin w-5 h-5" />}
-              {saving ? "Updating..." : "Update User"}
-            </button>
+            <div className="flex gap-4 pt-4">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="w-full py-3 rounded-xl border border-slate-300 font-medium hover:bg-slate-50"
+              >
+                Cancel
+              </button>
 
-          </Form>
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full py-3 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center justify-center gap-2"
+              >
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {saving ? "Updating..." : "Save Changes"}
+              </button>
+            </div>
+
+          </form>
         </div>
       </div>
     </div>
