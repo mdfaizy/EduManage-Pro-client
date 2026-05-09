@@ -20,7 +20,8 @@ import {
   BarChart3,
   Settings,
   HatGlasses,
-  Section
+  Section,
+  ArrowUpCircle
   
 } from "lucide-react";
 
@@ -54,6 +55,32 @@ const navItems: NavItem[] = [
       { name: "Assignments", path: "/teacher/assignments" },
     ],
   },
+  // 
+{
+  icon: <LayoutDashboard />,
+  name: "Admissions",
+  subItems: [
+    {name: "New Admission", path:"/admin/academics/admissions/new-adminssion"},
+    {name: "Admission List",path:"/admin/academics/admissions/admission-list"},
+    {name: "Pending Approvals",path:"/admin/academics/admissions/pending"},
+    {name: "Approved Admissions",path:"/admin/academics/admissions/approved"},
+    {name: "Rejected Admissions",path:"/admin/academics/admissions/rejected"},
+    {name: "Admission Enquiry",path:"/admin/academics/admissions/enquiry"},
+    {name: "Admission Documents",path:"/admin/academics/admissions/documents"},
+    {name: "Transfer Admissions",path:"/admin/academics/admissions/transfers"},
+    {name: "Bulk Import",path:"/admin/academics/admissions/import"},
+    {name: "Admission Settings",path:"/admin/academics/admissions/settings"},
+
+  ],
+},
+{
+  icon: <ArrowUpCircle />,
+  name: "Promotions",
+  subItems: [
+    {name: "Student Promotions",path:"/admin/academics/promotions"},
+    {name: "Promotion History",path:"/admin/academics/promotions/history",},
+  ],
+},
 {
   name: "User Management",
   icon: <UserCheck size={18} />,

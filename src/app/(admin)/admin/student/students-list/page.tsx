@@ -339,12 +339,13 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { apiConnector } from "@/services/apiConnecter";
 import {
   getStudentsAPI,
   deleteStudentAPI,
   updateStudentStatusAPI,
 } from "@/services/studentService";
+import { useMasterData } from "@/hooks/useMasterData";
+import LinkParentModal from "@/components/modal/LinkParentModal";
 
 // Extended Student type with real‑world fields
 type Student = {
@@ -372,9 +373,14 @@ type Student = {
 export default function StudentTable() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedStudent,setSelectedStudent,] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
-
+const {
+  classes,
+  sections,
+  years,
+} = useMasterData();
   // Filter states
   const [search, setSearch] = useState("");
   const [selectedClass, setSelectedClass] = useState<string>("");
@@ -510,38 +516,138 @@ console.log(res)
     fetchStudents();
   }, []);
 
-  // Extract unique filter options from students data
-  const classOptions = useMemo(
-    () => [...new Set(students.map((s) => s.class).filter(Boolean))],
-    [students]
-  );
-  const sectionOptions = useMemo(
-    () => [...new Set(students.map((s) => s.section).filter(Boolean))],
-    [students]
-  );
-  const yearOptions = useMemo(
-    () => [...new Set(students.map((s) => s.year).filter(Boolean))].sort(),
-    [students]
-  );
+const classOptions = useMemo(
+  () =>
+
+    classes.map(
+      (item: any) => ({
+        value: String(item.id),
+        label: item.name,
+      })
+    ),
+
+  [classes]
+);
+
+const sectionOptions = useMemo(
+  () =>
+
+    sections.map(
+      (item: any) => ({
+        value: String(item.id),
+        label: item.name,
+      })
+    ),
+
+  [sections]
+);
+
+const yearOptions = useMemo(
+  () =>
+
+    years.map(
+      (item: any) => ({
+        value: String(item.id),
+        label: item.name,
+      })
+    ),
+
+  [years]
+);
 
   // Filtered students based on search + dropdowns
-  const filtered = useMemo(() => {
-    return students.filter((student) => {
-      // Search term (case‑insensitive) across multiple fields
+const filtered = useMemo(() => {
+
+  return students.filter(
+    (student: any) => {
+
+      const academic =
+        student.academicRecords?.[0];
+
+      /* SEARCH */
+
       const matchesSearch =
+
         search === "" ||
-        [student.name, student.studentCode, student.class, student.section, student.year?.toString()]
-          .map((field) => field?.toLowerCase() ?? "")
-          .some((field) => field.includes(search.toLowerCase()));
 
-      // Dropdown filters
-      const matchesClass = selectedClass === "" || student.class === selectedClass;
-      const matchesSection = selectedSection === "" || student.section === selectedSection;
-      const matchesYear = selectedYear === "" || student.year?.toString() === selectedYear;
+        [
 
-      return matchesSearch && matchesClass && matchesSection && matchesYear;
-    });
-  }, [students, search, selectedClass, selectedSection, selectedYear]);
+          student.name,
+
+          student.studentCode,
+
+          academic?.class?.name,
+
+          academic?.section?.name,
+
+          academic?.academicYear?.name,
+
+        ]
+
+          .map(
+            (field) =>
+              field
+                ?.toString()
+                .toLowerCase() || ""
+          )
+
+          .some(
+            (field) =>
+              field.includes(
+                search.toLowerCase()
+              )
+          );
+
+      /* CLASS */
+
+      const matchesClass =
+
+        selectedClass === "" ||
+
+        String(
+          academic?.classId
+        ) === selectedClass;
+
+      /* SECTION */
+
+      const matchesSection =
+
+        selectedSection === "" ||
+
+        String(
+          academic?.sectionId
+        ) === selectedSection;
+
+      /* YEAR */
+
+      const matchesYear =
+
+        selectedYear === "" ||
+
+        String(
+          academic?.academicYearId
+        ) === selectedYear;
+
+      return (
+
+        matchesSearch &&
+        matchesClass &&
+        matchesSection &&
+        matchesYear
+
+      );
+    }
+  );
+
+}, [
+
+  students,
+  search,
+  selectedClass,
+  selectedSection,
+  selectedYear,
+
+]);
 
   // Reset all filters
   const resetFilters = () => {
@@ -550,7 +656,10 @@ console.log(res)
     setSelectedSection("");
     setSelectedYear("");
   };
-
+console.log(students);
+console.log(classOptions);
+console.log(sectionOptions);
+console.log(yearOptions);
   return (
     <div className="min-h-screen dark:bg-gray-950 p-6 md:p-10">
       {/* Ambient glow */}
@@ -618,67 +727,271 @@ console.log(res)
             </div>
 
             {/* Row 2: Dropdown filters */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Class filter */}
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">
-                  Class
-                </label>
-                <select
-                  value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                  className="w-full dark:bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-xl px-4 py-2.5
-                    outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15"
-                >
-                  <option value="">All Classes</option>
-                  {classOptions.map((cls) => (
-                    <option key={cls} value={cls}>
-                      {cls}
-                    </option>
-                  ))}
-                </select>
-              </div>
+         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
 
-              {/* Section filter */}
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">
-                  Section
-                </label>
-                <select
-                  value={selectedSection}
-                  onChange={(e) => setSelectedSection(e.target.value)}
-                  className="w-full dark:bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-xl px-4 py-2.5
-                    outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15"
-                >
-                  <option value="">All Sections</option>
-                  {sectionOptions.map((sec) => (
-                    <option key={sec} value={sec}>
-                      {sec}
-                    </option>
-                  ))}
-                </select>
-              </div>
+  {/* ======================================
+      CLASS FILTER
+  ====================================== */}
 
-              {/* Year filter */}
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">
-                  Year
-                </label>
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="w-full dark:bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-xl px-4 py-2.5
-                    outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15"
-                >
-                  <option value="">All Years</option>
-                  {yearOptions.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+  <div>
+
+    <label
+      className="
+        mb-1
+        block
+        text-xs
+        font-semibold
+        uppercase
+        tracking-wider
+        text-gray-500
+      "
+    >
+      Class
+    </label>
+
+    <div className="relative">
+
+      <select
+        value={selectedClass}
+        onChange={(e) =>
+          setSelectedClass(
+            e.target.value
+          )
+        }
+        className="
+          h-11
+          w-full
+          appearance-none
+          rounded-2xl
+          border
+          border-gray-700
+          bg-gray-900
+          px-4
+          pr-10
+          text-sm
+          text-gray-200
+          outline-none
+          transition-all
+          duration-200
+          focus:border-indigo-500
+          focus:ring-2
+          focus:ring-indigo-500/20
+        "
+      >
+
+        <option value="">
+  All Classes
+</option>
+
+{classOptions.map((cls) => (
+
+  <option
+    key={cls.value}
+    value={cls.value}
+  >
+    {cls.label}
+  </option>
+
+))}
+
+      </select>
+
+      {/* ARROW */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          right-4
+          top-1/2
+          -translate-y-1/2
+          text-gray-500
+        "
+      >
+        ▼
+      </div>
+
+    </div>
+
+  </div>
+
+  {/* ======================================
+      SECTION FILTER
+  ====================================== */}
+
+  <div>
+
+    <label
+      className="
+        mb-1
+        block
+        text-xs
+        font-semibold
+        uppercase
+        tracking-wider
+        text-gray-500
+      "
+    >
+      Section
+    </label>
+
+    <div className="relative">
+
+      <select
+        value={selectedSection}
+        onChange={(e) =>
+          setSelectedSection(
+            e.target.value
+          )
+        }
+        className="
+          h-11
+          w-full
+          appearance-none
+          rounded-2xl
+          border
+          border-gray-700
+          bg-gray-900
+          px-4
+          pr-10
+          text-sm
+          text-gray-200
+          outline-none
+          transition-all
+          duration-200
+          focus:border-indigo-500
+          focus:ring-2
+          focus:ring-indigo-500/20
+        "
+      >
+
+        <option value="">
+  All Sections
+</option>
+
+{sectionOptions.map(
+  (sec) => (
+
+    <option
+      key={sec.value}
+      value={sec.value}
+    >
+      {sec.label}
+    </option>
+
+  )
+)}
+
+      </select>
+
+      {/* ARROW */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          right-4
+          top-1/2
+          -translate-y-1/2
+          text-gray-500
+        "
+      >
+        ▼
+      </div>
+
+    </div>
+
+  </div>
+
+  {/* ======================================
+      YEAR FILTER
+  ====================================== */}
+
+  <div>
+
+    <label
+      className="
+        mb-1
+        block
+        text-xs
+        font-semibold
+        uppercase
+        tracking-wider
+        text-gray-500
+      "
+    >
+      Year
+    </label>
+
+    <div className="relative">
+
+      <select
+        value={selectedYear}
+        onChange={(e) =>
+          setSelectedYear(
+            e.target.value
+          )
+        }
+        className="
+          h-11
+          w-full
+          appearance-none
+          rounded-2xl
+          border
+          border-gray-700
+          bg-gray-900
+          px-4
+          pr-10
+          text-sm
+          text-gray-200
+          outline-none
+          transition-all
+          duration-200
+          focus:border-indigo-500
+          focus:ring-2
+          focus:ring-indigo-500/20
+        "
+      >
+
+        <option value="">
+  All Years
+</option>
+
+{yearOptions.map(
+  (year) => (
+
+    <option
+      key={year.value}
+      value={year.value}
+    >
+      {year.label}
+    </option>
+
+  )
+)}
+
+      </select>
+
+      {/* ARROW */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          right-4
+          top-1/2
+          -translate-y-1/2
+          text-gray-500
+        "
+      >
+        ▼
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
           </div>
 
           {/* Table */}
@@ -686,7 +999,22 @@ console.log(res)
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-gray-800 dark:bg-gray-800/40">
-                  {["#", "Student Code", "Name", "Gender", "Class", "Section", "Year", "Status", "Created", "Action"].map(
+                  {
+                  // ["#", "Student Code", "Name", "Gender", "Class", "Section", "Year", "Status", "Created", "Action"]
+                 [
+  "#",
+  "Name",
+  "Student Code",
+  "Admission No",
+  "Gender",
+  "Class",
+  "Section",
+  "Roll",
+  "Year",
+  "Status",
+  "Created",
+  "Action",
+] .map(
                     (h) => (
                       <TableCell
                         key={h}
@@ -740,134 +1068,492 @@ console.log(res)
                 {/* Data rows */}
                 {!loading &&
                   filtered.map((student, index) => (
-                    <TableRow
-                      key={student.id}
-                      className="border-b border-gray-800/60 hover:bg-gray-800/30 transition-colors duration-150 group"
-                    >
-                      <TableCell className="px-5 py-4">
-                        <span className="text-xs font-mono text-gray-600">{index + 1}</span>
-                      </TableCell>
+                   <TableRow
+  key={student.id}
+  className="
+    group
+    border-b
+    border-gray-800/60
+    transition-colors
+    duration-150
+    hover:bg-gray-800/30
+  "
+>
 
-                      <TableCell className="px-5 py-4">
-                        <span className="text-xs font-mono dark:bg-gray-800 border dark:border-gray-700 dark:text-gray-400 px-2 py-0.5 rounded-lg">
-                          {student.studentCode || "—"}
-                        </span>
-                      </TableCell>
+  {/* ======================================
+      INDEX
+  ====================================== */}
 
-                      <TableCell className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl dark:bg-indigo-500/15 border dark:border-indigo-500/20 flex items-center justify-center dark:text-indigo-400 text-xs font-bold flex-shrink-0">
-                            {student.name?.charAt(0)?.toUpperCase() ?? "?"}
-                          </div>
-                          <span className="text-sm font-medium dark:text-gray-200">{student.name}</span>
-                        </div>
-                      </TableCell>
+  <TableCell className="px-5 py-4">
 
-                      <TableCell className="px-5 py-4">
-                        <span className="text-sm dark:text-gray-400 capitalize">{student.gender || "—"}</span>
-                      </TableCell>
+    <span className="text-xs font-mono text-gray-600">
+      {index + 1}
+    </span>
 
-                      {/* New columns */}
-                      <TableCell className="px-5 py-4">
-                        <span className="text-sm dark:text-gray-400">{
-      student.academicRecords?.[0]
-        ?.class?.name || "—"
-    }
-</span>
-                      </TableCell>
-                      <TableCell className="px-5 py-4">
-                        <span className="text-sm dark:text-gray-400"> {
-      student.academicRecords?.[0]
-        ?.section?.name || "—"
-    }</span>
-                      </TableCell>
-                      <TableCell className="px-5 py-4">
-                        <span className="text-sm dark:text-gray-400">{
-      student.academicRecords?.[0]
-        ?.academicYear?.name || "—"
-    }</span>
-                      </TableCell>
+  </TableCell>
 
-                      <TableCell className="p-3">
-                        <button
-                          onClick={() => toggleStatus(student.id, !student.isActive)}
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            student.isActive
-                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
-                              : "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
-                          }`}
-                        >
-                          {student.isActive ? "Active" : "Inactive"}
-                        </button>
-                      </TableCell>
 
-                      <TableCell className="px-5 py-4">
-                        <span className="text-sm text-gray-500">
-                          {new Date(student.createdAt).toLocaleDateString("en-IN", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </TableCell>
+ {/* ======================================
+      STUDENT
+  ====================================== */}
 
-                      <TableCell className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => router.push(`/admin/student/view/${student.id}`)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20
-                              text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/40
-                              text-xs font-medium transition-all duration-150"
-                          >
-                            View
-                          </button>
-                          <button
-                            onClick={() => router.push(`/admin/student/edit-student-profile/${student.id}`)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20
-                              text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/40
-                              text-xs font-medium transition-all duration-150"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(student.id)}
-                            disabled={deletingId === student.id}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20
-                              text-red-400 hover:bg-red-500/20 hover:border-red-500/40
-                              text-xs font-medium transition-all duration-150 disabled:opacity-50"
-                          >
-                            Delete
-                          </button>
-                          <button
+  <TableCell className="px-5 py-4">
+
+    <div className="flex items-center gap-3">
+
+      {/* PHOTO */}
+
+      <div
+        className="
+          h-9
+          w-9
+          flex-shrink-0
+          overflow-hidden
+          rounded-xl
+          border
+          border-gray-700
+          bg-gray-800
+        "
+      >
+
+        {student.profilePhoto ? (
+
+          <img
+            src={student.profilePhoto}
+            alt="student"
+            className="
+              h-full
+              w-full
+              object-cover
+            "
+          />
+
+        ) : (
+
+          <div
+            className="
+              flex
+              h-full
+              items-center
+              justify-center
+              text-xs
+              font-bold
+              text-indigo-400
+            "
+          >
+
+            {
+              student.name
+                ?.charAt(0)
+                ?.toUpperCase() ?? "?"
+            }
+
+          </div>
+        )}
+
+      </div>
+
+      {/* NAME */}
+
+      <div>
+
+        <p
+          className="
+            text-sm
+            font-medium
+            text-gray-200
+          "
+        >
+          {student.name}
+        </p>
+
+        <p
+          className="
+            text-xs
+            text-gray-500
+          "
+        >
+          {
+            student.email ||
+            "No email"
+          }
+        </p>
+
+      </div>
+
+    </div>
+
+  </TableCell>
+  {/* ======================================
+      STUDENT CODE
+  ====================================== */}
+
+  <TableCell className="px-5 py-4">
+
+    <span
+      className="
+        rounded-lg
+        border
+        border-gray-700
+        bg-gray-800
+        px-2
+        py-0.5
+        text-xs
+        font-mono
+        text-gray-400
+      "
+    >
+
+      {student.studentCode || "—"}
+
+    </span>
+
+  </TableCell>
+
+  {/* ======================================
+      ADMISSION NO
+  ====================================== */}
+
+  <TableCell className="px-5 py-4">
+
+    <span
+      className="
+        rounded-lg
+        bg-indigo-500/10
+        px-2
+        py-1
+        text-xs
+        font-mono
+        text-indigo-400
+      "
+    >
+
+      {
+        student.academicRecords?.[0]
+          ?.admissionNo || "—"
+      }
+
+    </span>
+
+  </TableCell>
+
+ 
+
+  {/* ======================================
+      GENDER
+  ====================================== */}
+
+  <TableCell className="px-5 py-4">
+
+    <span
+      className="
+        text-sm
+        capitalize
+        text-gray-400
+      "
+    >
+
+      {student.gender || "—"}
+
+    </span>
+
+  </TableCell>
+
+  {/* ======================================
+      CLASS
+  ====================================== */}
+
+  <TableCell className="px-5 py-4">
+
+    <span className="text-sm text-gray-400">
+
+      {
+        student.academicRecords?.[0]
+          ?.class?.name || "—"
+      }
+
+    </span>
+
+  </TableCell>
+
+  {/* ======================================
+      SECTION
+  ====================================== */}
+
+  <TableCell className="px-5 py-4">
+
+    <span className="text-sm text-gray-400">
+
+      {
+        student.academicRecords?.[0]
+          ?.section?.name || "—"
+      }
+
+    </span>
+
+  </TableCell>
+
+  {/* ======================================
+      ROLL NUMBER
+  ====================================== */}
+
+  <TableCell className="px-5 py-4">
+
+    <span
+      className="
+        text-sm
+        font-semibold
+        text-indigo-400
+      "
+    >
+
+      {
+        student.academicRecords?.[0]
+          ?.rollNumber || "—"
+      }
+
+    </span>
+
+  </TableCell>
+
+  {/* ======================================
+      YEAR
+  ====================================== */}
+
+  <TableCell className="px-5 py-4">
+
+    <span className="text-sm text-gray-400">
+
+      {
+        student.academicRecords?.[0]
+          ?.academicYear?.name || "—"
+      }
+
+    </span>
+
+  </TableCell>
+
+  {/* ======================================
+      STATUS
+  ====================================== */}
+
+  <TableCell className="p-3">
+
+    <button
+      onClick={() =>
+        toggleStatus(
+          student.id,
+          !student.isActive
+        )
+      }
+      className={`
+
+        rounded-full
+        px-3
+        py-1
+        text-xs
+        font-medium
+
+        ${
+          student.isActive
+
+            ? `
+              bg-emerald-100
+              text-emerald-700
+              dark:bg-emerald-500/20
+              dark:text-emerald-400
+            `
+
+            : `
+              bg-red-100
+              text-red-700
+              dark:bg-red-500/20
+              dark:text-red-400
+            `
+        }
+
+      `}
+    >
+
+      {
+        student.isActive
+          ? "Active"
+          : "Inactive"
+      }
+
+    </button>
+
+  </TableCell>
+
+  {/* ======================================
+      CREATED
+  ====================================== */}
+
+  <TableCell className="px-5 py-4">
+
+    <span className="text-sm text-gray-500">
+
+      {new Date(
+        student.createdAt
+      ).toLocaleDateString(
+        "en-IN",
+        {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }
+      )}
+
+    </span>
+
+  </TableCell>
+
+  {/* ======================================
+      ACTIONS
+  ====================================== */}
+
+  <TableCell className="px-5 py-4">
+
+    <div className="flex items-center gap-2">
+
+      {/* VIEW */}
+
+      <button
+        onClick={() =>
+          router.push(
+            `/admin/student/view/${student.id}`
+          )
+        }
+        className="
+          rounded-lg
+          border
+          border-indigo-500/20
+          bg-indigo-500/10
+          px-3
+          py-1.5
+          text-xs
+          font-medium
+          text-indigo-400
+          transition-all
+          duration-150
+          hover:border-indigo-500/40
+          hover:bg-indigo-500/20
+        "
+      >
+        View
+      </button>
+
+      {/* EDIT */}
+
+      <button
+        onClick={() =>
+          router.push(
+            `/admin/student/edit-student-profile/${student.id}`
+          )
+        }
+        className="
+          rounded-lg
+          border
+          border-blue-500/20
+          bg-blue-500/10
+          px-3
+          py-1.5
+          text-xs
+          font-medium
+          text-blue-400
+          transition-all
+          duration-150
+          hover:border-blue-500/40
+          hover:bg-blue-500/20
+        "
+      >
+        Edit
+      </button>
+
+
+
+      {/* DELETE */}
+
+      <button
+        onClick={() =>
+          handleDelete(student.id)
+        }
+        disabled={
+          deletingId === student.id
+        }
+        className="
+          rounded-lg
+          border
+          border-red-500/20
+          bg-red-500/10
+          px-3
+          py-1.5
+          text-xs
+          font-medium
+          text-red-400
+          transition-all
+          duration-150
+          hover:border-red-500/40
+          hover:bg-red-500/20
+          disabled:opacity-50
+        "
+      >
+        Delete
+      </button>
+
+      {/* ID CARD */}
+
+      <button
+        onClick={() =>
+          router.push(
+            `/admin/student/view/${student.id}/id-card`
+          )
+        }
+        className="
+          rounded-lg
+          border
+          border-emerald-500/20
+          bg-emerald-500/10
+          px-3
+          py-1.5
+          text-xs
+          font-medium
+          text-emerald-400
+          transition-all
+          duration-150
+          hover:border-emerald-500/40
+          hover:bg-emerald-500/20
+        "
+      >
+        ID Card
+      </button>
+<button
   onClick={() =>
-    router.push(
-      `/admin/student/view/${student.id}/id-card`
+    setSelectedStudent(
+      student
     )
   }
   className="
-    flex
-    items-center
-    gap-1.5
     rounded-lg
     border
-    border-emerald-500/20
-    bg-emerald-500/10
+    border-yellow-500/20
+    bg-yellow-500/10
     px-3
     py-1.5
     text-xs
     font-medium
-    text-emerald-400
+    text-yellow-400
     transition-all
-    duration-150
-    hover:border-emerald-500/40
-    hover:bg-emerald-500/20
+    hover:bg-yellow-500/20
   "
 >
-  ID Card
+  Link Parent
 </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+    </div>
+
+  </TableCell>
+
+</TableRow>
                   ))}
               </TableBody>
             </Table>
@@ -902,6 +1588,33 @@ console.log(res)
           {toast.msg}
         </div>
       )}
+
+      {selectedStudent && (
+
+  <LinkParentModal
+
+    studentId={
+      selectedStudent.id
+    }
+
+    studentName={
+      selectedStudent.name
+    }
+
+    onClose={() =>
+      setSelectedStudent(null)
+    }
+
+    onSuccess={() => {
+
+      // OPTIONAL:
+      // reload student list
+
+    }}
+
+  />
+
+)}
     </div>
   );
 }

@@ -1,22 +1,11 @@
-// import { apiConnector } from "@/services/apiConnecter";
 
-// export const createStudentAPI = async (payload: any) => {
-//   return apiConnector("POST", "/students", payload);
-// };
-
-import { apiConnector }
-from "@/services/apiConnecter";
+import { apiConnector }from "@/services/apiConnecter";
 
 // ========================================
 // STUDENTS
 // ========================================
 
-export const getStudentsAPI =
-  () =>
-    apiConnector(
-      "GET",
-      "/students"
-    );
+export const getStudentsAPI =() =>apiConnector("GET","/students");
 
 export const getStudentByIdAPI =
   (id: number) =>
@@ -73,7 +62,7 @@ export const enableStudentLoginAPI =
 // PARENT LINKING
 // ========================================
 
-export const linkParentAPI =
+export const enableParentLoginAPI =
   (payload: {
     studentId: number;
     parentEmail: string;
