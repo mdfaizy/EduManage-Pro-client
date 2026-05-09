@@ -1,63 +1,141 @@
 export interface StudentFormData {
-  // Personal
+
+  // =====================================
+  // PERSONAL
+  // =====================================
+
   studentName: string;
+
   dateOfBirth: string;
+
   gender: string;
+
   bloodGroup: string;
+
   nationality: string;
+
   religion: string;
+
   caste: string;
+
   aadharNumber: string;
 
-  // Contact
-  address: string;
-  city: string;
-  state: string;
-  pincode: string;
+  // =====================================
+  // CONTACT
+  // =====================================
+
   phoneNumber: string;
+
   alternatePhone: string;
+
   email: string;
 
-  // Academic
+  // =====================================
+  // CURRENT ADDRESS
+  // =====================================
+
+  currentAddress: string;
+
+  currentCity: string;
+
+  currentState: string;
+
+  currentPincode: string;
+
+  // =====================================
+  // PERMANENT ADDRESS
+  // =====================================
+
+  permanentAddress: string;
+
+  permanentCity: string;
+
+  permanentState: string;
+
+  permanentPincode: string;
+
+  sameAsCurrentAddress: boolean;
+
+  // =====================================
+  // ACADEMIC
+  // =====================================
+
   academicYearId: string;
-  academicYearName?: string;
 
   classId: string;
-  className?: string;
 
   sectionId: string;
-  sectionName?: string;
+
+  admissionType: string;
+
+  admissionDate: string;
+
+  medium: string;
 
   previousSchool: string;
+
+  previousBoard: string;
+
   previousClass: string;
+
   previousPercentage: string;
 
-  // Parent
+  tcNumber: string;
+
+  // =====================================
+  // PARENTS
+  // =====================================
+
   fatherName: string;
+
   fatherOccupation: string;
+
   fatherPhone: string;
+
   fatherEmail: string;
 
   motherName: string;
+
   motherOccupation: string;
+
   motherPhone: string;
+
   motherEmail: string;
 
   guardianName: string;
+
   guardianRelation: string;
+
   guardianPhone: string;
 
-  // Additional
+  // =====================================
+  // DOCUMENTS
+  // =====================================
+
+  hasAadharCard: boolean;
+
+  hasPassportPhoto: boolean;
+
+  hasBirthCertificate?: boolean;
+
+  hasTransferCertificate?: boolean;
+
+  hasMarksheet?: boolean;
+
+  // =====================================
+  // ADDITIONAL
+  // =====================================
+
   transportRequired: boolean;
+
   hostelRequired: boolean;
+
   sportsQuota: boolean;
+
   sportsDetails: string;
 
   medicalConditions: string;
+
   allergies: string;
 
-  // Documents
-  hasAadharCard?: boolean;
-  hasBirthCertificate?: boolean;
-  hasTransferCertificate?: boolean;
 }

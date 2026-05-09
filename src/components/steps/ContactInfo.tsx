@@ -1,577 +1,587 @@
-// import { steps } from "@/utils/formUtils";
-
-// export default function ParentInfoStep({ form, handleChange }) {
-//   return (
-//     <div className="space-y-6">
-//       <div className="flex items-center justify-between">
-//         <h3 className="text-lg font-medium text-gray-900">Parent/Guardian Information</h3>
-//         <span className="text-sm text-gray-500">Step 4 of 6</span>
-//       </div>
-//       <p className="text-sm text-gray-500">{steps[3].description}</p>
-      
-//       <div className="border rounded-lg p-4">
-//         <h4 className="font-medium text-gray-800 mb-3">Father's Details</h4>
-//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//           <div className="col-span-2">
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Father's Name</label>
-//             <input 
-//               name="fatherName" 
-//               value={form.fatherName || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter father's full name"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
-//             <input 
-//               name="fatherOccupation" 
-//               value={form.fatherOccupation || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter occupation"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-//             <input 
-//               name="fatherPhone" 
-//               value={form.fatherPhone || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter 10-digit phone" 
-//               maxLength={10}
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//           <div className="col-span-2">
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-//             <input 
-//               type="email" 
-//               name="fatherEmail" 
-//               value={form.fatherEmail || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter email address"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//         </div>
-//       </div>
-
-//       <div className="border rounded-lg p-4">
-//         <h4 className="font-medium text-gray-800 mb-3">Mother's Details</h4>
-//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//           <div className="col-span-2">
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Mother's Name</label>
-//             <input 
-//               name="motherName" 
-//               value={form.motherName || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter mother's full name"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
-//             <input 
-//               name="motherOccupation" 
-//               value={form.motherOccupation || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter occupation"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-//             <input 
-//               name="motherPhone" 
-//               value={form.motherPhone || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter 10-digit phone" 
-//               maxLength={10}
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//           <div className="col-span-2">
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-//             <input 
-//               type="email" 
-//               name="motherEmail" 
-//               value={form.motherEmail || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter email address"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//         </div>
-//       </div>
-
-//       <div className="border rounded-lg p-4 bg-gray-50">
-//         <h4 className="font-medium text-gray-800 mb-3">Guardian Details (if applicable)</h4>
-//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//           <div className="col-span-2">
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Guardian's Name</label>
-//             <input 
-//               name="guardianName" 
-//               value={form.guardianName || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter guardian's full name"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Relation</label>
-//             <input 
-//               name="guardianRelation" 
-//               value={form.guardianRelation || ''} 
-//               onChange={handleChange} 
-//               placeholder="e.g., Uncle, Grandfather"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-//             <input 
-//               name="guardianPhone" 
-//               value={form.guardianPhone || ''} 
-//               onChange={handleChange} 
-//               placeholder="Enter 10-digit phone" 
-//               maxLength={10}
-//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-//             />
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 "use client";
+
+import {
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-react";
+
+import Label from "@/components/form/Label";
+import Input from "@/components/form/input/InputField";
 
 import { steps } from "@/utils/formUtils";
 
-import {
-  useAppDispatch,
-  useAppSelector,
-} from "@/redux/hook";
+interface Props {
+  form: any;
 
-import {
-  updateAdmissionField,
-} from "@/redux/admissionSlice";
+  handleChange: (
+    e:
+      | React.ChangeEvent<
+          HTMLInputElement
+        >
+      | React.ChangeEvent<
+          HTMLTextAreaElement
+        >
+  ) => void;
+}
 
-export default function ParentInfoStep() {
-  const dispatch =useAppDispatch();
-  const form =useAppSelector((state) =>state.admission.form);
-
-  // ====================================
-  // Handle Change
-  // ====================================
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const {
-      name,
-      value,
-    } = e.target;
-
-    dispatch(
-      updateAdmissionField({
-        name: name as any,
-        value,
-      })
-    );
-  };
+export default function ContactInfoStep({
+  form,
+  handleChange,
+}: Props) {
 
   return (
+
     <div className="space-y-6">
-      {/* Header */}
-
-      <div className="flex items-center justify-between">
-        <h3
-          className="
-            text-lg
-            font-medium
-            text-gray-900
-          "
-        >
-          Parent / Guardian Information
-        </h3>
-
-        <span
-          className="
-            text-sm
-            text-gray-500
-          "
-        >
-          Step 4 of 5
-        </span>
-      </div>
-
-      <p
-        className="
-          text-sm
-          text-gray-500
-        "
-      >
-        {
-          steps[3]
-            .description
-        }
-      </p>
 
       {/* ====================================
-          Father's Details
+          Header
       ==================================== */}
 
       <div
         className="
-          rounded-lg
-          border
-          p-4
+          flex
+          items-center
+          justify-between
         "
       >
+
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Contact Information
+          </h3>
+          <p
+            className="
+              mt-1
+              text-sm
+              text-gray-500
+            "
+          >
+            {
+              steps[1]
+                .description
+            }
+          </p>
+
+        </div>
+
+        <span
+          className="
+            rounded-full
+            bg-indigo-50
+            px-3
+            py-1
+            text-xs
+            font-medium
+            text-indigo-600
+          "
+        >
+          Step 2 of 6
+        </span>
+
+      </div>
+
+      {/* ====================================
+          Contact Information
+      ==================================== */}
+
+      <div
+        className="
+          rounded-xl
+          border
+          border-gray-200
+          bg-white
+          p-5
+          shadow-sm
+        "
+      >
+
         <h4
           className="
-            mb-3
-            font-medium
+            mb-5
+            text-base
+            font-semibold
             text-gray-800
           "
         >
-          Father's Details
+          Contact Details
         </h4>
 
         <div
           className="
             grid
             grid-cols-1
-            gap-4
+            gap-5
             md:grid-cols-2
           "
         >
-          {/* Father Name */}
-
-          <div className="col-span-2">
-            <label
-              className="
-                mb-1
-                block
-                text-sm
-                font-medium
-                text-gray-700
-              "
-            >
-              Father's Name
-            </label>
-
-            <input
-              name="fatherName"
-              value={
-                form.fatherName ||
-                ""
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Enter father's full name"
-              className="
-                w-full
-                rounded-lg
-                border
-                border-gray-300
-                px-3
-                py-2
-                focus:outline-none
-                focus:ring-2
-                focus:ring-indigo-500
-              "
-            />
-          </div>
-
-          {/* Occupation */}
-
-          <div>
-            <label
-              className="
-                mb-1
-                block
-                text-sm
-                font-medium
-                text-gray-700
-              "
-            >
-              Occupation
-            </label>
-
-            <input
-              name="fatherOccupation"
-              value={
-                form.fatherOccupation ||
-                ""
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Enter occupation"
-              className="
-                w-full
-                rounded-lg
-                border
-                border-gray-300
-                px-3
-                py-2
-                focus:outline-none
-                focus:ring-2
-                focus:ring-indigo-500
-              "
-            />
-          </div>
 
           {/* Phone */}
 
           <div>
-            <label
-              className="
-                mb-1
-                block
-                text-sm
-                font-medium
-                text-gray-700
-              "
-            >
-              Phone Number
-            </label>
 
-            <input
-              name="fatherPhone"
-              value={
-                form.fatherPhone ||
-                ""
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Enter 10-digit phone"
-              maxLength={10}
-              className="
-                w-full
-                rounded-lg
-                border
-                border-gray-300
-                px-3
-                py-2
-                focus:outline-none
-                focus:ring-2
-                focus:ring-indigo-500
-              "
-            />
+            <Label htmlFor="phoneNumber">
+              Phone Number
+            </Label>
+
+            <div className="relative">
+
+              <Phone
+                className="
+                  absolute
+                  left-3
+                  top-3
+                  h-5
+                  w-5
+                  text-gray-400
+                "
+              />
+
+              <Input
+                id="phoneNumber"
+                name="phoneNumber"
+                value={
+                  form.phoneNumber
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Enter phone number"
+                className="pl-10"
+              />
+
+            </div>
+
+          </div>
+
+          {/* Alternate Phone */}
+
+          <div>
+
+            <Label htmlFor="alternatePhone">
+              Alternate Phone
+            </Label>
+
+            <div className="relative">
+
+              <Phone
+                className="
+                  absolute
+                  left-3
+                  top-3
+                  h-5
+                  w-5
+                  text-gray-400
+                "
+              />
+
+              <Input
+                id="alternatePhone"
+                name="alternatePhone"
+                value={
+                  form.alternatePhone
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Enter alternate phone"
+                className="pl-10"
+              />
+
+            </div>
+
           </div>
 
           {/* Email */}
 
-          <div className="col-span-2">
-            <label
-              className="
-                mb-1
-                block
-                text-sm
-                font-medium
-                text-gray-700
-              "
-            >
-              Email
-            </label>
+          <div className="md:col-span-2">
 
-            <input
-              type="email"
-              name="fatherEmail"
+            <Label htmlFor="email">
+              Email Address
+            </Label>
+
+            <div className="relative">
+
+              <Mail
+                className="
+                  absolute
+                  left-3
+                  top-3
+                  h-5
+                  w-5
+                  text-gray-400
+                "
+              />
+
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={
+                  form.email
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Enter email address"
+                className="pl-10"
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* ====================================
+          Current Address
+      ==================================== */}
+
+      <div
+        className="
+          rounded-xl
+          border
+          border-gray-200
+          bg-white
+          p-5
+          shadow-sm
+        "
+      >
+
+        <div className="flex items-center gap-2 mb-5">
+
+          <MapPin
+            className="
+              h-5
+              w-5
+              text-indigo-600
+            "
+          />
+
+          <h4
+            className="
+              text-base
+              font-semibold
+              text-gray-800
+            "
+          >
+            Current Address
+          </h4>
+
+        </div>
+
+        <div className="space-y-5">
+
+          {/* Address */}
+
+          <div>
+
+            <Label htmlFor="currentAddress">
+              Address
+            </Label>
+
+            <textarea
+              id="currentAddress"
+              name="currentAddress"
               value={
-                form.fatherEmail ||
-                ""
+                form.currentAddress
               }
               onChange={
                 handleChange
               }
-              placeholder="Enter email"
+              rows={4}
+              placeholder="Enter current address"
               className="
                 w-full
-                rounded-lg
+                rounded-xl
                 border
                 border-gray-300
-                px-3
-                py-2
+                px-4
+                py-3
+                text-sm
                 focus:outline-none
                 focus:ring-2
                 focus:ring-indigo-500
               "
             />
+
           </div>
+
+          {/* City State Pincode */}
+
+          <div
+            className="
+              grid
+              grid-cols-1
+              gap-5
+              md:grid-cols-3
+            "
+          >
+
+            <div>
+
+              <Label htmlFor="currentCity">
+                City
+              </Label>
+
+              <Input
+                id="currentCity"
+                name="currentCity"
+                value={
+                  form.currentCity
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Enter city"
+              />
+
+            </div>
+
+            <div>
+
+              <Label htmlFor="currentState">
+                State
+              </Label>
+
+              <Input
+                id="currentState"
+                name="currentState"
+                value={
+                  form.currentState
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Enter state"
+              />
+
+            </div>
+
+            <div>
+
+              <Label htmlFor="currentPincode">
+                Pincode
+              </Label>
+
+              <Input
+                id="currentPincode"
+                name="currentPincode"
+                value={
+                  form.currentPincode
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Enter pincode"
+              />
+
+            </div>
+
+          </div>
+
         </div>
+
       </div>
 
       {/* ====================================
-          Mother's Details
+          Same Address Checkbox
       ==================================== */}
 
       <div
         className="
-          rounded-lg
-          border
-          p-4
+          flex
+          items-center
+          gap-3
         "
       >
-        <h4
+
+        <input
+          type="checkbox"
+          id="sameAsCurrentAddress"
+          name="sameAsCurrentAddress"
+          checked={
+            form.sameAsCurrentAddress
+          }
+          onChange={
+            handleChange
+          }
           className="
-            mb-3
-            font-medium
-            text-gray-800
+            h-4
+            w-4
+            rounded
+            border-gray-300
+            text-indigo-600
+            focus:ring-indigo-500
           "
+        />
+
+        <Label
+          htmlFor="sameAsCurrentAddress"
+          className="mb-0"
         >
-          Mother's Details
-        </h4>
+          Permanent address same as current
+        </Label>
 
-        <div
-          className="
-            grid
-            grid-cols-1
-            gap-4
-            md:grid-cols-2
-          "
-        >
-          <div className="col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Mother's Name
-            </label>
-
-            <input
-              name="motherName"
-              value={form.motherName || ""}
-              onChange={handleChange}
-              placeholder="Enter mother's full name"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Occupation
-            </label>
-
-            <input
-              name="motherOccupation"
-              value={form.motherOccupation || ""}
-              onChange={handleChange}
-              placeholder="Enter occupation"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Phone Number
-            </label>
-
-            <input
-              name="motherPhone"
-              value={form.motherPhone || ""}
-              onChange={handleChange}
-              placeholder="Enter 10-digit phone"
-              maxLength={10}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div className="col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Email
-            </label>
-
-            <input
-              type="email"
-              name="motherEmail"
-              value={form.motherEmail || ""}
-              onChange={handleChange}
-              placeholder="Enter email"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-        </div>
       </div>
 
       {/* ====================================
-          Guardian
+          Permanent Address
       ==================================== */}
 
-      <div
-        className="
-          rounded-lg
-          border
-          bg-gray-50
-          p-4
-        "
-      >
-        <h4
-          className="
-            mb-3
-            font-medium
-            text-gray-800
-          "
-        >
-          Guardian Details
-        </h4>
+      {!form.sameAsCurrentAddress && (
 
         <div
           className="
-            grid
-            grid-cols-1
-            gap-4
-            md:grid-cols-2
+            rounded-xl
+            border
+            border-gray-200
+            bg-white
+            p-5
+            shadow-sm
           "
         >
-          <div className="col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Guardian Name
-            </label>
 
-            <input
-              name="guardianName"
-              value={form.guardianName || ""}
-              onChange={handleChange}
-              placeholder="Enter guardian name"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          <div className="flex items-center gap-2 mb-5">
+
+            <MapPin
+              className="
+                h-5
+                w-5
+                text-indigo-600
+              "
             />
+
+            <h4
+              className="
+                text-base
+                font-semibold
+                text-gray-800
+              "
+            >
+              Permanent Address
+            </h4>
+
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Relation
-            </label>
+          <div className="space-y-5">
 
-            <input
-              name="guardianRelation"
-              value={form.guardianRelation || ""}
-              onChange={handleChange}
-              placeholder="e.g. Uncle"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+            {/* Address */}
+
+            <div>
+
+              <Label htmlFor="permanentAddress">
+                Address
+              </Label>
+
+              <textarea
+                id="permanentAddress"
+                name="permanentAddress"
+                value={
+                  form.permanentAddress
+                }
+                onChange={
+                  handleChange
+                }
+                rows={4}
+                placeholder="Enter permanent address"
+                className="
+                  w-full
+                  rounded-xl
+                  border
+                  border-gray-300
+                  px-4
+                  py-3
+                  text-sm
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-indigo-500
+                "
+              />
+
+            </div>
+
+            {/* City State Pincode */}
+
+            <div
+              className="
+                grid
+                grid-cols-1
+                gap-5
+                md:grid-cols-3
+              "
+            >
+
+              <div>
+
+                <Label htmlFor="permanentCity">
+                  City
+                </Label>
+
+                <Input
+                  id="permanentCity"
+                  name="permanentCity"
+                  value={
+                    form.permanentCity
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Enter city"
+                />
+
+              </div>
+
+              <div>
+
+                <Label htmlFor="permanentState">
+                  State
+                </Label>
+
+                <Input
+                  id="permanentState"
+                  name="permanentState"
+                  value={
+                    form.permanentState
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Enter state"
+                />
+
+              </div>
+
+              <div>
+
+                <Label htmlFor="permanentPincode">
+                  Pincode
+                </Label>
+
+                <Input
+                  id="permanentPincode"
+                  name="permanentPincode"
+                  value={
+                    form.permanentPincode
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Enter pincode"
+                />
+
+              </div>
+
+            </div>
+
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Phone Number
-            </label>
-
-            <input
-              name="guardianPhone"
-              value={form.guardianPhone || ""}
-              onChange={handleChange}
-              placeholder="Enter 10-digit phone"
-              maxLength={10}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
         </div>
-      </div>
+
+      )}
+
     </div>
   );
 }

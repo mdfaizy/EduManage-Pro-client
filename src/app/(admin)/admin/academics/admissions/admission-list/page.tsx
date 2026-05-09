@@ -573,7 +573,7 @@ export default function AdmissionListPage() {
           "GET",
           "/admissions"
         );
-
+console.log(res);
       setData(res?.data?.data || []);
 
     } catch {

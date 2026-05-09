@@ -1,3 +1,4 @@
+
 import {
   User,
   MapPin,
@@ -13,8 +14,73 @@ import {
 
 const PreviewSection = ({
   form,
+  years,
+  classes,
+  sections,
   onEditStep,
 }: any) => {
+
+  // ===================================
+  // Safe Value
+  // ===================================
+
+
+  const selectedYear =
+  years.find(
+    (item: any) =>
+      String(item.id) ===
+      String(form.academicYearId)
+  );
+
+const selectedClass =
+  classes.find(
+    (item: any) =>
+      String(item.id) ===
+      String(form.classId)
+  );
+
+const selectedSection =
+  sections.find(
+    (item: any) =>
+      String(item.id) ===
+      String(form.sectionId)
+  );
+  const safeValue = (
+    value: any
+  ) => {
+
+    // Empty values
+
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
+      return "Not provided";
+    }
+
+    // Object safety
+
+    if (
+      typeof value === "object"
+    ) {
+
+      // React Select option
+
+      if ("label" in value) {
+        return value.label;
+      }
+
+      if ("value" in value) {
+        return value.value;
+      }
+
+      return "Not provided";
+    }
+
+    return String(value);
+  };
+
   // ===================================
   // Preview Card
   // ===================================
@@ -25,14 +91,18 @@ const PreviewSection = ({
     step,
     children,
   }: any) => (
+
     <div
       className="
         overflow-hidden
-        rounded-lg
+        rounded-xl
         border
+        border-gray-200
         bg-white
+        shadow-sm
       "
     >
+
       {/* Header */}
 
       <div
@@ -40,22 +110,35 @@ const PreviewSection = ({
           flex
           items-center
           justify-between
+          border-b
           bg-gray-50
           px-6
           py-4
         "
       >
-        <div className="flex items-center space-x-2">
-          {icon}
+
+        <div className="flex items-center space-x-3">
+
+          <div
+            className="
+              rounded-lg
+              bg-indigo-100
+              p-2
+            "
+          >
+            {icon}
+          </div>
 
           <h3
             className="
+              text-lg
               font-semibold
               text-gray-900
             "
           >
             {title}
           </h3>
+
         </div>
 
         <button
@@ -67,15 +150,25 @@ const PreviewSection = ({
             flex
             items-center
             space-x-1
+            rounded-lg
+            border
+            border-indigo-200
+            px-3
+            py-1.5
             text-sm
+            font-medium
             text-indigo-600
-            hover:text-indigo-800
+            transition
+            hover:bg-indigo-50
           "
         >
+
           <Edit className="h-4 w-4" />
 
           <span>Edit</span>
+
         </button>
+
       </div>
 
       {/* Body */}
@@ -83,6 +176,7 @@ const PreviewSection = ({
       <div className="p-6">
         {children}
       </div>
+
     </div>
   );
 
@@ -94,20 +188,36 @@ const PreviewSection = ({
     label,
     value,
   }: any) => (
+
     <div>
+
       <p
         className="
+          mb-1
           text-sm
+          font-medium
           text-gray-500
         "
       >
         {label}
       </p>
 
-      <p className="font-medium">
-        {value ||
-          "Not provided"}
-      </p>
+      <div
+        className="
+          rounded-lg
+          border
+          border-gray-200
+          bg-gray-50
+          px-3
+          py-2.5
+          text-sm
+          font-medium
+          text-gray-900
+        "
+      >
+        {safeValue(value)}
+      </div>
+
     </div>
   );
 
@@ -116,28 +226,42 @@ const PreviewSection = ({
   // ===================================
 
   return (
+
     <div className="space-y-6">
+
       {/* Top */}
 
       <div
         className="
           flex
-          items-center
-          justify-between
+          flex-col
+          gap-4
+          md:flex-row
+          md:items-center
+          md:justify-between
         "
       >
-        <h2
-          className="
-            text-2xl
-            font-bold
-            text-gray-900
-          "
-        >
-          Review Your
-          Application
-        </h2>
 
-        <div className="flex space-x-2">
+        <div>
+
+          <h2
+            className="
+              text-2xl
+              font-bold
+              text-gray-900
+            "
+          >
+            Review Your Application
+          </h2>
+
+          <p className="mt-1 text-sm text-gray-500">
+            Please review all information before final submission.
+          </p>
+
+        </div>
+
+        <div className="flex items-center gap-3">
+
           {/* Print */}
 
           <button
@@ -148,19 +272,25 @@ const PreviewSection = ({
             className="
               flex
               items-center
-              space-x-2
+              gap-2
               rounded-lg
               border
               border-gray-300
+              bg-white
               px-4
               py-2
-              text-gray-600
+              text-sm
+              font-medium
+              text-gray-700
+              transition
               hover:bg-gray-50
             "
           >
+
             <Printer className="h-4 w-4" />
 
             <span>Print</span>
+
           </button>
 
           {/* Download */}
@@ -170,33 +300,33 @@ const PreviewSection = ({
             className="
               flex
               items-center
-              space-x-2
+              gap-2
               rounded-lg
               border
               border-gray-300
+              bg-white
               px-4
               py-2
-              text-gray-600
+              text-sm
+              font-medium
+              text-gray-700
+              transition
               hover:bg-gray-50
             "
           >
+
             <Download className="h-4 w-4" />
 
             <span>Download</span>
+
           </button>
+
         </div>
+
       </div>
 
-      {/* Description */}
-
-      <p className="text-gray-600">
-        Please review all
-        information before
-        final submission.
-      </p>
-
       {/* ===================================
-          Personal Info
+          Personal Information
       =================================== */}
 
       <PreviewCard
@@ -206,29 +336,31 @@ const PreviewSection = ({
         }
         step={1}
       >
+
         <div
           className="
             grid
             grid-cols-1
-            gap-4
+            gap-5
             md:grid-cols-2
           "
         >
+
           <InfoRow
             label="Student Name"
-            value={
-              form.studentName
-            }
+            value={form.studentName}
           />
 
           <InfoRow
             label="Date of Birth"
             value={
+              typeof form.dateOfBirth ===
+                "string" &&
               form.dateOfBirth
                 ? new Date(
                     form.dateOfBirth
                   ).toLocaleDateString()
-                : null
+                : "Not provided"
             }
           />
 
@@ -239,41 +371,35 @@ const PreviewSection = ({
 
           <InfoRow
             label="Blood Group"
-            value={
-              form.bloodGroup
-            }
+            value={form.bloodGroup}
           />
 
           <InfoRow
             label="Nationality"
-            value={
-              form.nationality
-            }
+            value={form.nationality}
           />
 
           <InfoRow
             label="Religion"
-            value={
-              form.religion
-            }
+            value={form.religion}
           />
 
           <InfoRow
-            label="Caste/Category"
+            label="Category / Caste"
             value={form.caste}
           />
 
           <InfoRow
             label="Aadhar Number"
-            value={
-              form.aadharNumber
-            }
+            value={form.aadharNumber}
           />
+
         </div>
+
       </PreviewCard>
 
       {/* ===================================
-          Contact Info
+          Contact Information
       =================================== */}
 
       <PreviewCard
@@ -283,65 +409,117 @@ const PreviewSection = ({
         }
         step={2}
       >
+
         <div
           className="
             grid
             grid-cols-1
-            gap-4
+            gap-5
             md:grid-cols-2
           "
         >
+
+          {/* Phone */}
+
+          <InfoRow
+            label="Phone Number"
+            value={form.phoneNumber}
+          />
+
+          <InfoRow
+            label="Alternate Phone"
+            value={form.alternatePhone}
+          />
+
+          <InfoRow
+            label="Email Address"
+            value={form.email}
+          />
+
+          <div className="md:col-span-2 mt-3">
+            <h4 className="mb-3 text-base font-semibold text-gray-800">
+              Current Address
+            </h4>
+          </div>
+
           <div className="md:col-span-2">
+
             <InfoRow
               label="Address"
-              value={
-                form.address
-              }
+              value={form.currentAddress}
             />
+
           </div>
 
           <InfoRow
             label="City"
-            value={form.city}
+            value={form.currentCity}
           />
 
           <InfoRow
             label="State"
-            value={form.state}
+            value={form.currentState}
+          />
+
+          <InfoRow
+            label="Pincode"
+            value={form.currentPincode}
+          />
+
+          {/* Permanent Address */}
+
+          <div className="md:col-span-2 mt-5">
+            <h4 className="mb-3 text-base font-semibold text-gray-800">
+              Permanent Address
+            </h4>
+          </div>
+
+          <div className="md:col-span-2">
+
+            <InfoRow
+              label="Address"
+              value={
+                form.sameAsCurrentAddress
+                  ? form.currentAddress
+                  : form.permanentAddress
+              }
+            />
+
+          </div>
+
+          <InfoRow
+            label="City"
+            value={
+              form.sameAsCurrentAddress
+                ? form.currentCity
+                : form.permanentCity
+            }
+          />
+
+          <InfoRow
+            label="State"
+            value={
+              form.sameAsCurrentAddress
+                ? form.currentState
+                : form.permanentState
+            }
           />
 
           <InfoRow
             label="Pincode"
             value={
-              form.pincode
+              form.sameAsCurrentAddress
+                ? form.currentPincode
+                : form.permanentPincode
             }
           />
 
-          <InfoRow
-            label="Phone Number"
-            value={
-              form.phoneNumber
-            }
-          />
-
-          <InfoRow
-            label="Alternate Phone"
-            value={
-              form.alternatePhone
-            }
-          />
-
-          <div className="md:col-span-2">
-            <InfoRow
-              label="Email"
-              value={form.email}
-            />
-          </div>
         </div>
+
       </PreviewCard>
 
       {/* ===================================
-          Academic Info
+          Academic Information
       =================================== */}
 
       <PreviewCard
@@ -351,62 +529,77 @@ const PreviewSection = ({
         }
         step={3}
       >
+
         <div
           className="
             grid
             grid-cols-1
-            gap-4
+            gap-5
             md:grid-cols-2
           "
         >
+
           <InfoRow
-            label="Academic Year"
-            value={
-              form.academicYearName
-            }
+  label="Academic Year"
+  value={
+    selectedYear?.name ||
+    "Not provided"
+  }
+/>
+
+<InfoRow
+  label="Applying For Class"
+  value={
+    selectedClass?.name ||
+    "Not provided"
+  }
+/>
+
+<InfoRow
+  label="Preferred Section"
+  value={
+    selectedSection?.name ||
+    "Not provided"
+  }
+/>
+
+          <InfoRow
+            label="Admission Type"
+            value={form.admissionType}
           />
 
           <InfoRow
-            label="Applying For Class"
+            label="Admission Date"
             value={
-              form.className
-                ? `Class ${form.className}`
-                : null
+              typeof form.admissionDate ===
+                "string" &&
+              form.admissionDate
+                ? new Date(
+                    form.admissionDate
+                  ).toLocaleDateString()
+                : "Not provided"
             }
           />
-
-          <InfoRow
-            label="Preferred Section"
-            value={
-              form.sectionName
-            }
-          />
-
           <InfoRow
             label="Previous School"
-            value={
-              form.previousSchool
-            }
+            value={form.previousSchool}
           />
-
           <InfoRow
             label="Last Attended Class"
-            value={
-              form.previousClass
-            }
+            value={form.previousClass}
           />
 
           <InfoRow
             label="Last Year Percentage"
-            value={
-              form.previousPercentage
-            }
+            value={form.previousPercentage}
           />
+
         </div>
+
       </PreviewCard>
 
       {/* ===================================
-          Parent Info
+          Parent Information
       =================================== */}
 
       <PreviewCard
@@ -416,258 +609,171 @@ const PreviewSection = ({
         }
         step={4}
       >
+
         {/* Father */}
 
-        {(form.fatherName ||
-          form.fatherOccupation ||
-          form.fatherPhone) && (
-          <div className="mb-5">
-            <h4
-              className="
-                mb-2
-                font-medium
-                text-gray-800
-              "
-            >
-              Father's Details
-            </h4>
+        <div className="mb-8">
 
-            <div
-              className="
-                grid
-                grid-cols-1
-                gap-4
-                md:grid-cols-2
-              "
-            >
-              <InfoRow
-                label="Name"
-                value={
-                  form.fatherName
-                }
-              />
+          <h4
+            className="
+              mb-4
+              text-base
+              font-semibold
+              text-gray-800
+            "
+          >
+            Father's Details
+          </h4>
 
-              <InfoRow
-                label="Occupation"
-                value={
-                  form.fatherOccupation
-                }
-              />
+          <div
+            className="
+              grid
+              grid-cols-1
+              gap-5
+              md:grid-cols-2
+            "
+          >
 
-              <InfoRow
-                label="Phone"
-                value={
-                  form.fatherPhone
-                }
-              />
+            <InfoRow
+              label="Name"
+              value={form.fatherName}
+            />
 
-              <InfoRow
-                label="Email"
-                value={
-                  form.fatherEmail
-                }
-              />
-            </div>
+            <InfoRow
+              label="Occupation"
+              value={form.fatherOccupation}
+            />
+
+            <InfoRow
+              label="Phone Number"
+              value={form.fatherPhone}
+            />
+
           </div>
-        )}
+
+        </div>
 
         {/* Mother */}
 
-        {(form.motherName ||
-          form.motherOccupation ||
-          form.motherPhone) && (
-          <div>
-            <h4
-              className="
-                mb-2
-                font-medium
-                text-gray-800
-              "
-            >
-              Mother's Details
-            </h4>
+        <div className="mb-8">
 
-            <div
-              className="
-                grid
-                grid-cols-1
-                gap-4
-                md:grid-cols-2
-              "
-            >
-              <InfoRow
-                label="Name"
-                value={
-                  form.motherName
-                }
-              />
+          <h4
+            className="
+              mb-4
+              text-base
+              font-semibold
+              text-gray-800
+            "
+          >
+            Mother's Details
+          </h4>
 
-              <InfoRow
-                label="Occupation"
-                value={
-                  form.motherOccupation
-                }
-              />
+          <div
+            className="
+              grid
+              grid-cols-1
+              gap-5
+              md:grid-cols-2
+            "
+          >
 
-              <InfoRow
-                label="Phone"
-                value={
-                  form.motherPhone
-                }
-              />
+            <InfoRow
+              label="Name"
+              value={form.motherName}
+            />
 
-              <InfoRow
-                label="Email"
-                value={
-                  form.motherEmail
-                }
-              />
-            </div>
-          </div>
-        )}
-      </PreviewCard>
+            <InfoRow
+              label="Occupation"
+              value={form.motherOccupation}
+            />
 
-      {/* ===================================
-          Additional Info
-      =================================== */}
+            <InfoRow
+              label="Phone Number"
+              value={form.motherPhone}
+            />
 
-      <PreviewCard
-        title="Additional Information"
-        icon={
-          <Heart className="h-5 w-5 text-indigo-600" />
-        }
-        step={5}
-      >
-        <div className="space-y-4">
-          {/* Facilities */}
-
-          <div>
-            <h4
-              className="
-                mb-2
-                text-sm
-                font-medium
-                text-gray-700
-              "
-            >
-              Facilities Required
-            </h4>
-
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2">
-                {form.transportRequired ? (
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                ) : (
-                  <X className="h-4 w-4 text-red-500" />
-                )}
-
-                <span className="text-sm text-gray-600">
-                  Transport
-                  Facility
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                {form.hostelRequired ? (
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                ) : (
-                  <X className="h-4 w-4 text-red-500" />
-                )}
-
-                <span className="text-sm text-gray-600">
-                  Hostel
-                  Accommodation
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                {form.sportsQuota ? (
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                ) : (
-                  <X className="h-4 w-4 text-red-500" />
-                )}
-
-                <span className="text-sm text-gray-600">
-                  Sports Quota
-                </span>
-              </div>
-            </div>
           </div>
 
-          {/* Medical */}
-
-          {(form.medicalConditions ||
-            form.allergies) && (
-            <div>
-              <h4
-                className="
-                  mb-2
-                  text-sm
-                  font-medium
-                  text-gray-700
-                "
-              >
-                Medical
-                Information
-              </h4>
-
-              {form.medicalConditions && (
-                <p className="text-sm text-gray-600">
-                  <span className="text-gray-500">
-                    Conditions:
-                  </span>{" "}
-                  {
-                    form.medicalConditions
-                  }
-                </p>
-              )}
-
-              {form.allergies && (
-                <p className="text-sm text-gray-600">
-                  <span className="text-gray-500">
-                    Allergies:
-                  </span>{" "}
-                  {
-                    form.allergies
-                  }
-                </p>
-              )}
-            </div>
-          )}
         </div>
+
+        {/* Guardian */}
+
+        <div>
+
+          <h4 className="mb-4  text-base
+              font-semibold
+              text-gray-800
+            "
+          >
+            Guardian Details
+          </h4>
+
+          <div
+            className="
+              grid
+              grid-cols-1
+              gap-5
+              md:grid-cols-2
+            "
+          >
+
+            <InfoRow
+              label="Guardian Name"
+              value={form.guardianName}
+            />
+<InfoRow
+              label="Email"
+              value={form.guardianEmail}
+            />
+            <InfoRow
+              label="Relation"
+              value={form.guardianRelation}
+            />
+
+            <InfoRow
+              label="Phone Number"
+              value={form.guardianPhone}
+            />
+
+          </div>
+
+        </div>
+
       </PreviewCard>
 
+    
       {/* ===================================
           Declaration
       =================================== */}
 
       <div
         className="
-          rounded-lg
+          rounded-xl
           border-l-4
           border-indigo-500
           bg-indigo-50
           p-6
         "
       >
+
         <p
           className="
             text-sm
+            leading-7
             text-gray-700
           "
         >
+
           <strong>
             Declaration:
           </strong>{" "}
-          I hereby declare
-          that the information
-          provided above is
-          true and correct to
-          the best of my
-          knowledge.
+
+          I hereby declare that the information provided above is true and correct to the best of my knowledge.
+
         </p>
 
-        <div className="mt-4 flex items-center">
+        <div className="mt-5 flex items-center">
+
           <input
             type="checkbox"
             id="declaration"
@@ -687,19 +793,26 @@ const PreviewSection = ({
             className="
               ml-2
               text-sm
-              text-gray-600
+              font-medium
+              text-gray-700
             "
           >
-            I agree to the
-            declaration{" "}
-            <span className="text-red-500">
+
+            I agree to the declaration
+
+            <span className="ml-1 text-red-500">
               *
             </span>
+
           </label>
+
         </div>
+
       </div>
+
     </div>
   );
 };
 
 export default PreviewSection;
+

@@ -340,6 +340,11 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { apiConnector } from "@/services/apiConnecter";
+import {
+  getStudentsAPI,
+  deleteStudentAPI,
+  updateStudentStatusAPI,
+} from "@/services/studentService";
 
 // Extended Student type with real‑world fields
 type Student = {
@@ -347,9 +352,19 @@ type Student = {
   name: string;
   studentCode?: string;
   gender?: string;
-  class?: string;
-  section?: string;
-  year?: number;
+  academicRecords?: {
+  class?: {
+    name?: string;
+  };
+
+  section?: {
+    name?: string;
+  };
+
+  academicYear?: {
+    name?: string;
+  };
+}[];
   isActive: boolean;
   createdAt: string;
 };
@@ -374,58 +389,122 @@ export default function StudentTable() {
   };
 
   // Fetch students
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("http://localhost:8000/api/students", {
-        method: "GET",
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (data.success) setStudents(data.data);
-    } catch (err) {
-      console.error("Failed to fetch students", err);
-    } finally {
-      setLoading(false);
+ const fetchStudents = async () => {
+
+  try {
+
+    setLoading(true);
+
+    const res =
+      await getStudentsAPI();
+console.log(res)
+    if (res?.data?.success) {
+
+      setStudents(
+        res.data.data
+      );
     }
-  };
+
+  } catch (err) {
+
+    console.error(
+      "Failed to fetch students",
+      err
+    );
+
+  } finally {
+
+    setLoading(false);
+  }
+};
 
   // Delete handler
-  const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this student?")) return;
-    setDeletingId(id);
-    try {
-      const res = await fetch(`http://localhost:8000/api/students/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (data.success) {
-        setStudents((prev) => prev.filter((s) => s.id !== id));
-        showToast("Student deleted successfully", "success");
-      } else {
-        showToast(data.message || "Failed to delete", "error");
-      }
-    } catch {
-      showToast("Network error", "error");
-    } finally {
-      setDeletingId(null);
+  const handleDelete = async (
+  id: number
+) => {
+
+  if (
+    !confirm(
+      "Are you sure you want to delete this student?"
+    )
+  ) return;
+
+  setDeletingId(id);
+
+  try {
+
+    const res =
+      await deleteStudentAPI(id);
+
+    if (res?.data?.success) {
+
+      setStudents((prev) =>
+        prev.filter(
+          (s) => s.id !== id
+        )
+      );
+
+      showToast(
+        "Student deleted successfully",
+        "success"
+      );
+
+    } else {
+
+      showToast(
+        res?.data?.message
+        || "Failed to delete",
+        "error"
+      );
     }
-  };
+
+  } catch {
+
+    showToast(
+      "Network error",
+      "error"
+    );
+
+  } finally {
+
+    setDeletingId(null);
+  }
+};
 
   // Toggle active status
-  const toggleStatus = async (id: number, next: boolean) => {
-    try {
-      await apiConnector("PATCH", `/students/${id}/status`, {
-        isActive: next,
-      });
-      setStudents((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, isActive: next } : s))
-      );
-    } catch (err: any) {
-      // Optionally show an error toast here
-    }
-  };
+  const toggleStatus = async (
+  id: number,
+  next: boolean
+) => {
+
+  try {
+
+    await updateStudentStatusAPI(
+      id,
+      next
+    );
+
+    setStudents((prev) =>
+      prev.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              isActive: next,
+            }
+          : s
+      )
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+    showToast(
+      "Failed to update status",
+      "error"
+    );
+  }
+};
 
   useEffect(() => {
     fetchStudents();
@@ -690,13 +769,23 @@ export default function StudentTable() {
 
                       {/* New columns */}
                       <TableCell className="px-5 py-4">
-                        <span className="text-sm dark:text-gray-400">{student.class || "—"}</span>
+                        <span className="text-sm dark:text-gray-400">{
+      student.academicRecords?.[0]
+        ?.class?.name || "—"
+    }
+</span>
                       </TableCell>
                       <TableCell className="px-5 py-4">
-                        <span className="text-sm dark:text-gray-400">{student.section || "—"}</span>
+                        <span className="text-sm dark:text-gray-400"> {
+      student.academicRecords?.[0]
+        ?.section?.name || "—"
+    }</span>
                       </TableCell>
                       <TableCell className="px-5 py-4">
-                        <span className="text-sm dark:text-gray-400">{student.year || "—"}</span>
+                        <span className="text-sm dark:text-gray-400">{
+      student.academicRecords?.[0]
+        ?.academicYear?.name || "—"
+    }</span>
                       </TableCell>
 
                       <TableCell className="p-3">
@@ -749,6 +838,33 @@ export default function StudentTable() {
                           >
                             Delete
                           </button>
+                          <button
+  onClick={() =>
+    router.push(
+      `/admin/student/view/${student.id}/id-card`
+    )
+  }
+  className="
+    flex
+    items-center
+    gap-1.5
+    rounded-lg
+    border
+    border-emerald-500/20
+    bg-emerald-500/10
+    px-3
+    py-1.5
+    text-xs
+    font-medium
+    text-emerald-400
+    transition-all
+    duration-150
+    hover:border-emerald-500/40
+    hover:bg-emerald-500/20
+  "
+>
+  ID Card
+</button>
                         </div>
                       </TableCell>
                     </TableRow>

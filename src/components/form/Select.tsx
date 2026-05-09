@@ -156,9 +156,9 @@ const Select: React.FC<SelectProps> = ({
       >
         {/* Placeholder */}
 
-        <option value="">
-          {placeholder}
-        </option>
+        <option value="" disabled>
+  {placeholder}
+</option>
 
         {/* Options */}
 

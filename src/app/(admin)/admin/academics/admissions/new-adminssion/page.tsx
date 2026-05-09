@@ -2442,32 +2442,60 @@ export default function CreateAdmissionPage() {
   // ===================================
   // Handle Change
   // ===================================
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      | HTMLInputElement
-      | HTMLTextAreaElement
-      | HTMLSelectElement
+type FormChangeEvent =
+  | React.ChangeEvent<
+      HTMLInputElement |
+      HTMLSelectElement |
+      HTMLTextAreaElement
     >
-  ) => {
+  | {
+      name: keyof StudentFormData;
+      value: any;
+    };
+
+const handleChange = (
+  e: FormChangeEvent
+) => {
+
+  // ====================================
+  // Native Inputs / Selects
+  // ====================================
+
+  if ("target" in e) {
+
     const {
       name,
       value,
       type,
     } = e.target;
 
-    const checked = (
-      e.target as HTMLInputElement
-    ).checked;
+    const finalValue =
+      type === "checkbox"
+        ? (
+            e.target as HTMLInputElement
+          ).checked
+        : value;
 
     updateForm(
       name as keyof StudentFormData,
-
-      type === "checkbox"
-        ? checked
-        : value
+      finalValue
     );
-  };
+
+    return;
+  }
+
+  // ====================================
+  // Manual Object Updates
+  // ====================================
+
+  updateForm(
+    e.name,
+    e.value
+  );
+
+};
+
+
 
   // ===================================
   // Next Step
@@ -2546,69 +2574,252 @@ export default function CreateAdmissionPage() {
   // Submit
   // ===================================
 
-  const handleSubmit =
-    async (
-      e: React.FormEvent
-    ) => {
-      e.preventDefault();
+  // ===================================
+// Submit
+// ===================================
 
-      try {
-        const payload = {
-  studentName:
-    form.studentName,
+const handleSubmit = async (
+  e: React.FormEvent
+) => {
 
-  dob:
-    form.dateOfBirth,
+  e.preventDefault();
 
-  gender:
-    form.gender,
+  try {
 
-  address: `
-    ${form.address},
-    ${form.city},
-    ${form.state}
-    - ${form.pincode}
-  `,
+    // =================================
+    // Payload
+    // =================================
 
-  academicYearId:
-    Number(
-      form.academicYearId
-    ),
+    const payload = {
 
-  classId: Number(
-    form.classId
-  ),
+      // ===============================
+      // Personal Information
+      // ===============================
 
-  sectionId:
-    form.sectionId
-      ? Number(
-          form.sectionId
-        )
-      : null,
-};
+      studentName:
+        form.studentName
+          ?.trim(),
 
-        console.log(
-          "FINAL PAYLOAD =>",
-          payload
-        );
+      dob:
+        form.dateOfBirth,
 
-        await dispatch(
-          createAdmission(
-            payload
-          ) as any
-        );
+      gender:
+        form.gender,
 
-        resetForm();
+      bloodGroup:
+        form.bloodGroup,
 
-        setCurrentStep(1);
+      nationality:
+        form.nationality,
 
-        setShowPreview(
-          false
-        );
-      } catch (error) {
-        console.error(error);
-      }
+      religion:
+        form.religion,
+
+      caste:
+        form.caste,
+
+      aadharNumber:
+        form.aadharNumber,
+
+      // ===============================
+      // Contact Information
+      // ===============================
+
+      phoneNumber:
+        form.phoneNumber,
+
+      alternatePhone:
+        form.alternatePhone,
+
+      email:
+        form.email,
+
+      // ===============================
+      // Address
+      // ===============================
+
+      address: [
+        form.currentAddress,
+        form.currentCity,
+        form.currentState,
+        form.currentPincode,
+      ]
+        .filter(Boolean)
+        .join(", "),
+
+      permanentAddress: [
+        form.sameAsCurrentAddress
+          ? form.currentAddress
+          : form.permanentAddress,
+
+        form.sameAsCurrentAddress
+          ? form.currentCity
+          : form.permanentCity,
+
+        form.sameAsCurrentAddress
+          ? form.currentState
+          : form.permanentState,
+
+        form.sameAsCurrentAddress
+          ? form.currentPincode
+          : form.permanentPincode,
+      ]
+        .filter(Boolean)
+        .join(", "),
+
+      // ===============================
+      // Academic
+      // ===============================
+
+      academicYearId:
+        Number(
+          form.academicYearId
+        ),
+
+      classId:
+        Number(
+          form.classId
+        ),
+
+      sectionId:
+        form.sectionId
+          ? Number(
+              form.sectionId
+            )
+          : null,
+
+      admissionType:
+        form.admissionType,
+
+      admissionDate:
+        form.admissionDate,
+
+      medium:
+        form.medium,
+
+      previousSchool:
+        form.previousSchool,
+
+      previousBoard:
+        form.previousBoard,
+
+      previousClass:
+        form.previousClass,
+
+      previousPercentage:
+        form.previousPercentage,
+
+      tcNumber:
+        form.tcNumber,
+
+      // ===============================
+      // Parents
+      // ===============================
+
+      fatherName:
+        form.fatherName,
+
+      fatherOccupation:
+        form.fatherOccupation,
+
+      fatherPhone:
+        form.fatherPhone,
+
+      fatherEmail:
+        form.fatherEmail,
+
+      motherName:
+        form.motherName,
+
+      motherOccupation:
+        form.motherOccupation,
+
+      motherPhone:
+        form.motherPhone,
+
+      motherEmail:
+        form.motherEmail,
+
+      guardianName:
+        form.guardianName,
+
+      guardianRelation:
+        form.guardianRelation,
+
+      guardianPhone:
+        form.guardianPhone,
+
+      // ===============================
+      // Additional
+      // ===============================
+
+      transportRequired:
+        form.transportRequired,
+
+      hostelRequired:
+        form.hostelRequired,
+
+      sportsQuota:
+        form.sportsQuota,
+
+      sportsDetails:
+        form.sportsDetails,
+
+      medicalConditions:
+        form.medicalConditions,
+
+      allergies:
+        form.allergies,
+
     };
+
+    // =================================
+    // Debug
+    // =================================
+
+    console.log(
+      "FINAL PAYLOAD =>",
+      payload
+    );
+
+    // =================================
+    // API Call
+    // =================================
+
+    const response =
+      await dispatch(
+        createAdmission(
+          payload
+        ) as any
+      );
+
+    console.log(
+      "API RESPONSE =>",
+      response
+    );
+
+    // =================================
+    // Reset
+    // =================================
+
+    resetForm();
+
+    setCurrentStep(1);
+
+    setShowPreview(false);
+
+  } catch (error: any) {
+
+    console.log(
+      "API ERROR =>",
+      error?.response?.data
+    );
+
+    console.error(error);
+
+  }
+
+};
 
   // ===================================
   // Common Step Props
@@ -2637,7 +2848,7 @@ export default function CreateAdmissionPage() {
       if (showPreview) {
         return (
           <PreviewSection
-            form={form}
+             {...stepProps}
             onEditStep={
               handleEditStep
             }
@@ -2651,7 +2862,8 @@ export default function CreateAdmissionPage() {
         case 1:
           return (
             <PersonalInfoStep
-              {...stepProps}
+              {...stepProps
+              }
             />
           );
 
@@ -2676,12 +2888,12 @@ export default function CreateAdmissionPage() {
             />
           );
 
-        case 5:
-          return (
-            <AdditionalInfoStep
-              {...stepProps}
-            />
-          );
+        // case 5:
+        //   return (
+        //     <AdditionalInfoStep
+        //       {...stepProps}
+        //     />
+        //   );
 
         default:
           return null;

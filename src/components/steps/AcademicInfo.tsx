@@ -1,125 +1,154 @@
-import {
-  useState,
-  useEffect,
-} from "react";
+"use client";
 
+import {useEffect,useMemo,useState,} from "react";
 import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
 import Select from "@/components/form/Select";
-
 import { steps } from "@/utils/formUtils";
-
+interface Option {
+  value: string;
+  label: string;
+}
 interface Props {
   form: any;
-
-  handleChange: any;
-
+  handleChange: (
+    e: React.ChangeEvent<
+      HTMLInputElement |
+      HTMLSelectElement
+    >
+  ) => void;
   classes: any[];
-
   sections: any[];
-
   years: any[];
-
-  setForm: any;
 }
-
 export default function AcademicInfoStep({
   form,
-
   handleChange,
-
   classes,
-
   sections,
-
   years,
-
-  setForm,
 }: Props) {
-  // =========================
+  // =====================================
   // Section State
-  // =========================
-
+  // =====================================
   const [
-    sectionsList,
-    setSectionsList,
+    filteredSections,
+    setFilteredSections,
   ] = useState<any[]>([]);
-
-  // =========================
-  // Filter Sections
-  // =========================
-
+  // =====================================
+  // Filter Sections By Class
+  // =====================================
   useEffect(() => {
-    if (form.classId) {
-      const filtered =
-        sections.filter(
-          (s) =>
-            Number(
-              s.classId
-            ) ===
-            Number(
-              form.classId
-            )
-        );
-
-      setSectionsList(
-        filtered
-      );
-    } else {
-      setSectionsList(
-        []
-      );
+    if (!form.classId) {
+      setFilteredSections([]);
+      return;
     }
+    const filtered =
+      sections.filter(
+        (section) =>
+          String(
+            section.classId
+          ) ===
+          String(form.classId)
+      );
+    setFilteredSections(
+      filtered
+    );
   }, [
     form.classId,
     sections,
   ]);
-
-  // =========================
+  // =====================================
   // Options
-  // =========================
+  // =====================================
+  const classOptions: Option[] =
+    useMemo(
+      () =>
+        classes.map(
+          (item) => ({
+            value: String(
+              item.id
+            ),
 
-  const classOptions =
-    classes.map(
-      (item) => ({
-        value: String(
-          item.id
+            label:
+              item.name,
+          })
         ),
-
-        label: `Class ${item.name}`,
-      })
+      [classes]
     );
 
-  const yearOptions =
-    years.map(
-      (item) => ({
-        value: String(
-          item.id
-        ),
+  const yearOptions: Option[] =
+    useMemo(
+      () =>
+        years.map(
+          (item) => ({
+            value: String(
+              item.id
+            ),
 
-        label: item.isCurrent
-          ? `${item.name} (Current)`
-          : item.name,
-      })
+            label:
+              item.isCurrent
+                ? `${item.name} (Current)`
+                : item.name,
+          })
+        ),
+      [years]
     );
 
-  const sectionOptions =
-    sectionsList.map(
-      (item) => ({
-        value: String(
-          item.id
-        ),
+  const sectionOptions: Option[] =
+    useMemo(
+      () =>
+        filteredSections.map(
+          (item) => ({
+            value: String(
+              item.id
+            ),
 
-        label: item.name,
-      })
+            label:
+              item.name,
+          })
+        ),
+      [filteredSections]
     );
+
+  const admissionTypeOptions: Option[] =
+    [
+      {
+        value: "NEW",
+        label:
+          "New Admission",
+      },
+
+      {
+        value:
+          "TRANSFER",
+
+        label:
+          "Transfer",
+      },
+
+      {
+        value:
+          "READMISSION",
+
+        label:
+          "Re-Admission",
+      },
+    ];
+  // =====================================
+  // UI
+  // =====================================
 
   return (
+
     <div className="space-y-5">
+
       {/* Header */}
 
       <div className="flex items-center justify-between">
+
         <div>
+
           <h3
             className="
               text-lg
@@ -142,6 +171,7 @@ export default function AcademicInfoStep({
                 .description
             }
           </p>
+
         </div>
 
         <span
@@ -157,14 +187,24 @@ export default function AcademicInfoStep({
         >
           Step 3 of 6
         </span>
+
       </div>
 
       {/* Form */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div
+        className="
+          grid
+          grid-cols-1
+          gap-5
+          md:grid-cols-2
+        "
+      >
+
         {/* Academic Year */}
 
         <div>
+
           <Select
             label="Academic Year"
             name="academicYearId"
@@ -180,36 +220,35 @@ export default function AcademicInfoStep({
             placeholder="Select Academic Year"
             required
           />
+
         </div>
 
-        {/* Class */}
+        {/* Applying Class */}
 
         <div>
-         <Select
-  label="Applying For Class"
-  name="classId"
-  value={form.classId}
-  onChange={(e) => {
-    // First update form
 
-    handleChange(e);
+          <Select
+            label="Applying For Class"
+            name="classId"
+            value={
+              form.classId
+            }
+            onChange={
+              handleChange
+            }
+            options={
+              classOptions
+            }
+            placeholder="Select Class"
+            required
+          />
 
-    // Then reset section
-
-    setForm((prev: any) => ({
-      ...prev,
-      sectionId: "",
-    }));
-  }}
-  options={classOptions}
-  placeholder="Select Class"
-  required
-/>
         </div>
 
-        {/* Section */}
+        {/* Preferred Section */}
 
         <div>
+
           <Select
             label="Preferred Section"
             name="sectionId"
@@ -224,15 +263,51 @@ export default function AcademicInfoStep({
             }
             placeholder="Select Section"
           />
+
         </div>
 
-        {/* Previous School */}
+        {/* Admission Type */}
 
+        <div>
+
+          <Select
+            label="Admission Type"
+            name="admissionType"
+            value={
+              form.admissionType
+            }
+            onChange={
+              handleChange
+            }
+            options={
+              admissionTypeOptions
+            }
+            placeholder="Select Admission Type"
+            required
+          />
+
+        </div>
+
+        {/* Admission Date */}
+
+        <div>
+
+          <Label htmlFor="admissionDate">
+            Admission Date
+          </Label>
+
+          <Input
+            type="date"
+            id="admissionDate"
+            name="admissionDate"
+            value={form.admissionDate}
+            onChange={handleChange}/>
+        </div>
+        {/* Previous School */}
         <div className="md:col-span-2">
           <Label htmlFor="previousSchool">
             Previous School
           </Label>
-
           <Input
             id="previousSchool"
             name="previousSchool"
@@ -252,7 +327,6 @@ export default function AcademicInfoStep({
           <Label htmlFor="previousClass">
             Last Attended Class
           </Label>
-
           <Input
             id="previousClass"
             name="previousClass"
@@ -264,15 +338,14 @@ export default function AcademicInfoStep({
             }
             placeholder="e.g. Class 5"
           />
+
         </div>
 
         {/* Percentage */}
-
         <div>
           <Label htmlFor="previousPercentage">
             Last Year Percentage
           </Label>
-
           <Input
             id="previousPercentage"
             name="previousPercentage"
@@ -285,7 +358,10 @@ export default function AcademicInfoStep({
             placeholder="e.g. 85%"
           />
         </div>
+       
+
       </div>
+
     </div>
   );
 }
