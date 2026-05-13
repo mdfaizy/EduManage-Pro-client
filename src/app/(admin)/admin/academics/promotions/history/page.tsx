@@ -11,6 +11,7 @@ import {
   ArrowUpCircle,
   GraduationCap,
   CalendarDays,
+  RotateCcw,
   Eye,
 } from "lucide-react";
 
@@ -133,78 +134,48 @@ export default function PromotionHistoryPage() {
         const response =
           await apiConnector(
             "GET",
-            "/academic-records"
+           "/student-academic-record/records"
           );
-
+  console.log(response);
         const all =
           response.data.data || [];
 
         // ONLY PROMOTED RECORDS
 
-        const promoted =
-          all.filter(
-            (item: any) =>
-              item.promotedFromId
-          );
-
+const promoted =all.filter((item: any) =>item.promotedFromId);
         setRecords(promoted);
-
       } catch {
-
-        toast.error(
-          "Failed to load promotion history"
-        );
-
+        toast.error("Failed to load promotion history");
       } finally {
-
         setLoading(false);
       }
     };
-
   useEffect(() => {
-
     loadHistory();
-
   }, []);
-
   /* =====================================================
      FILTER OPTIONS
   ===================================================== */
-
-  const classOptions =
-    useMemo(() => {
-
+  const classOptions =useMemo(() => {
       return [
-
         ...new Set(
-
           records.map(
             (r) =>
               r.class?.name
           )
         ),
-
       ].filter(Boolean);
-
     }, [records]);
-
-  const sessionOptions =
-    useMemo(() => {
-
+  const sessionOptions=useMemo(() => {
       return [
-
         ...new Set(
-
           records.map(
             (r) =>
               r.academicYear?.name
           )
         ),
-
       ].filter(Boolean);
-
     }, [records]);
-
   /* =====================================================
      FILTER
   ===================================================== */
@@ -274,6 +245,41 @@ export default function PromotionHistoryPage() {
       selectedSession,
     ]);
 
+    const handleRevert =
+  async (
+    recordId: number
+  ) => {
+
+    try {
+
+      await apiConnector(
+
+        "POST",
+
+        "/student-academic-record/revert-promotion",
+
+        {
+          recordId,
+        }
+      );
+
+      toast.success(
+        "Promotion reverted successfully"
+      );
+
+      loadHistory();
+
+    } catch (e: any) {
+
+      toast.error(
+
+        e?.response?.data
+          ?.message ||
+
+        "Failed to revert promotion"
+      );
+    }
+  };
   /* =====================================================
      UI
   ===================================================== */
@@ -506,318 +512,395 @@ export default function PromotionHistoryPage() {
             "
           >
 
-            <thead
+           <thead
+  className="
+    bg-slate-100
+    text-slate-600
+  "
+>
+
+  <tr>
+
+    <th className="p-3 text-left">
+      Student
+    </th>
+
+    <th className="p-3 text-left">
+      Previous Class
+    </th>
+
+    <th className="p-3 text-left">
+      Prev Roll
+    </th>
+
+    <th className="p-3 text-left">
+      Promoted To
+    </th>
+
+    <th className="p-3 text-left">
+      Session
+    </th>
+
+    <th className="p-3 text-left">
+      Promoted On
+    </th>
+
+    <th className="p-3 text-left">
+      Roll No
+    </th>
+
+    <th className="p-3 text-left">
+      Status
+    </th>
+
+    <th className="p-3 text-left">
+      Action
+    </th>
+
+  </tr>
+
+</thead>
+
+<tbody>
+
+  {/* LOADING */}
+
+  {loading && (
+
+    <tr>
+
+      <td
+        colSpan={9}
+        className="
+          p-8
+          text-center
+        "
+      >
+        Loading...
+      </td>
+
+    </tr>
+
+  )}
+
+  {/* EMPTY */}
+
+  {!loading &&
+    filtered.length === 0 && (
+
+    <tr>
+
+      <td
+        colSpan={9}
+        className="
+          p-8
+          text-center
+          text-gray-500
+        "
+      >
+        No promotion history found
+      </td>
+
+    </tr>
+
+  )}
+
+  {/* DATA */}
+
+  {!loading &&
+    filtered.map(
+      (row) => (
+
+        <tr
+          key={row.id}
+          className="
+            border-t
+            hover:bg-gray-50
+          "
+        >
+
+          {/* STUDENT */}
+
+          <td className="p-3">
+
+            <div
               className="
-                bg-slate-100
-                text-slate-600
+                flex
+                items-center
+                gap-3
               "
             >
 
-              <tr>
+              <div
+                className="
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-indigo-100
+                  font-semibold
+                  text-indigo-700
+                "
+              >
+
+                {row.student?.name
+                  ?.charAt(0)}
+
+              </div>
+
+              <div>
+
+                <p className="font-medium">
+                  {row.student?.name}
+                </p>
+
+                <p
+                  className="
+                    text-xs
+                    text-gray-500
+                  "
+                >
+                  {
+                    row.student
+                      ?.studentCode
+                  }
+                </p>
+
+              </div>
+
+            </div>
 
-                <th className="p-3 text-left">
-                  Student
-                </th>
+          </td>
+
+          {/* OLD CLASS */}
+
+          <td className="p-3">
+
+            <div
+              className="
+                flex
+                items-center
+                gap-2
+              "
+            >
 
-                <th className="p-3 text-left">
-                  Previous Class
-                </th>
+              <GraduationCap
+                className="
+                  h-4
+                  w-4
+                  text-gray-400
+                "
+              />
 
-                <th className="p-3 text-left">
-                  Promoted To
-                </th>
+              <div>
 
-                <th className="p-3 text-left">
-                  Session
-                </th>
-
-                <th className="p-3 text-left">
-                  Roll No
-                </th>
+                <p className="font-medium">
+                  {
+                    row.promotedFrom
+                      ?.class?.name
+                  }
+                </p>
 
-                <th className="p-3 text-left">
-                  Status
-                </th>
+                <p
+                  className="
+                    text-xs
+                    text-gray-500
+                  "
+                >
+                  Section:
+                  {" "}
+                  {
+                    row.promotedFrom
+                      ?.section?.name
+                  }
+                </p>
 
-                <th className="p-3 text-left">
-                  Action
-                </th>
+              </div>
 
-              </tr>
+            </div>
 
-            </thead>
+          </td>
 
-            <tbody>
+          {/* PREVIOUS ROLL */}
 
-              {/* LOADING */}
-
-              {loading && (
-
-                <tr>
-
-                  <td
-                    colSpan={7}
-                    className="
-                      p-8
-                      text-center
-                    "
-                  >
-                    Loading...
-                  </td>
+          <td className="p-3">
 
-                </tr>
+            <span
+              className="
+                font-medium
+              "
+            >
 
-              )}
+              #
 
-              {/* EMPTY */}
+              {row.promotedFrom
+                ?.rollNumber || "-"}
 
-              {!loading &&
-                filtered.length === 0 && (
+            </span>
 
-                <tr>
+          </td>
 
-                  <td
-                    colSpan={7}
-                    className="
-                      p-8
-                      text-center
-                      text-gray-500
-                    "
-                  >
-                    No promotion history found
-                  </td>
-
-                </tr>
-
-              )}
-
-              {/* DATA */}
-
-              {!loading &&
-                filtered.map(
-                  (row) => (
-
-                    <tr
-                      key={row.id}
-                      className="
-                        border-t
-                        hover:bg-gray-50
-                      "
-                    >
-
-                      {/* STUDENT */}
-
-                      <td className="p-3">
-
-                        <div
-                          className="
-                            flex
-                            items-center
-                            gap-3
-                          "
-                        >
-
-                          <div
-                            className="
-                              flex
-                              h-10
-                              w-10
-                              items-center
-                              justify-center
-                              rounded-full
-                              bg-indigo-100
-                              font-semibold
-                              text-indigo-700
-                            "
-                          >
-
-                            {row.student?.name
-                              ?.charAt(0)}
-
-                          </div>
-
-                          <div>
-
-                            <p className="font-medium">
-                              {row.student?.name}
-                            </p>
-
-                            <p
-                              className="
-                                text-xs
-                                text-gray-500
-                              "
-                            >
-                              {
-                                row.student
-                                  ?.studentCode
-                              }
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                      </td>
-
-                      {/* OLD CLASS */}
-
-                      <td className="p-3">
-
-                        <div
-                          className="
-                            flex
-                            items-center
-                            gap-2
-                          "
-                        >
-
-                          <GraduationCap
-                            className="
-                              h-4
-                              w-4
-                              text-gray-400
-                            "
-                          />
-
-                          <div>
-
-                            <p>
-                              {
-                                row.promotedFrom
-                                  ?.class?.name
-                              }
-                            </p>
-
-                            <p
-                              className="
-                                text-xs
-                                text-gray-500
-                              "
-                            >
-                              Section:
-                              {" "}
-                              {
-                                row.promotedFrom
-                                  ?.section?.name
-                              }
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                      </td>
-
-                      {/* NEW CLASS */}
-
-                      <td className="p-3">
-
-                        <div>
-
-                          <p className="font-medium">
-                            {row.class?.name}
-                          </p>
-
-                          <p
-                            className="
-                              text-xs
-                              text-gray-500
-                            "
-                          >
-                            Section:
-                            {" "}
-                            {row.section?.name}
-                          </p>
-
-                        </div>
-
-                      </td>
-
-                      {/* SESSION */}
-
-                      <td className="p-3">
-
-                        <div
-                          className="
-                            flex
-                            items-center
-                            gap-2
-                          "
-                        >
-
-                          <CalendarDays
-                            className="
-                              h-4
-                              w-4
-                              text-gray-400
-                            "
-                          />
-
-                          {
-                            row.academicYear
-                              ?.name
-                          }
-
-                        </div>
-
-                      </td>
-
-                      {/* ROLL */}
-
-                      <td className="p-3">
-                        {row.rollNumber || "-"}
-                      </td>
-
-                      {/* STATUS */}
-
-                      <td className="p-3">
-
-                        <span
-                          className="
-                            rounded-full
-                            bg-emerald-100
-                            px-3
-                            py-1
-                            text-xs
-                            font-medium
-                            text-emerald-700
-                          "
-                        >
-                          PROMOTED
-                        </span>
-
-                      </td>
-
-                      {/* ACTION */}
-
-                      <td className="p-3">
-
-                        <button
-                          onClick={() =>
-                            router.push(
-                              `/admin/students/view/${row.student?.id}`
-                            )
-                          }
-                          className="
-                            rounded-lg
-                            bg-slate-700
-                            p-2
-                            text-white
-                          "
-                        >
-
-                          <Eye size={16} />
-
-                        </button>
-
-                      </td>
-
-                    </tr>
-                  )
-                )}
-
-            </tbody>
+          {/* NEW CLASS */}
+
+          <td className="p-3">
+
+            <div>
+
+              <p className="font-medium">
+                {row.class?.name}
+              </p>
+
+              <p
+                className="
+                  text-xs
+                  text-gray-500
+                "
+              >
+                Section:
+                {" "}
+                {row.section?.name}
+              </p>
+
+            </div>
+
+          </td>
+
+          {/* SESSION */}
+
+          <td className="p-3">
+
+            {
+              row.academicYear
+                ?.name
+            }
+
+          </td>
+
+          {/* PROMOTION DATE */}
+
+          <td className="p-3">
+
+            {row.createdAt
+
+              ? new Date(
+                  row.createdAt
+                ).toLocaleDateString()
+
+              : "-"}
+
+          </td>
+
+          {/* ROLL */}
+
+          <td className="p-3">
+
+            #
+            {row.rollNumber || "-"}
+
+          </td>
+
+          {/* STATUS */}
+
+          <td className="p-3">
+
+                   <span
+  className={`
+    rounded-full
+    px-3
+    py-1
+    text-xs
+    font-medium
+
+    ${
+      row.status === "REVERTED"
+
+        ? "bg-red-100 text-red-700"
+
+        : "bg-emerald-100 text-emerald-700"
+    }
+  `}
+>
+
+  {
+
+    row.status === "REVERTED"
+
+      ? "REVERTED"
+
+      : "PROMOTED"
+  }
+
+</span>
+
+          </td>
+
+          {/* ACTION */}
+
+         {/* ACTION */}
+
+<td className="p-3">
+
+  <div
+    className="
+      flex
+      items-center
+      gap-2
+    "
+  >
+
+    {/* VIEW */}
+
+    <button
+      onClick={() =>
+        router.push(
+          `/admin/student/view/${row.student?.id}`
+        )
+      }
+      className="
+        rounded-lg
+        bg-slate-700
+        p-2
+        text-white
+        transition
+        hover:bg-slate-800
+      "
+    >
+
+      <Eye size={16} />
+
+    </button>
+
+    <button
+  onClick={() =>
+    handleRevert(
+      row.id
+    )
+  }
+  className="
+    rounded-lg
+    bg-amber-600
+    p-2
+    text-white
+    transition
+    hover:bg-amber-700
+  "
+>
+
+  <RotateCcw size={16} />
+
+</button>
+
+  </div>
+
+</td>
+
+        </tr>
+      )
+    )}
+
+</tbody>
 
           </table>
 

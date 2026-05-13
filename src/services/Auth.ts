@@ -172,3 +172,14 @@ export const resetPassword = (
 
 
 
+export const getProfileAPI =
+  async () => {
+
+    const response =
+      await apiConnector(
+        "GET",
+        "/auth/me"
+      );
+
+    return response.data;
+  };

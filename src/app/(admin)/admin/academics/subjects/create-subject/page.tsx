@@ -1,19 +1,3 @@
-
-// import TeacherTimetableForm from "@/components/Academics/subjects/CreateSubject";
-
-// export default function TeacherTimetablePage() {
-//   return (
-//     <div className="p-8">
-//       <div className="mb-8">
-//         <h1 className="text-3xl font-bold text-gray-900">Teacher Timetable</h1>
-//         <p className="text-gray-600">Manage weekly schedules for teachers</p>
-//       </div>
-//       <TeacherTimetableForm />
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import { useState } from "react";
@@ -26,8 +10,9 @@ import {
   subjectSchema,
   SubjectFormData,
 } from "@/components/Validations/AuthSchema";
-
-import { apiConnector } from "@/services/apiConnecter";
+import {
+  createSubjectAPI,
+} from "@/services/subjectService";
 
 export default function CreateSubjectPage() {
   const [loading, setLoading] = useState(false);
@@ -46,16 +31,14 @@ export default function CreateSubjectPage() {
     try {
       setLoading(true);
 
-      const res = await apiConnector("POST", "/subjects", {
-        name: data.name,
-        description: data.description || null,
-        maxMarks: data.maxMarks
-          ? Number(data.maxMarks)
-          : null,
-        passMarks: data.passMarks
-          ? Number(data.passMarks)
-          : null,
-      });
+      const res =
+  await createSubjectAPI({
+    name: data.name,
+
+    description:
+      data.description ||
+      null,
+  }); 
 
       toast.success(res.data?.message || "Subject created");
 
@@ -160,36 +143,6 @@ export default function CreateSubjectPage() {
               )}
             </div>
 
-            {/* Marks */}
-            <div className="grid md:grid-cols-2 gap-6">
-
-              <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Max Marks
-                </label>
-
-                <input
-                  type="number"
-                  {...register("maxMarks")}
-                  placeholder="100"
-                  className="w-full px-4 py-3 mt-1 border rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Pass Marks
-                </label>
-
-                <input
-                  type="number"
-                  {...register("passMarks")}
-                  placeholder="33"
-                  className="w-full px-4 py-3 mt-1 border rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-
-            </div>
 
             {/* Info */}
             <div className="flex gap-2 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-lg p-4 text-sm text-amber-700 dark:text-amber-300">

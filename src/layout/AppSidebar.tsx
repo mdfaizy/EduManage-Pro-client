@@ -19,9 +19,11 @@ import {
   CreditCard,
   BarChart3,
   Settings,
+  Wallet,
   HatGlasses,
   Section,
-  ArrowUpCircle
+  ArrowUpCircle,
+  ClipboardCheck
   
 } from "lucide-react";
 
@@ -45,6 +47,186 @@ const navItems: NavItem[] = [
 
     ],
   },
+  {
+  icon: <ClipboardCheck />,
+
+  name: "Attendance",
+
+  subItems: [
+
+    {
+      name: "Mark Attendance",
+
+      path:
+        "/admin/attendance/mark",
+    },
+
+    {
+      name: "Daily Attendance",
+
+      path:
+        "/admin/attendance/daily",
+    },
+
+    {
+      name: "Attendance Reports",
+
+      path:
+        "/admin/attendance/monthly-report",
+    },
+
+    {
+      name: "Student Attendance",
+
+      path:
+        "/admin/attendance/student",
+    },
+
+    {
+      name: "Employee Attendance",
+
+      path:
+        "/admin/attendance/employee",
+    },
+
+    {
+      name: "Attendance Analytics",
+
+      path:
+        "/admin/attendance/analytics",
+    },
+  ],
+},
+  {
+  icon: <BookOpen />,
+  name: "Academic Records",
+  subItems: [
+    {name: "Academic Records",path:"/admin/academics/academic-records",},
+    {name: "Current Students",path:"/admin/academics/current-students",},
+  ],
+},
+  // =====================================================
+// FEES SIDEBAR MENU
+// =====================================================
+
+{
+  icon: <Wallet />,
+
+  name: "Fees Management",
+
+  subItems: [
+
+    {
+      name: "Fee Dashboard",
+
+      path:
+        "/admin/fees",
+    },
+
+    {
+      name: "Fee Structure",
+
+      path:
+        "/admin/fees/structure",
+    },
+
+    {
+      name: "Generate Student Fee",
+
+      path:
+        "/admin/fees/generate",
+    },
+
+    {
+      name: "Collect Payment",
+
+      path:
+        "/admin/fees/pay",
+    },
+
+    {
+      name: "Payment Receipts",
+
+      path:
+        "/admin/fees/receipts",
+    },
+
+    {
+      name: "Due Fees",
+
+      path:
+        "/admin/fees/due",
+    },
+
+    {
+      name: "Fee Reports",
+
+      path:
+        "/admin/fees/reports",
+    },
+  ],
+},
+// =====================================================
+// EXAMS SIDEBAR MENU
+// =====================================================
+
+{
+  icon: <GraduationCap />,
+
+  name: "Examinations",
+
+  subItems: [
+
+    {
+      name: "Exam Dashboard",
+
+      path:
+        "/admin/exams/dashboard",
+    },
+
+    {
+      name: "Create Exam",
+
+      path:
+        "/admin/exams/create",
+    },
+
+    {
+      name: "Exam List",
+
+      path:
+        "/admin/exams/list",
+    },
+
+    {
+      name: "Add Exam Subject",
+
+      path:
+        "/admin/exams/add-subject",
+    },
+
+    {
+      name: "Enter Marks",
+
+      path:
+        "/admin/exams/marks",
+    },
+
+    {
+      name: "Exam Results",
+
+      path:
+        "/admin/exams/results",
+    },
+
+    {
+      name: "Report Cards",
+
+      path:
+        "/admin/exams/report-card",
+    },
+  ],
+},
     {
     name: "My Classes",
     icon: <BookOpen size={20} />,

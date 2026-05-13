@@ -9,10 +9,16 @@ export const sectionSchema = z.object({
     .regex(/^[A-Za-z0-9- ]+$/, "Only letters, numbers allowed"),
 
   classId: z.string().min(1, "Please select a class"),
-  capacity: z
-    .string()
-    .min(1, "Capacity required")
-    .refine((v) => Number(v) > 0, "Capacity must be greater than 0"),
+ capacity: z
+  .string()
+  .optional()
+  .refine(
+    (v) => !v || Number(v) > 0,
+    {
+      message:
+        "Capacity must be greater than 0",
+    }
+  ),
 });
 
 export type SectionFormData = z.infer<typeof sectionSchema>;

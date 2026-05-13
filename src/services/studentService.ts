@@ -5,8 +5,22 @@ import { apiConnector }from "@/services/apiConnecter";
 // STUDENTS
 // ========================================
 
-export const getStudentsAPI =() =>apiConnector("GET","/students");
+// export const getStudentsAPI =() =>apiConnector("GET","/students");
 
+export const getStudentsAPI = (
+
+  classId?: number,
+
+  sectionId?: number
+
+) =>
+
+  apiConnector(
+
+    "GET",
+
+    `/students?classId=${classId}&sectionId=${sectionId}`
+  );
 export const getStudentByIdAPI =
   (id: number) =>
     apiConnector(
