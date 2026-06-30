@@ -109,8 +109,66 @@ const navItems: NavItem[] = [
 // FEES SIDEBAR MENU
 // =====================================================
 
+// {
+//   icon: <Wallet />,
+
+//   name: "Fees Management",
+
+//   subItems: [
+
+//     {
+//       name: "Fee Dashboard",
+
+//       path:
+//         "/admin/fees",
+//     },
+
+//     {
+//       name: "Fee Structure",
+
+//       path:
+//         "/admin/fees/structure",
+//     },
+
+//     {
+//       name: "Generate Student Fee",
+
+//       path:
+//         "/admin/fees/generate",
+//     },
+
+//     {
+//       name: "Collect Payment",
+
+//       path:
+//         "/admin/fees/pay",
+//     },
+
+//     {
+//       name: "Payment Receipts",
+
+//       path:
+//         "/admin/fees/receipts",
+//     },
+
+//     {
+//       name: "Due Fees",
+
+//       path:
+//         "/admin/fees/due",
+//     },
+
+//     {
+//       name: "Fee Reports",
+
+//       path:
+//         "/admin/fees/reports",
+//     },
+//   ],
+// },
+
 {
-  icon: <Wallet />,
+  icon: <Wallet size={20} />,
 
   name: "Fees Management",
 
@@ -118,51 +176,57 @@ const navItems: NavItem[] = [
 
     {
       name: "Fee Dashboard",
-
-      path:
-        "/admin/fees",
+      path: "/admin/fees",
     },
-
     {
       name: "Fee Structure",
-
-      path:
-        "/admin/fees/structure",
+      path: "/admin/fees/structure",
     },
-
     {
       name: "Generate Student Fee",
+      path: "/admin/fees/generate",
 
-      path:
-        "/admin/fees/generate",
     },
-
     {
       name: "Collect Payment",
-
-      path:
-        "/admin/fees/pay",
+      path: "/admin/fees/pay",
+     
+      // scholarship
+    },
+     {
+      name: "Scholarship",
+      path: "/admin/scholarship",
+     
+      // 
+    },
+     {
+      name: "Student Scholarship",
+      path: "/admin/student-scholarship",
+     
+      // scholarship
     },
 
     {
       name: "Payment Receipts",
 
-      path:
-        "/admin/fees/receipts",
+      path: "/admin/fees/receipts",
+
     },
 
     {
       name: "Due Fees",
 
-      path:
-        "/admin/fees/due",
+      path: "/admin/fees/due",
+
+  
     },
 
     {
       name: "Fee Reports",
 
-      path:
-        "/admin/fees/reports",
+      path: "/admin/fees/reports",
+
+      
     },
   ],
 },
@@ -177,54 +241,13 @@ const navItems: NavItem[] = [
 
   subItems: [
 
-    {
-      name: "Exam Dashboard",
-
-      path:
-        "/admin/exams/dashboard",
-    },
-
-    {
-      name: "Create Exam",
-
-      path:
-        "/admin/exams/create",
-    },
-
-    {
-      name: "Exam List",
-
-      path:
-        "/admin/exams/list",
-    },
-
-    {
-      name: "Add Exam Subject",
-
-      path:
-        "/admin/exams/add-subject",
-    },
-
-    {
-      name: "Enter Marks",
-
-      path:
-        "/admin/exams/marks",
-    },
-
-    {
-      name: "Exam Results",
-
-      path:
-        "/admin/exams/results",
-    },
-
-    {
-      name: "Report Cards",
-
-      path:
-        "/admin/exams/report-card",
-    },
+    {name: "Exam Dashboard",path:"/admin/exams/dashboard",},
+    {name: "Create Exam",path:"/admin/exams/create",},
+    {name: "Exam List",path:"/admin/exams/list",},
+    {name: "Add Exam Subject",path:"/admin/exams/add-subject",},
+    {name: "Enter Marks", path:"/admin/exams/marks",},
+    {name: "Exam Results",path:"/admin/exams/results",},
+    {name: "Report Cards", path:"/admin/exams/report-card",},
   ],
 },
     {
@@ -658,97 +681,305 @@ const AppSidebar: React.FC = () => {
   };
 
   return (
+    // <aside
+    //   className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+    //     ${
+    //       isExpanded || isMobileOpen
+    //         ? "w-[290px]"
+    //         : isHovered
+    //         ? "w-[290px]"
+    //         : "w-[90px]"
+    //     }
+    //     ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
+    //     lg:translate-x-0`}
+    //   onMouseEnter={() => !isExpanded && setIsHovered(true)}
+    //   onMouseLeave={() => setIsHovered(false)}
+    // >
+    //   <div
+    //     className={`py-8 flex  ${
+    //       !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+    //     }`}
+    //   >
+    //     <Link href="/admin">
+    //       {isExpanded || isHovered || isMobileOpen ? (
+    //         // <>
+    //         //   <Image
+    //         //     className="dark:hidden"
+    //         //     src="/images/logo/logo.svg"
+    //         //     alt="Logo"
+    //         //     width={150}
+    //         //     height={40}
+    //         //   />
+    //         //   <Image
+    //         //     className="hidden dark:block"
+    //         //     src="/images/logo/logo-dark.svg"
+    //         //     alt="Logo"
+    //         //     width={150}
+    //         //     height={40}
+    //         //   />
+    //         // </>
+    //         <><p>School</p></>
+
+    //       ) : (
+    //         // <Image
+    //         //   src="/images/logo/logo-icon.svg"
+    //         //   alt="Logo"
+    //         //   width={32}
+    //         //   height={32}
+    //         // />
+    //         <><p>School</p></>
+    //       )}
+    //     </Link>
+    //   </div>
+    //   <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+    //     <nav className="mb-6">
+    //       <div className="flex flex-col gap-4">
+    //         <div>
+    //           <h2
+    //             className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+    //               !isExpanded && !isHovered
+    //                 ? "lg:justify-center"
+    //                 : "justify-start"
+    //             }`}
+    //           >
+    //             {isExpanded || isHovered || isMobileOpen ? (
+    //               "Menu"
+    //             ) : (
+    //               <MoreHorizontal />
+    //             )}
+    //           </h2>
+    //           {renderMenuItems(navItems, "main")}
+    //         </div>
+
+    //         <div className="">
+    //           <h2
+    //             className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+    //               !isExpanded && !isHovered
+    //                 ? "lg:justify-center"
+    //                 : "justify-start"
+    //             }`}
+    //           >
+    //             {isExpanded || isHovered || isMobileOpen ? (
+    //               "Others"
+    //             ) : (
+    //               <MoreHorizontal />
+    //             )}
+    //           </h2>
+    //           {renderMenuItems(othersItems, "others")}
+    //         </div>
+    //       </div>
+    //     </nav>
+    //     {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
+    //   </div>
+    // </aside>
+
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-        ${
-          isExpanded || isMobileOpen
-            ? "w-[290px]"
-            : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
-        }
-        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0`}
-      onMouseEnter={() => !isExpanded && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+  className={`
+    fixed
+    top-0
+    left-0
+    z-50
+    mt-16
+    lg:mt-0
+  
+    h-screen
+    bg-white
+    dark:bg-gray-900
+    border-r
+    border-gray-200
+    dark:border-gray-800
+
+    transition-all
+    duration-300
+    ease-in-out
+
+    flex
+    flex-col
+
+    px-4
+
+    ${
+      isExpanded || isMobileOpen
+        ? "w-[255px]"
+        : isHovered
+        ? "w-[255px]"
+        : "w-[78px]"
+    }
+
+    ${
+      isMobileOpen
+        ? "translate-x-0"
+        : "-translate-x-full"
+    }
+
+    lg:translate-x-0
+  `}
+  onMouseEnter={() =>
+    !isExpanded && setIsHovered(true)
+  }
+  onMouseLeave={() =>
+    setIsHovered(false)
+  }
+>
+
+  {/* Logo */}
+  <div
+    className={`
+      py-6
+      flex
+      items-center
+
+      ${
+        !isExpanded && !isHovered
+          ? "lg:justify-center"
+          : "justify-start"
+      }
+    `}
+  >
+    <Link
+      href="/admin"
+      className="flex items-center gap-3"
     >
+
+      {/* Logo Circle */}
       <div
-        className={`py-8 flex  ${
-          !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-        }`}
+        className="
+        w-10
+        h-10
+        rounded-2xl
+        bg-blue-600
+        text-white
+        flex
+        items-center
+        justify-center
+        font-bold
+        text-lg
+        shadow-sm
+        "
       >
-        <Link href="/admin">
-          {isExpanded || isHovered || isMobileOpen ? (
-            // <>
-            //   <Image
-            //     className="dark:hidden"
-            //     src="/images/logo/logo.svg"
-            //     alt="Logo"
-            //     width={150}
-            //     height={40}
-            //   />
-            //   <Image
-            //     className="hidden dark:block"
-            //     src="/images/logo/logo-dark.svg"
-            //     alt="Logo"
-            //     width={150}
-            //     height={40}
-            //   />
-            // </>
-            <><p>School</p></>
+        S
+      </div>
 
+      {(isExpanded ||
+        isHovered ||
+        isMobileOpen) && (
+        <div>
+
+          <h1
+            className="
+            text-[18px]
+            font-bold
+            text-gray-900
+            leading-none
+            "
+          >
+            School
+          </h1>
+
+          <p
+            className="
+            text-[11px]
+            text-gray-500
+            mt-1
+            "
+          >
+            ERP Management
+          </p>
+
+        </div>
+      )}
+
+    </Link>
+  </div>
+
+  {/* Navigation */}
+  <div
+  className="
+
+    flex-1
+
+    overflow-y-auto
+    no-scrollbar
+
+    pt-4
+    pb-10
+
+  "
+>
+    <nav className="space-y-7">
+
+      {/* Main */}
+      <div>
+
+        <h2
+          className={`
+            mb-3
+            text-[11px]
+            font-semibold
+            uppercase
+            tracking-wider
+            text-gray-400
+
+            ${
+              !isExpanded && !isHovered
+                ? "lg:text-center"
+                : "px-2"
+            }
+          `}
+        >
+          {isExpanded ||
+          isHovered ||
+          isMobileOpen ? (
+            "Menu"
           ) : (
-            // <Image
-            //   src="/images/logo/logo-icon.svg"
-            //   alt="Logo"
-            //   width={32}
-            //   height={32}
-            // />
-            <><p>School</p></>
+            <MoreHorizontal size={16} />
           )}
-        </Link>
-      </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
-        <nav className="mb-6">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
-                ) : (
-                  <MoreHorizontal />
-                )}
-              </h2>
-              {renderMenuItems(navItems, "main")}
-            </div>
+        </h2>
 
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <MoreHorizontal />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
-            </div>
-          </div>
-        </nav>
-        {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
+        <div className="space-y-1">
+          {renderMenuItems(navItems, "main")}
+        </div>
       </div>
-    </aside>
+
+      {/* Others */}
+      <div>
+
+        <h2
+          className={`
+            mb-3
+            text-[11px]
+            font-semibold
+            uppercase
+            tracking-wider
+            text-gray-400
+
+            ${
+              !isExpanded && !isHovered
+                ? "lg:text-center"
+                : "px-2"
+            }
+          `}
+        >
+          {isExpanded ||
+          isHovered ||
+          isMobileOpen ? (
+            "Others"
+          ) : (
+            <MoreHorizontal size={16} />
+          )}
+        </h2>
+
+        <div className="space-y-1.5">
+          {renderMenuItems(
+            othersItems,
+            "others"
+          )}
+        </div>
+      </div>
+
+    </nav>
+  </div>
+</aside>
   );
 };
 

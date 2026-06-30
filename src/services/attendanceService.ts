@@ -22,6 +22,19 @@ export const getAttendanceStudentsAPI = (
     `/attendance-router/students?classId=${classId}&sectionId=${sectionId}`
   );
 
+
+
+  export const getTodayAttendanceAPI = (
+    classId?: number,
+    sectionId?: number
+) => {
+    return apiConnector(
+        "GET",
+        `/attendance/today?classId=${classId}&sectionId=${sectionId}`
+    );
+};
+
+
 // ======================================================
 // MARK ATTENDANCE
 // ======================================================
@@ -43,16 +56,39 @@ export const markAttendanceAPI = (
 // DAILY ATTENDANCE
 // ======================================================
 
+// export const getDailyAttendanceAPI = (
+//   attendanceDate: string
+// ) =>
+
+//   apiConnector(
+
+//     "GET",
+
+//     `/attendance-router/daily?attendanceDate=${attendanceDate}`
+//   );
+
 export const getDailyAttendanceAPI = (
-  attendanceDate: string
+  attendanceDate: string,
+  classId?: number,
+  sectionId?: number
 ) =>
-
   apiConnector(
-
     "GET",
-
-    `/attendance-router/daily?attendanceDate=${attendanceDate}`
+    `/attendance-router/daily?attendanceDate=${attendanceDate}&classId=${classId || ""}&sectionId=${sectionId || ""}`
   );
+
+  // =====================================
+// STUDENT ATTENDANCE HISTORY
+// =====================================
+
+export const getStudentAttendanceHistoryAPI = (
+  studentId: number
+) => {
+  return apiConnector(
+    "GET",
+    `/attendance/student/${studentId}`
+  );
+};
 
 // ======================================================
 // UPDATE ATTENDANCE
@@ -115,6 +151,8 @@ export const getAttendanceReportAPI = (
 // STUDENT REPORT
 // ======================================================
 
+
+
 export const getStudentAttendanceReportAPI = (
   studentId: number
 ) =>
@@ -123,7 +161,7 @@ export const getStudentAttendanceReportAPI = (
 
     "GET",
 
-    `/student-attendance/student/${studentId}`
+    `/attendance-router/student/${studentId}`
   );
 
 // ======================================================

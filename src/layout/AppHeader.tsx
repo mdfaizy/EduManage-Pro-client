@@ -41,7 +41,32 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
+    // <header className="fixed top-0 left-0 right-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b fixed">
+    <header
+  className="
+
+    fixed
+    top-0
+    left-0
+    right-0
+
+    h-[72px]
+
+    flex
+    w-full
+
+    bg-white
+
+    border-b
+    border-gray-200
+
+    z-[9999]
+
+    dark:border-gray-800
+    dark:bg-gray-900
+
+  "
+>
       <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
         <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
           <button
@@ -133,6 +158,94 @@ const AppHeader: React.FC = () => {
       </div>
     </header>
   );
+
+//   return (
+
+//   <header className="sticky top-0 z-[99999] w-full border-b border-[#edf0f5] bg-white">
+
+//     <div className="flex items-center justify-between px-4 py-3 md:px-6">
+
+//       {/* ================================================= */}
+//       {/* LEFT */}
+//       {/* ================================================= */}
+
+//       <div className="flex items-center gap-4">
+
+//         {/* TOGGLE */}
+
+//         <button
+//           onClick={handleToggle}
+//           className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#e5e7eb] bg-white text-[#374151] hover:bg-[#f9fafb] transition"
+//         >
+
+//           <ArrowRightLeft size={20} />
+
+//         </button>
+
+//         {/* SEARCH */}
+
+//         <div className="hidden lg:block">
+
+//           <div className="relative">
+
+//             <Search
+//               size={20}
+//               className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]"
+//             />
+
+//             <input
+//               ref={inputRef}
+//               type="text"
+//               placeholder="Search or type command..."
+//               className="h-[52px] w-[520px] rounded-2xl border border-[#e5e7eb] bg-white pl-12 pr-5 text-[14px] text-[#111827] placeholder:text-[#9ca3af] outline-none focus:ring-4 focus:ring-blue-100 focus:border-[#2563eb] transition"
+//             />
+
+//           </div>
+
+//         </div>
+
+//       </div>
+
+//       {/* ================================================= */}
+//       {/* RIGHT */}
+//       {/* ================================================= */}
+
+//       <div className="flex items-center gap-3">
+
+//         {/* DARK MODE */}
+
+//         <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#e5e7eb] bg-white">
+
+//           <ThemeToggleButton />
+
+//         </div>
+
+//         {/* USER */}
+
+//         <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2">
+
+//           <div className="hidden sm:block text-right">
+
+//             <p className="text-[13px] font-semibold text-[#111827]">
+//               Faizy
+//             </p>
+
+//             <p className="text-[11px] text-[#6b7280]">
+//               Admin
+//             </p>
+
+//           </div>
+
+//           <UserDropdown />
+
+//         </div>
+
+//       </div>
+
+//     </div>
+
+//   </header>
+// );
 };
 
 export default AppHeader;

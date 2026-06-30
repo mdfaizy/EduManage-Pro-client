@@ -1,5 +1,4 @@
 "use client";
-
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
@@ -17,6 +16,15 @@ import {
   UserCheck,
   UserX,
   Clock,
+  School,
+  BookOpen,
+  User,
+  BarChart3,
+  Play,
+  AlertCircle,
+  ChevronRight,
+  Menu,
+  X,
 } from "lucide-react";
 import { useMasterData } from "@/hooks/useMasterData";
 import {
@@ -37,6 +45,7 @@ export default function DailyAttendancePage() {
   const [lockingId, setLockingId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set());
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
 
   // Load Attendance
   const loadAttendance = async () => {
@@ -47,33 +56,30 @@ export default function DailyAttendancePage() {
 
     try {
       setLoading(true);
-      const response =
-  await getAttendanceStudentsAPI(
+      const response = await getDailyAttendanceAPI(
+    attendanceDate,
+    classId ? Number(classId) : undefined,
+    sectionId ? Number(sectionId) : undefined
+);
+console.log("Daily Attendance Response:", response.data);
 
-    classId
-      ? Number(classId)
-      : undefined,
-
-    sectionId !== undefined &&
-    sectionId !== null &&
-    sectionId !== ""
-      ? Number(sectionId)
-      : undefined
-  );
-      setSessions(response.data.data || []);
+setSessions(response.data.data || []);
       
       if (response.data.data?.length === 0) {
         toast.custom((t) => (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 flex items-center gap-3">
-            <CalendarDays className="text-gray-400" size={20} />
+            <AlertCircle className="text-yellow-500" size={20} />
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">No attendance records found</p>
-              <p className="text-sm text-gray-500">Try selecting a different date or class</p>
+              <p className="font-medium text-gray-900 dark:text-white">No records found</p>
+              <p className="text-sm text-gray-500">Try changing the date or filters</p>
             </div>
           </div>
         ));
       } else {
-        toast.success(`Found ${response.data.data.length} class(es)`);
+        toast.success(`📚 Found ${response.data.data.length} class(es)`, {
+          icon: '✅',
+          duration: 2000,
+        });
       }
     } catch (e: any) {
       toast.error(e.response?.data?.message || "Failed to load attendance");
@@ -87,7 +93,10 @@ export default function DailyAttendancePage() {
     try {
       setLockingId(sessionId);
       const response = await lockAttendanceAPI(sessionId);
-      toast.success(response.data.message || "Attendance locked successfully");
+      toast.success("🔒 Attendance locked successfully!", {
+        icon: '🔒',
+        duration: 3000,
+      });
       await loadAttendance();
     } catch (e: any) {
       toast.error(e.response?.data?.message || "Failed to lock attendance");
@@ -114,9 +123,10 @@ export default function DailyAttendancePage() {
     return sessions.map((session: any) => ({
       ...session,
       records: session.records?.filter((record: any) =>
-        record.student?.name?.toLowerCase().includes(search.toLowerCase())
+        record.student?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        record.student?.rollNumber?.toLowerCase().includes(search.toLowerCase())
       ) || [],
-    }));
+    })).filter(session => session.records.length > 0);
   }, [sessions, search]);
 
   // Calculate total stats
@@ -134,107 +144,164 @@ export default function DailyAttendancePage() {
   }, [sessions]);
 
   const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { icon: any; label: string; classes: string }> = {
+    const statusMap: Record<string, { icon: any; label: string; classes: string; bg: string }> = {
       PRESENT: {
         icon: CheckCircle,
-        label: "Present",
+        label: "Present ✅",
         classes: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+        bg: "bg-green-500",
       },
       ABSENT: {
         icon: XCircle,
-        label: "Absent",
+        label: "Absent ❌",
         classes: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+        bg: "bg-red-500",
       },
       LATE: {
         icon: Clock3,
-        label: "Late",
+        label: "Late ⏰",
         classes: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+        bg: "bg-yellow-500",
       },
       HALF_DAY: {
         icon: Clock,
-        label: "Half Day",
+        label: "Half Day 🌗",
         classes: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
+        bg: "bg-orange-500",
       },
       LEAVE: {
         icon: UserX,
-        label: "Leave",
+        label: "Leave 📝",
         classes: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+        bg: "bg-purple-500",
       },
     };
     return statusMap[status] || statusMap.PRESENT;
   };
 
+  // Quick action buttons for today
+  const quickActions = [
+    { label: "Today", value: new Date().toISOString().split('T')[0] },
+    { label: "Yesterday", value: new Date(Date.now() - 86400000).toISOString().split('T')[0] },
+    { label: "This Week", value: new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0] },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
-              <Eye className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
+        {/* Enhanced Header with Welcome */}
+        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 md:p-8 text-white shadow-xl">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                Attendance Dashboard
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                View and manage student attendance records
-              </p>
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl">
+                  <BookOpen className="w-7 h-7" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                    Attendance Dashboard
+                  </h1>
+                  <p className="text-blue-100 mt-1 flex items-center gap-2">
+                    <span>📊</span> 
+                    Track and manage student attendance effortlessly
+                  </p>
+                </div>
+              </div>
             </div>
+            
+            {/* Quick Stats Pills */}
+            {sessions.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                <div className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  <span className="font-semibold">{totalStats.totalStudents}</span>
+                  <span className="text-blue-100 text-sm">Total</span>
+                </div>
+                <div className="px-4 py-2 bg-green-400/30 backdrop-blur-sm rounded-xl flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="font-semibold">{totalStats.totalPresent}</span>
+                  <span className="text-blue-100 text-sm">Present</span>
+                </div>
+                <div className="px-4 py-2 bg-red-400/30 backdrop-blur-sm rounded-xl flex items-center gap-2">
+                  <XCircle className="w-4 h-4" />
+                  <span className="font-semibold">{totalStats.totalAbsent}</span>
+                  <span className="text-blue-100 text-sm">Absent</span>
+                </div>
+                <div className="px-4 py-2 bg-yellow-400/30 backdrop-blur-sm rounded-xl flex items-center gap-2">
+                  <Clock3 className="w-4 h-4" />
+                  <span className="font-semibold">{totalStats.totalLate}</span>
+                  <span className="text-blue-100 text-sm">Late</span>
+                </div>
+              </div>
+            )}
           </div>
-          
-          {/* Summary Stats */}
-          {sessions.length > 0 && (
-            <div className="flex gap-2 text-sm">
-              <div className="px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                <span className="text-gray-500">Total: </span>
-                <span className="font-semibold text-gray-900 dark:text-white">{totalStats.totalStudents}</span>
-              </div>
-              <div className="px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <span className="text-green-600">P: {totalStats.totalPresent}</span>
-              </div>
-              <div className="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <span className="text-red-600">A: {totalStats.totalAbsent}</span>
-              </div>
-              <div className="px-3 py-1.5 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <span className="text-yellow-600">L: {totalStats.totalLate}</span>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Filter Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter size={18} className="text-gray-400" />
-            <h2 className="font-semibold text-gray-900 dark:text-white">Filter Attendance</h2>
+        {/* Quick Action Date Pills */}
+        <div className="flex flex-wrap gap-2">
+          {quickActions.map((action) => (
+            <button
+              key={action.label}
+              onClick={() => setAttendanceDate(action.value)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                attendanceDate === action.value
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+              }`}
+            >
+              {action.label}
+            </button>
+          ))}
+          <button
+            onClick={() => {
+              if (sessions.length > 0) {
+                toast.success("🔄 Refreshing attendance data...");
+                loadAttendance();
+              }
+            }}
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all flex items-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
+
+        {/* Improved Filter Card - More User Friendly */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+              <Filter className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-gray-900 dark:text-white">Find Attendance Records</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Select date and filters to view attendance</p>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Date Picker */}
+            {/* Date Picker - Enhanced */}
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
-                Date <span className="text-red-500">*</span>
+                📅 Select Date <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <CalendarDays size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="date"
                   value={attendanceDate}
                   onChange={(e) => setAttendanceDate(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all hover:border-blue-400"
+                  placeholder="Select date"
                 />
               </div>
             </div>
 
-            {/* Class Select */}
+            {/* Class Select - Enhanced */}
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
-                Class
+                🏫 Class
               </label>
               <div className="relative">
-                <Users size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <select
                   value={classId}
                   onChange={(e) => {
@@ -242,7 +309,7 @@ export default function DailyAttendancePage() {
                     setFormClassId(e.target.value);
                     setSectionId("");
                   }}
-                  className="w-full pl-10 pr-8 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white appearance-none cursor-pointer"
+                  className="w-full pl-4 pr-10 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white appearance-none cursor-pointer hover:border-blue-400 transition-all"
                 >
                   <option value="">All Classes</option>
                   {classes.map((item: any) => (
@@ -251,22 +318,21 @@ export default function DailyAttendancePage() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5" />
               </div>
             </div>
 
-            {/* Section Select */}
+            {/* Section Select - Enhanced */}
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
-                Section
+                📚 Section
               </label>
               <div className="relative">
-                <UserCheck size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <select
                   value={sectionId}
                   onChange={(e) => setSectionId(e.target.value)}
                   disabled={!classId && filteredSections.length === 0}
-                  className="w-full pl-10 pr-8 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-4 pr-10 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white appearance-none cursor-pointer hover:border-blue-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">All Sections</option>
                   {filteredSections.map((item: any) => (
@@ -275,239 +341,367 @@ export default function DailyAttendancePage() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5" />
               </div>
             </div>
 
-            {/* Search Input */}
+            {/* Search Input - Enhanced */}
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
-                Search Student
+                🔍 Search Student
               </label>
               <div className="relative">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Search by name..."
+                  placeholder="Name or Roll Number..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-all hover:border-blue-400"
                 />
               </div>
             </div>
 
-            {/* Load Button */}
+            {/* Load Button - Enhanced */}
             <div className="flex items-end">
               <button
                 onClick={loadAttendance}
                 disabled={loading || !attendanceDate}
-                className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-xl font-medium flex items-center justify-center gap-2 transition"
+                className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed text-white rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/30 hover:shadow-xl"
               >
                 {loading ? (
-                  <RefreshCw size={18} className="animate-spin" />
+                  <>
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                    Loading...
+                  </>
                 ) : (
-                  <Eye size={18} />
+                  <>
+                    <Eye className="w-5 h-5" />
+                    View Attendance
+                  </>
                 )}
-                {loading ? "Loading..." : "Load Attendance"}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex justify-center py-12">
-            <div className="flex flex-col items-center gap-3">
-              <RefreshCw size={32} className="animate-spin text-blue-500" />
-              <p className="text-gray-500 dark:text-gray-400">Loading attendance records...</p>
+        {/* View Toggle */}
+        {sessions.length > 0 && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setViewMode("cards")}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  viewMode === "cards"
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+                }`}
+              >
+                📋 Cards
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  viewMode === "table"
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+                }`}
+              >
+                📊 Table
+              </button>
             </div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {filteredSessions.length} class(es) found
+            </span>
           </div>
         )}
 
-        {/* No Data State */}
+        {/* Loading State - Enhanced */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="relative">
+              <div className="w-20 h-20 border-4 border-blue-200 dark:border-blue-800 rounded-full animate-spin border-t-blue-600"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <School className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+            <p className="text-gray-500 dark:text-gray-400 mt-6 font-medium">
+              Loading attendance records...
+            </p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">Please wait while we fetch the data</p>
+          </div>
+        )}
+
+        {/* No Data State - Enhanced */}
         {!loading && sessions.length === 0 && attendanceDate && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center border border-gray-200 dark:border-gray-700">
-            <CalendarDays size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-500 dark:text-gray-400">No attendance records found</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-              Try selecting a different date or class
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-16 text-center border-2 border-dashed border-gray-300 dark:border-gray-700">
+            <div className="inline-block p-4 bg-blue-50 dark:bg-blue-900/20 rounded-full mb-4">
+              <CalendarDays className="w-16 h-16 text-blue-400" />
+            </div>
+            <p className="text-xl font-semibold text-gray-900 dark:text-white">No Attendance Records</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto">
+              We couldn't find any attendance records for the selected date and filters.
+              Try adjusting your search criteria.
             </p>
           </div>
         )}
 
         {/* Empty State - No Date Selected */}
         {!loading && sessions.length === 0 && !attendanceDate && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center border border-gray-200 dark:border-gray-700">
-            <Filter size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-500 dark:text-gray-400">Select a date to view attendance</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-              Choose a date and click "Load Attendance"
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-16 text-center border-2 border-dashed border-gray-300 dark:border-gray-700">
+            <div className="inline-block p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-full mb-4">
+              <Filter className="w-16 h-16 text-indigo-400" />
+            </div>
+            <p className="text-xl font-semibold text-gray-900 dark:text-white">Ready to View Attendance?</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto">
+              Select a date and click "View Attendance" to see student attendance records.
             </p>
           </div>
         )}
 
-        {/* Sessions/Classes List */}
-        {filteredSessions.map((session: any) => {
-          const present = session.records?.filter((r: any) => r.status === "PRESENT").length || 0;
-          const absent = session.records?.filter((r: any) => r.status === "ABSENT").length || 0;
-          const late = session.records?.filter((r: any) => r.status === "LATE").length || 0;
-          const isExpanded = expandedSections.has(session.id);
-          const filteredRecords = session.records || [];
-          
-          // Don't show section if no records after search
-          if (filteredRecords.length === 0 && search) return null;
-          
-          return (
-            <div
-              key={session.id}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all"
-            >
-              {/* Section Header */}
-              <div
-                className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 transition"
-                onClick={() => toggleExpand(session.id)}
-              >
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  {/* Left - Class Info */}
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
-                      <Users size={20} className="text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {session.class?.name} - {session.section?.name}
-                      </h2>
-                      <div className="flex items-center gap-2 mt-1">
-                        <CalendarDays size={12} className="text-gray-400" />
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {new Date(session.attendanceDate).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </p>
+        {/* Sessions/Classes List - Enhanced Card View */}
+        {viewMode === "cards" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {filteredSessions.map((session: any) => {
+              const present = session.records?.filter((r: any) => r.status === "PRESENT").length || 0;
+              const absent = session.records?.filter((r: any) => r.status === "ABSENT").length || 0;
+              const late = session.records?.filter((r: any) => r.status === "LATE").length || 0;
+              const isExpanded = expandedSections.has(session.id);
+              const filteredRecords = session.records || [];
+              
+              // Don't show section if no records after search
+              if (filteredRecords.length === 0 && search) return null;
+              
+              return (
+                <div
+                  key={session.id}
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-300"
+                >
+                  {/* Section Header - Card */}
+                  <div
+                    className="px-6 py-5 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-750 transition"
+                    onClick={() => toggleExpand(session.id)}
+                  >
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30">
+                            <School className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-gray-900 dark:text-white text-lg">
+                              {session.class?.name} - {session.section?.name}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                              <CalendarDays className="w-3 h-3" />
+                              {new Date(session.attendanceDate).toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                          <ChevronDown className="w-5 h-5 text-gray-400" />
+                        </div>
                       </div>
-                    </div>
-                    <div className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
-                      <ChevronDown size={18} className="text-gray-400" />
+
+                      {/* Stats Bar */}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span className="font-semibold text-green-700 dark:text-green-400">{present}</span>
+                          <span className="text-xs text-gray-500">Present</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                          <XCircle className="w-4 h-4 text-red-600" />
+                          <span className="font-semibold text-red-700 dark:text-red-400">{absent}</span>
+                          <span className="text-xs text-gray-500">Absent</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                          <Clock3 className="w-4 h-4 text-yellow-600" />
+                          <span className="font-semibold text-yellow-700 dark:text-yellow-400">{late}</span>
+                          <span className="text-xs text-gray-500">Late</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                          <Users className="w-4 h-4 text-gray-500" />
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">{filteredRecords.length}</span>
+                          <span className="text-xs text-gray-500">Total</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Right - Stats */}
-                  <div className="flex flex-wrap gap-3">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 rounded-xl">
-                      <CheckCircle size={16} className="text-green-600" />
-                      <div>
-                        <p className="text-xs text-gray-500">Present</p>
-                        <p className="font-bold text-green-700 dark:text-green-400">{present}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 rounded-xl">
-                      <XCircle size={16} className="text-red-600" />
-                      <div>
-                        <p className="text-xs text-gray-500">Absent</p>
-                        <p className="font-bold text-red-700 dark:text-red-400">{absent}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl">
-                      <Clock3 size={16} className="text-yellow-600" />
-                      <div>
-                        <p className="text-xs text-gray-500">Late</p>
-                        <p className="font-bold text-yellow-700 dark:text-yellow-400">{late}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                      <Users size={16} className="text-gray-500" />
-                      <div>
-                        <p className="text-xs text-gray-500">Total</p>
-                        <p className="font-bold text-gray-700 dark:text-gray-300">{filteredRecords.length}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Table - Expandable */}
-              {isExpanded && (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-gray-900/50">
-                      <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Student
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Remarks
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {/* Students List - Card Style */}
+                  {isExpanded && (
+                    <div className="p-4 space-y-3 max-h-[400px] overflow-y-auto">
                       {filteredRecords.map((record: any) => {
                         const StatusIcon = getStatusBadge(record.status).icon;
                         return (
-                          <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                                  {record.student?.name?.charAt(0)?.toUpperCase()}
-                                </div>
-                                <div>
-                                  <p className="font-semibold text-gray-900 dark:text-white">
-                                    {record.student?.name}
-                                  </p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    Roll: {record.student?.rollNumber || "-"}
-                                  </p>
-                                </div>
+                          <div key={record.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-md flex-shrink-0">
+                                {record.student?.name?.charAt(0)?.toUpperCase()}
                               </div>
-                            </td>
-                            <td className="px-6 py-4">
+                              <div>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {record.student?.name}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  Roll #{record.student?.rollNumber || "-"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
                               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${getStatusBadge(record.status).classes}`}>
-                                <StatusIcon size={12} />
+                                <StatusIcon className="w-3 h-3" />
                                 {getStatusBadge(record.status).label}
                               </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {record.remarks || "—"}
-                              </p>
-                            </td>
-                          </tr>
+                            </div>
+                          </div>
                         );
                       })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Footer - Lock Button */}
-              <div className="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                <button
-                  onClick={() => handleLock(session.id)}
-                  disabled={session.isLocked || lockingId === session.id}
-                  className={`
-                    flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition
-                    ${session.isLocked || lockingId === session.id
-                      ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                      : "bg-red-600 hover:bg-red-700 text-white shadow-sm"
-                    }
-                  `}
-                >
-                  {lockingId === session.id ? (
-                    <RefreshCw size={16} className="animate-spin" />
-                  ) : (
-                    <Lock size={16} />
+                    </div>
                   )}
-                  {session.isLocked ? "Attendance Locked" : "Lock Attendance"}
-                </button>
-              </div>
-            </div>
-          );
-        })}
+
+                  {/* Footer - Lock Button */}
+                  <div className="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                    <button
+                      onClick={() => handleLock(session.id)}
+                      disabled={session.isLocked || lockingId === session.id}
+                      className={`
+                        flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all
+                        ${session.isLocked || lockingId === session.id
+                          ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-600/30"
+                        }
+                      `}
+                    >
+                      {lockingId === session.id ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Lock className="w-4 h-4" />
+                      )}
+                      {session.isLocked ? "🔒 Locked" : "🔓 Lock Attendance"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Table View */}
+        {viewMode === "table" && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+            {filteredSessions.map((session: any) => {
+              const isExpanded = expandedSections.has(session.id);
+              const filteredRecords = session.records || [];
+              
+              if (filteredRecords.length === 0 && search) return null;
+              
+              return (
+                <div key={session.id} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                  {/* Session Header */}
+                  <div
+                    className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition flex items-center justify-between"
+                    onClick={() => toggleExpand(session.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                        <School className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          {session.class?.name} - {session.section?.name}
+                        </span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400 ml-3">
+                          {new Date(session.attendanceDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-gray-500">
+                        {filteredRecords.length} students
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    </div>
+                  </div>
+
+                  {/* Table */}
+                  {isExpanded && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-100 dark:bg-gray-700/50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                              Student
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                              Remarks
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                              Action
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                          {filteredRecords.map((record: any) => {
+                            const StatusIcon = getStatusBadge(record.status).icon;
+                            return (
+                              <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                                      {record.student?.name?.charAt(0)?.toUpperCase()}
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-gray-900 dark:text-white">
+                                        {record.student?.name}
+                                      </p>
+                                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        Roll: {record.student?.rollNumber || "-"}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${getStatusBadge(record.status).classes}`}>
+                                    <StatusIcon className="w-3 h-3" />
+                                    {getStatusBadge(record.status).label}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {record.remarks || "—"}
+                                  </p>
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                  <button
+                                    onClick={() => handleLock(session.id)}
+                                    disabled={session.isLocked || lockingId === session.id}
+                                    className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {session.isLocked ? "🔒 Locked" : "🔓 Lock"}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,7 @@
+export const FREQUENCY_OPTIONS = [
+  "MONTHLY",
+  "QUARTERLY",
+  "HALF_YEARLY",
+  "YEARLY",
+  "ONE_TIME",
+];

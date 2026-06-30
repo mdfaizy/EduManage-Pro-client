@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-Content \"d:\\\\school-client\\\\client\\\\src\\\\app\\\\\\(admin\\)\\\\admin\\\\fees\\\\heads\\\\page.tsx\")",
+      "Bash(Measure-Object -Line)",
+      "PowerShell(\\(Get-Content \"d:\\\\school-client\\\\client\\\\src\\\\app\\\\\\(admin\\)\\\\admin\\\\fees\\\\heads\\\\page.tsx\" | Measure-Object -Line\\).Lines)"
+    ]
+  }
+}

@@ -19,7 +19,7 @@ export const createFeeStructureAPI =
   (data: any) =>
     apiConnector(
       "POST",
-      "/fee-structure",
+      "/fee-structures",
       data
     );
 
@@ -27,7 +27,39 @@ export const getFeeStructuresAPI =
   () =>
     apiConnector(
       "GET",
-      "/fee-structure"
+      "/fee-structures"
+    );
+
+
+    export const updateFeeStructureAPI =
+  (
+    id: number,
+
+    data: any
+  ) =>
+    apiConnector(
+
+      "PUT",
+
+      `/fee-structures/${id}`,
+
+      data
+    );
+
+
+      export const deleteFeeStructureAPI =
+  (
+    id: number,
+
+    data: any
+  ) =>
+    apiConnector(
+
+      "DELETE",
+
+      `/fee-structures/${id}`,
+
+      data
     );
 // =====================================================
 // STUDENT FEES

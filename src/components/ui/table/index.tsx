@@ -84,6 +84,7 @@
   interface TableRowProps {
     children: ReactNode;
     className?: string;
+    onClick?: () => void;
   }
 
   interface TableCellProps {
@@ -111,8 +112,8 @@
     <tbody className={className}>{children}</tbody>
   );
 
-  const TableRow: React.FC<TableRowProps> = ({ children, className }) => (
-    <tr className={`border-t border-slate-200 hover:bg-slate-50 transition ${className}`}>
+  const TableRow: React.FC<TableRowProps> = ({ children, className, onClick }) => (
+    <tr onClick={onClick} className={`border-t border-slate-200 hover:bg-slate-50 transition ${className}`}>
       {children}
     </tr>
   );
