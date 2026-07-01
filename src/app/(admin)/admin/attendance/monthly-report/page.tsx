@@ -239,6 +239,16 @@ const handleViewDetails = async (student: any) => {
     return "text-red-600 dark:text-red-400";
   };
 
+  const formatDateTime = (date: string) => {
+  return new Date(date).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
   const getAttendanceBadge = (percentage: number) => {
     if (percentage >= 90) return { 
       label: "Excellent", 
@@ -785,6 +795,14 @@ const handleViewDetails = async (student: any) => {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Section
                     </th>
+
+ <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                       Teache
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                       Date
+                    </th>
+                   
                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Working Days
                     </th>
@@ -870,6 +888,24 @@ const handleViewDetails = async (student: any) => {
                             {item.sectionName || "-"}
                           </span>
                         </td>
+
+<td className="px-4 py-3">
+                          <span className="text-sm text-gray-600 dark:text-gray-300 flex">
+                            {item.markedBy || "-"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+ 
+    
+    {item.markedAt && (
+      <>
+      
+        {formatDateTime(item.markedAt)}
+      </>
+    )}
+
+</td>
+                        
                         <td className="px-4 py-3 text-center">
                           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             {item.workingDays || 0}

@@ -420,12 +420,12 @@ export default function MarkAttendancePage() {
                     
                     return (
                       <tr key={item.student.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition group">
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-1">
                           <span className="font-mono text-sm font-medium text-gray-600 dark:text-gray-400">
                             {item.rollNumber || "-"}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-1">
                           <div className="flex items-center gap-3">
                             <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm flex-shrink-0">
                               {item.student?.name?.charAt(0)?.toUpperCase()}
@@ -440,7 +440,7 @@ export default function MarkAttendancePage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-1">
                           <select
                             value={currentStatus}
                             onChange={(e) => handleStatusChange(item.student.id, e.target.value)}
@@ -453,7 +453,7 @@ export default function MarkAttendancePage() {
                             <option value="LEAVE">📝 Leave</option>
                           </select>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-1">
                           <div className="relative">
                             <FileText size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
@@ -485,14 +485,14 @@ export default function MarkAttendancePage() {
                         loadStudents();
                       }
                     }}
-                    className="px-6 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-medium transition"
+                    className="px-6 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-sm text-sm font-medium transition"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium flex items-center gap-2 transition shadow-lg shadow-green-600/25"
+                    className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed text-white rounded-sm text-sm font-medium flex items-center gap-2 transition shadow-lg shadow-green-600/25"
                   >
                     {submitting ? (
                       <Loader2 size={18} className="animate-spin" />

@@ -183,16 +183,30 @@ export const getClassAttendanceReportAPI = (
 // STATS
 // ======================================================
 
-export const getAttendanceStatsAPI =
-  () =>
+// export const getAttendanceStatsAPI =
+//   () =>
 
-    apiConnector(
+//     apiConnector(
 
-      "GET",
+//       "GET",
 
-      "/student-attendance/stats"
-    );
+//       "/attendance-router/stats"
+//     );
 
+
+export const getAttendanceStatsAPI = (
+  startDate: string,
+  endDate: string,
+  classId?: number,
+  sectionId?: number
+) => {
+  return apiConnector(
+    "GET",
+    `/attendance-router/stats?startDate=${startDate}&endDate=${endDate}&classId=${classId || ""}&sectionId=${sectionId || ""}`
+  );
+};
+
+    
 // ======================================================
 // LOCK ATTENDANCE
 // ======================================================

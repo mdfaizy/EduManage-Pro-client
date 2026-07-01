@@ -74,27 +74,6 @@ const navItems: NavItem[] = [
       path:
         "/admin/attendance/monthly-report",
     },
-
-    {
-      name: "Student Attendance",
-
-      path:
-        "/admin/attendance/student",
-    },
-
-    {
-      name: "Employee Attendance",
-
-      path:
-        "/admin/attendance/employee",
-    },
-
-    {
-      name: "Attendance Analytics",
-
-      path:
-        "/admin/attendance/analytics",
-    },
   ],
 },
   {
