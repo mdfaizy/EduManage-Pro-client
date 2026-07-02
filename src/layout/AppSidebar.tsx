@@ -3,223 +3,56 @@ import React, { useEffect, useRef, useState,useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
-
-import {
-  School,
-  ChevronDown,
-  MoreHorizontal,
-  PieChart,
-  LayoutDashboard,
-  Users,
-  GraduationCap,
-  UserCheck,
-  BookOpen,
-  ClipboardList,
-  CalendarDays,
-  CreditCard,
-  BarChart3,
-  Settings,
-  Wallet,
-  HatGlasses,
-  Section,
-  ArrowUpCircle,
-  ClipboardCheck
-  
-} from "lucide-react";
-
-
-
+import {School,ChevronDown,MoreHorizontal,PieChart,LayoutDashboard,
+  Users,GraduationCap,UserCheck,BookOpen,ClipboardList,CalendarDays,
+  CreditCard,BarChart3,Settings,Wallet,HatGlasses,Section,ArrowUpCircle,ClipboardCheck} from "lucide-react";
 type NavItem = {
   name: string;
   icon?: React.ReactNode;
   path?: string;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
-
 const navItems: NavItem[] = [
   {
     icon:  <LayoutDashboard />,
     name: "Dashboard",
     subItems: [{ name: "School", path: "/admin/dashboard", pro: false },
-      { name: "Admisssion", path: "/admin/academics/admissions/new-adminssion" },
-      { name: "Admisssion List", path: "/admin/academics/admissions/admission-list" },
-      // { name: "All Classes", path: "/teacher/my-classes" },
-
     ],
   },
   {
   icon: <ClipboardCheck />,
-
   name: "Attendance",
-
   subItems: [
-
-    {
-      name: "Mark Attendance",
-
-      path:
-        "/admin/attendance/mark",
-    },
-
-    {
-      name: "Daily Attendance",
-
-      path:
-        "/admin/attendance/daily",
-    },
-
-    {
-      name: "Attendance Reports",
-
-      path:
-        "/admin/attendance/monthly-report",
-    },
-  ],
-},
-  {
-  icon: <BookOpen />,
-  name: "Academic Records",
-  subItems: [
-    {name: "Academic Records",path:"/admin/academics/academic-records",},
-    {name: "Current Students",path:"/admin/academics/current-students",},
+    {name: "Mark Attendance",path:"/admin/attendance/mark",},
+    {name: "Daily Attendance",path:"/admin/attendance/daily",},
+    {name: "Attendance Reports",path:"/admin/attendance/monthly-report",},
   ],
 },
   // =====================================================
 // FEES SIDEBAR MENU
 // =====================================================
-
-// {
-//   icon: <Wallet />,
-
-//   name: "Fees Management",
-
-//   subItems: [
-
-//     {
-//       name: "Fee Dashboard",
-
-//       path:
-//         "/admin/fees",
-//     },
-
-//     {
-//       name: "Fee Structure",
-
-//       path:
-//         "/admin/fees/structure",
-//     },
-
-//     {
-//       name: "Generate Student Fee",
-
-//       path:
-//         "/admin/fees/generate",
-//     },
-
-//     {
-//       name: "Collect Payment",
-
-//       path:
-//         "/admin/fees/pay",
-//     },
-
-//     {
-//       name: "Payment Receipts",
-
-//       path:
-//         "/admin/fees/receipts",
-//     },
-
-//     {
-//       name: "Due Fees",
-
-//       path:
-//         "/admin/fees/due",
-//     },
-
-//     {
-//       name: "Fee Reports",
-
-//       path:
-//         "/admin/fees/reports",
-//     },
-//   ],
-// },
-
 {
   icon: <Wallet size={20} />,
-
   name: "Fees Management",
-
   subItems: [
-
-    {
-      name: "Fee Dashboard",
-      path: "/admin/fees",
-    },
-    {
-      name: "Fee Structure",
-      path: "/admin/fees/structure",
-    },
-    {
-      name: "Generate Student Fee",
-      path: "/admin/fees/generate",
-
-    },
-    {
-      name: "Collect Payment",
-      path: "/admin/fees/pay",
-     
-      // scholarship
-    },
-     {
-      name: "Scholarship",
-      path: "/admin/scholarship",
-     
-      // 
-    },
-     {
-      name: "Student Scholarship",
-      path: "/admin/student-scholarship",
-     
-      // scholarship
-    },
-
-    {
-      name: "Payment Receipts",
-
-      path: "/admin/fees/receipts",
-
-    },
-
-    {
-      name: "Due Fees",
-
-      path: "/admin/fees/due",
-
-  
-    },
-
-    {
-      name: "Fee Reports",
-
-      path: "/admin/fees/reports",
-
-      
-    },
+    {name: "Fee Dashboard",path: "/admin/fees",},
+    {name: "Fee Structure",path: "/admin/fees/structure",},
+    {name: "Generate Student Fee",path: "/admin/fees/generate",},
+    {name: "Collect Payment",path: "/admin/fees/pay",},
+    {name: "Scholarship",path: "/admin/scholarship",},
+    {name: "Student Scholarship",path: "/admin/student-scholarship",},
+    {name: "Payment Receipts",path: "/admin/fees/receipts",},
+    {name: "Due Fees",path: "/admin/fees/due",},
+    {name: "Fee Reports",path: "/admin/fees/reports",},
   ],
 },
 // =====================================================
 // EXAMS SIDEBAR MENU
 // =====================================================
-
 {
   icon: <GraduationCap />,
-
   name: "Examinations",
-
   subItems: [
-
     {name: "Exam Dashboard",path:"/admin/exams/dashboard",},
     {name: "Create Exam",path:"/admin/exams/create",},
     {name: "Exam List",path:"/admin/exams/list",},
@@ -239,7 +72,6 @@ const navItems: NavItem[] = [
       { name: "Assignments", path: "/teacher/assignments" },
     ],
   },
-  // 
 {
   icon: <LayoutDashboard />,
   name: "Admissions",
@@ -248,21 +80,15 @@ const navItems: NavItem[] = [
     {name: "Admission List",path:"/admin/academics/admissions/admission-list"},
     {name: "Pending Approvals",path:"/admin/academics/admissions/pending"},
     {name: "Approved Admissions",path:"/admin/academics/admissions/approved"},
+    {name: "Admissions Reports",path:"/admin/academics/admissions/reports"},
     {name: "Rejected Admissions",path:"/admin/academics/admissions/rejected"},
-    {name: "Admission Enquiry",path:"/admin/academics/admissions/enquiry"},
+    {name: "Student Promotions",path:"/admin/academics/promotions"},
+    {name: "Promotion History",path:"/admin/academics/promotions/history",},
     {name: "Admission Documents",path:"/admin/academics/admissions/documents"},
     {name: "Transfer Admissions",path:"/admin/academics/admissions/transfers"},
     {name: "Bulk Import",path:"/admin/academics/admissions/import"},
     {name: "Admission Settings",path:"/admin/academics/admissions/settings"},
 
-  ],
-},
-{
-  icon: <ArrowUpCircle />,
-  name: "Promotions",
-  subItems: [
-    {name: "Student Promotions",path:"/admin/academics/promotions"},
-    {name: "Promotion History",path:"/admin/academics/promotions/history",},
   ],
 },
 {
@@ -282,25 +108,21 @@ const navItems: NavItem[] = [
     subItems: [
           { name: "All Teachers", path: "/admin/academics/teachers/teacher-list" },
           { name: "Create Teacher Profile", path: "/admin/academics/teachers/add-new-teachers" },
-          // 
           { name: "Teacher TimetableForm", path: "/admin/academics/teachers/timetable" },
           { name: "Teacher Attendance", path: "/admin/academics/teachers/create" },
           { name: "Teacher Timetable", path: "/admin/academics/teachers/teacher-timetable" },
           { name: "Teacher Assignment", path: "/admin/academics/assignClassTeacher/class-teachers" },
         ],
-    
   },
   {
     name: "Students",
     icon: <GraduationCap size={18} />,
     subItems: [ { name: "All Students", path: "/admin/student/students-list" },
-      { name: "Add Student", path: "/admin/student/create-students" },
-      { name: "Enable Login", path: "/admin/student/enable-login" },
-      { name: "Assign Class", path: "/students/assign-class" },
-      { name: "Attendance", path: "/students/attendance" },
-      { name: "Fees", path: "/students/fees" },
-      { name: "Student Promotion", path: "/students/student-promotion" },
-      { name: "Student ID Card", path: "/students/student-id-card" },
+      // { name: "Add Student", path: "/admin/student/create-students" },
+      // { name: "Enable Login", path: "/admin/student/enable-login" },
+      // { name: "Assign Class", path: "/students/assign-class" },
+      // { name: "Student Promotion", path: "/students/student-promotion" },
+      // { name: "Student ID Card", path: "/students/student-id-card" },
     ],
   },
   {
@@ -327,34 +149,6 @@ const navItems: NavItem[] = [
           { name: "All Parents", path: "/admin/parents" },
         ],
       },
-
-        // 🎓 ACADEMICS
-
-      //    {
-      //   name: "Classes",
-      //   icon: <HatGlasses size={18} />,
-      //   subItems: [
-      //      { name: "Classes", path: "/admin/academics/class/create-class" },
-      // { name: "View Classe", path: "/admin/academics/class/class-table" },
-      // // { name: "Assign Classe", path: "/admin/academics/class/assign-teacher-class" },
-      // // { name: "Class Timetable", path: "/admin/academics/class/class-time-table" },
-
-      // // 
-      //   ],
-      // },
-      //  {
-      //   name: "Sections",
-      //   icon: <Section size={18} />,
-      //   subItems: [
-      // //      { name: "Classes", path: "/admin/academics/class/create-class" },
-      // // { name: "View Classe", path: "/admin/academics/class/class-table" },
-      // // { name: "Assign Classe", path: "/admin/academics/class/class-table" },
-      // { name: "Sections", path: "/admin/academics/sections/create-section" },
-
-      //       { name: "View Sections", path: "/admin/academics/sections/section-table" },
-      //       { name: "Assign Sections", path: "/admin/academics/sections/section-table" },
-      //   ],
-      // },
   {
     name: "Academics",
     icon: <School />,
@@ -375,32 +169,11 @@ const navItems: NavItem[] = [
       { name: "Period List", path: "/admin/academics/academic-period/period-list" },
       { name: "Syllabus", path: "/admin/academics/syllabus/create" },
       { name: "Syllabus List", path: "/admin/academics/syllabus" },
-
       { name: "Study Materials", path: "/admin/academics/study-materials/study-materials" },
-
-      // 
-
-
-      // classes/class-table
-      // { name: "Sections", path: "/admin/academics/sections/create-section" },
-
-            // { name: "View Sections", path: "/admin/academics/sections/section-table" },
-            // { name: "Assign Sections", path: "/admin/academics/sections/section-table" },
-
-
-              { name: "Homework", path: "/admin/academics/homework/class-homework"},
-
-            { name: "Exams", path: "/admin/academics/exmae/exams" },
-            { name: "Results", path: "/admin/academics/results" },
       { name: "Timetable", path: "/admin/timetable" },
-      { name: "Attendance", path: "/admin/attendance" },
-      // { name: "Exams", path: "/admin/exams" },
-      // { name: "Results", path: "/admin/results" },
+      
     ],
   },
-
-  
-
   // 📋 OPERATIONS
   {
     name: "Operations",
@@ -457,14 +230,7 @@ const othersItems: NavItem[] = [
       { name: "Bar Chart", path: "/bar-chart", pro: false },
     ],
   },
-  // {
-  //   icon: <ChevronDown />,
-  //   name: "Authentication",
-  //   subItems: [
-  //     { name: "Sign In", path: "/signin", pro: false },
-  //     { name: "Sign Up", path: "/signup", pro: false },
-  //   ],
-  // },
+ 
 ];
 
 const AppSidebar: React.FC = () => {

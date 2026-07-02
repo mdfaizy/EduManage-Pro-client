@@ -16,7 +16,9 @@ export const useMasterData = () => {
           apiConnector("GET", "/sections"),
           apiConnector("GET", "/academic-year"),
         ]);
-
+console.log("Classes:", cRes.data);
+console.log("Sections:", secRes.data);
+console.log("Years:", yRes.data);
         setClasses(cRes.data || []);
         setSections(secRes.data.data || []);
         setYears(yRes.data.data || []);
