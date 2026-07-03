@@ -32,6 +32,10 @@ import FeeStructures from "@/app/(admin)/admin/fees/structure/page";
 import ScholarshipPage from "../scholarship/page";
 import ReusableStatsCards from "@/components/common/ReusableStatsCards";
 import StudentFeeTable from "@/components/FeeStructure/fees/StudentFeeTable";
+import CollectFeeModal from "@/components/FeeStructure/fees/CollectFeeModal";
+
+// Add state
+
 // import StudentFeeTable from "@/components/FeeStructure/fees/StudentFeeTable";
 const MONTHS = [
   "Jan",
@@ -52,7 +56,6 @@ const TABS = [
   { id: "Overview",        label: "Overview",        icon: BarChart3  },
   { id: "Fee Structures",  label: "Fee Structures",  icon: BookOpen   },
   { id: "Student Fees",    label: "Student Fees",    icon: Users      },
-  // { id: "Due Fees",        label: "Due Fees",        icon: AlertCircle},
   { id: "Scholarship",     label: "Scholarship",     icon: CreditCard },
     
   { id: "Reports",         label: "Reports",         icon: FileText   },
@@ -155,6 +158,8 @@ export default function FeeDashboardPage() {
   const [showFilters, setShowFilters]   = useState(false);
 const [selectedStudent, setSelectedStudent] = useState<any>(null);
 const [showDrawer, setShowDrawer] = useState(false);
+const [showCollectModal, setShowCollectModal] = useState(false);
+const [selectedStudentForCollect, setSelectedStudentForCollect] = useState<any>(null);
   const loadFees = async () => {
     try {
       setLoading(true);
@@ -170,28 +175,7 @@ const [showDrawer, setShowDrawer] = useState(false);
 
   useEffect(() => { loadFees(); }, []);
 
-  const flattenedFees = useMemo(() => {
 
-  return fees.flatMap((fee: any) =>
-
-    fee.items?.map((feeItem: any) => ({
-
-      ...fee,
-
-      feeHeadName:
-        feeItem.feeHead?.name,
-
-      frequency:
-        feeItem.frequency,
-
-      itemAmount:
-        feeItem.amount,
-
-    })) || []
-
-  );
-
-}, [fees]);
   // ── Derived stats ─────────────────────────────────────────────────────────
 const totalCollection = fees.reduce(
   (acc, f) => acc + Number(f.paidAmount || 0),
@@ -211,19 +195,27 @@ const pendingCount = fees.filter(
   const paidPct         = fees.length > 0 ? Math.round((paidCount / fees.length) * 100) : 0;
 
   // ── Filtered + paginated ──────────────────────────────────────────────────
-  const filteredFees = useMemo(() => {
-    let result = [...flattenedFees];
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        f => f.student?.name?.toLowerCase().includes(q) || String(f.studentId).includes(q)
-      );
-    }
-    if (statusFilter !== "ALL") {
-      result = result.filter(f => f.status === statusFilter);
-    }
-    return result;
-  }, [fees, search, statusFilter]);
+const filteredFees = useMemo(() => {
+  let result = [...fees];
+
+  if (search) {
+    const q = search.toLowerCase();
+
+    result = result.filter(
+      (f: any) =>
+        f.student?.name?.toLowerCase().includes(q) ||
+        String(f.studentId).includes(q)
+    );
+  }
+
+  if (statusFilter !== "ALL") {
+    result = result.filter(
+      (f: any) => f.status === statusFilter
+    );
+  }
+
+  return result;
+}, [fees, search, statusFilter]);
 
   const totalPages    = Math.max(1, Math.ceil(filteredFees.length / ITEMS_PER_PAGE));
   const paginatedFees = filteredFees.slice(
@@ -445,9 +437,9 @@ const handleViewStudent = (fee: any) => {
           "Class",
           "Fee Head",
           "Frequency",
-          "Period",
           "Total",
           "Paid",
+          "Discount",
           "Due",
           "Status",
           "Actions",
@@ -547,20 +539,11 @@ const handleViewStudent = (fee: any) => {
                     inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold
 
                     ${
-                      item.feeHeadName === "Transport"
-                        ? "bg-violet-50 text-violet-700"
-
-                        : item.feeHeadName === "Exam"
-                        ? "bg-orange-50 text-orange-700"
-
-                        : item.feeHeadName === "Admission"
-                        ? "bg-emerald-50 text-emerald-700"
-
-                        : "bg-blue-50 text-blue-700"
+                     item.totalAmount
                     }
                   `}
                 >
-                  {item.feeHeadName || "Tuition"}
+                  {item.items?.length || 0} Fee Heads
                 </span>
 
               </td>
@@ -573,49 +556,21 @@ const handleViewStudent = (fee: any) => {
                     inline-flex rounded-lg px-2 py-1 text-[11px] font-medium
 
                     ${
-                      item.frequency === "YEARLY"
-                        ? "bg-indigo-50 text-indigo-700"
-
-                        : item.frequency === "ONETIME"
-                        ? "bg-emerald-50 text-emerald-700"
-
-                        : "bg-gray-100 text-gray-700"
+                      item.discount
                     }
                   `}
                 >
-                  {item.frequency || "MONTHLY"}
+                 {item.items?.length} Items
                 </span>
 
               </td>
 
-              {/* PERIOD */}
-              <td className="px-5 py-3.5">
-
-                <span className="text-[12px] font-medium text-gray-700">
-
-                  {
-                    item.frequency === "MONTHLY"
-                      ? `${MONTHS[(item.month || 1) - 1]} ${item.year}`
-
-                      : item.frequency === "YEARLY"
-                      ? item.session || "2025-26"
-
-                      : item.frequency === "ONETIME"
-                      ? "One Time"
-
-                      : item.period || "-"
-                  }
-
-                </span>
-
-              </td>
 
               {/* TOTAL */}
               <td className="px-5 py-3.5">
 
                 <span className="text-[13px] font-semibold text-gray-800">
-                  ₹
-                  {Number(item.itemAmount || 0).toLocaleString("en-IN")}
+                  ₹{Number(item.totalAmount).toLocaleString("en-IN")}
                 </span>
 
               </td>
@@ -624,44 +579,20 @@ const handleViewStudent = (fee: any) => {
               <td className="px-5 py-3.5">
 
                 <span className="text-[13px] font-semibold text-emerald-600">
-                  ₹
-                  {
-  item.status === "PAID"
-    ? `₹${Number(item.itemAmount || 0)
-        .toLocaleString("en-IN")}`
-
-    : item.status === "PARTIAL"
-    ? `₹${item.status === "PAID"
-  ? 0
-  : Number(item.itemAmount || 0).toLocaleString("en-IN")}`
-
-    : "₹0"
-}
+                 ₹{Number(item.paidAmount).toLocaleString("en-IN")}
                 </span>
 
               </td>
 
+<td className="px-5 py-3.5">
+  <span className="text-green-600 font-semibold">
+    ₹{Number(item.discount).toLocaleString("en-IN")}
+  </span>
+</td>
               {/* DUE */}
               <td className="px-5 py-3.5">
 
-                {item.dueAmount > 0 ? (
-
-                  <span className="text-[13px] font-semibold text-red-600">
-                    ₹{Math.max(
-  Number(item.itemAmount || 0) -
-  Number(item.paidAmount || 0),
-  0
-).toLocaleString("en-IN")}
-                    
-                  </span>
-
-                ) : (
-
-                  <span className="text-[13px] font-semibold text-emerald-500">
-                    ₹0
-                  </span>
-
-                )}
+                ₹{Number(item.dueAmount).toLocaleString("en-IN")}
 
               </td>
 
