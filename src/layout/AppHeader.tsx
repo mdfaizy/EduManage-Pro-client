@@ -5,12 +5,18 @@ import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState ,useEffect,useRef} from "react";
-import { ArrowRightLeft ,Search} from 'lucide-react';
+import React, { useEffect, useRef, useState } from "react";
+import { Menu, MoreVertical, Search, X } from "lucide-react";
+
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const mobileInputRef = useRef<HTMLInputElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -21,231 +27,186 @@ const AppHeader: React.FC = () => {
   };
 
   const toggleApplicationMenu = () => {
-    setApplicationMenuOpen(!isApplicationMenuOpen);
+    setMobileSearchOpen(false);
+    setApplicationMenuOpen((prev) => !prev);
   };
-  const inputRef = useRef<HTMLInputElement>(null);
 
+  const toggleMobileSearch = () => {
+    setApplicationMenuOpen(false);
+    setMobileSearchOpen((prev) => !prev);
+  };
+
+  // Global "⌘K / Ctrl+K" focuses search; Escape closes mobile overlays
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         inputRef.current?.focus();
+      }
+      if (event.key === "Escape") {
+        setMobileSearchOpen(false);
+        setApplicationMenuOpen(false);
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Auto-focus the mobile search field once its panel opens
+  useEffect(() => {
+    if (isMobileSearchOpen) {
+      mobileInputRef.current?.focus();
+    }
+  }, [isMobileSearchOpen]);
+
+  // Close mobile panels when tapping outside the header
+  useEffect(() => {
+    if (!isApplicationMenuOpen && !isMobileSearchOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        mobilePanelRef.current &&
+        !mobilePanelRef.current.contains(event.target as Node) &&
+        !(event.target as HTMLElement).closest(".mobile-header-toggle")
+      ) {
+        setApplicationMenuOpen(false);
+        setMobileSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isApplicationMenuOpen, isMobileSearchOpen]);
+
   return (
-    // <header className="fixed top-0 left-0 right-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b fixed">
-    <header
-  className="
-
-    fixed
-    top-0
-    left-0
-    right-0
-
-    h-[72px]
-
-    flex
-    w-full
-
-    bg-white
-
-    border-b
-    border-gray-200
-
-    z-[9999]
-
-    dark:border-gray-800
-    dark:bg-gray-900
-
-  "
->
-      <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
-        <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
-          <button
-            className="items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg z-99999 dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
-            onClick={handleToggle}
-            aria-label="Toggle Sidebar"
-          >
-            {isMobileOpen ? (
-             <ArrowRightLeft />
-            ) : (
-             <ArrowRightLeft /> 
-            )}
-            {/* Cross Icon */}
-          </button>
-
-          <Link href="/" className="lg:hidden">
-            <Image
-              width={154}
-              height={32}
-              className="dark:hidden"
-              src="./images/logo/logo.svg"
-              alt="Logo"
-            />
-            <Image
-              width={154}
-              height={32}
-              className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-            />
-          </Link>
-
-          <button
-            onClick={toggleApplicationMenu}
-            className="flex items-center justify-center w-10 h-10 text-gray-700 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
-          >
-            <ArrowRightLeft />
-            {/* <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M5.99902 10.4951C6.82745 10.4951 7.49902 11.1667 7.49902 11.9951V12.0051C7.49902 12.8335 6.82745 13.5051 5.99902 13.5051C5.1706 13.5051 4.49902 12.8335 4.49902 12.0051V11.9951C4.49902 11.1667 5.1706 10.4951 5.99902 10.4951ZM17.999 10.4951C18.8275 10.4951 19.499 11.1667 19.499 11.9951V12.0051C19.499 12.8335 18.8275 13.5051 17.999 13.5051C17.1706 13.5051 16.499 12.8335 16.499 12.0051V11.9951C16.499 11.1667 17.1706 10.4951 17.999 10.4951ZM13.499 11.9951C13.499 11.1667 12.8275 10.4951 11.999 10.4951C11.1706 10.4951 10.499 11.1667 10.499 11.9951V12.0051C10.499 12.8335 11.1706 13.5051 11.999 13.5051C12.8275 13.5051 13.499 12.8335 13.499 12.0051V11.9951Z"
-                fill="currentColor"
-              />
-            </svg> */}
-          </button>
-
-          <div className="hidden lg:block">
-            <form>
-              <div className="relative">
-                <span className="absolute -translate-y-1/2 left-4 top-1/2 pointer-events-none">
-                  <Search />
-                </span>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  placeholder="Search or type command..."
-                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
-                />
-
-                
-              </div>
-            </form>
-          </div>
-        </div>
-        <div
-          className={`${
-            isApplicationMenuOpen ? "flex" : "hidden"
-          } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
+    <header className="sticky top-0 z-50 h-16 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80">
+      {/* <div className="flex h-16 items-center gap-2 px-3 sm:gap-3 sm:px-4 lg:px-6"> */}
+        <div className="flex h-16 items-center justify-between px-4 lg:px-6">
+        {/* Sidebar toggle */}
+        <button
+          onClick={handleToggle}
+          aria-label={isMobileOpen ? "Collapse sidebar" : "Expand sidebar"}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
         >
-          <div className="flex items-center gap-2 2xsm:gap-3">
-            {/* <!-- Dark Mode Toggler --> */}
-            <ThemeToggleButton />
-            {/* <!-- Dark Mode Toggler --> */}
+          <Menu className="h-5 w-5" />
+        </button>
 
-           {/* <NotificationDropdown />  */}
-            {/* <!-- Notification Menu Area --> */}
+        {/* Logo, mobile only */}
+        <Link href="/" className="shrink-0 lg:hidden" aria-label="Go to dashboard">
+          <Image
+            width={130}
+            height={28}
+            className="dark:hidden"
+            src="/images/logo/logo.svg"
+            alt="Logo"
+            priority
+          />
+          <Image
+            width={130}
+            height={28}
+            className="hidden dark:block"
+            src="/images/logo/logo-dark.svg"
+            alt="Logo"
+            priority
+          />
+        </Link>
+
+        {/* Desktop search */}
+        <div className="hidden max-w-md flex-1 lg:block">
+          <label htmlFor="header-search" className="sr-only">
+            Search
+          </label>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-gray-400" />
+            <input
+              id="header-search"
+              ref={inputRef}
+              type="text"
+              placeholder="Search or type a command..."
+              className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-14 text-sm text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-brand-300 focus:bg-white focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 dark:focus:bg-gray-900"
+            />
+            <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[11px] font-medium text-gray-400 sm:inline-flex dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500">
+              <span aria-hidden>⌘</span>K
+            </kbd>
           </div>
-          {/* <!-- User Area --> */}
-          <UserDropdown /> 
-    
         </div>
+
+        {/* Spacer pushes trailing controls to the right on mobile */}
+        <div className="flex-1 lg:hidden" />
+
+        {/* Mobile search toggle */}
+        <button
+          onClick={toggleMobileSearch}
+          aria-label="Search"
+          aria-expanded={isMobileSearchOpen}
+          className="mobile-header-toggle flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white lg:hidden"
+        >
+          <Search className="h-5 w-5" />
+        </button>
+
+        {/* Desktop trailing controls */}
+        <div className="hidden shrink-0 items-center gap-2 lg:flex">
+          <ThemeToggleButton />
+          <NotificationDropdown />
+          <div className="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-800" aria-hidden />
+          <UserDropdown />
+        </div>
+
+        {/* Mobile menu toggle */}
+        <button
+          onClick={toggleApplicationMenu}
+          aria-label="Toggle menu"
+          aria-expanded={isApplicationMenuOpen}
+          aria-controls="mobile-header-menu"
+          className="mobile-header-toggle flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white lg:hidden"
+        >
+          {isApplicationMenuOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <MoreVertical className="h-5 w-5" />
+          )}
+        </button>
       </div>
+
+      {/* Mobile search overlay */}
+      {isMobileSearchOpen && (
+        <div
+          ref={mobilePanelRef}
+          className="animate-dropdown-in border-t border-gray-200 bg-white px-3 py-3 shadow-theme-md dark:border-gray-800 dark:bg-gray-900 lg:hidden"
+        >
+          <label htmlFor="header-search-mobile" className="sr-only">
+            Search
+          </label>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-gray-400" />
+            <input
+              id="header-search-mobile"
+              ref={mobileInputRef}
+              type="text"
+              placeholder="Search or type a command..."
+              className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-brand-300 focus:bg-white focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 dark:focus:bg-gray-900"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Mobile action menu */}
+      {isApplicationMenuOpen && (
+        <div
+          id="mobile-header-menu"
+          ref={mobilePanelRef}
+          className="animate-dropdown-in flex items-center justify-between gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-theme-md dark:border-gray-800 dark:bg-gray-900 lg:hidden"
+        >
+          <div className="flex items-center gap-2">
+            <ThemeToggleButton />
+            <NotificationDropdown />
+          </div>
+          <UserDropdown />
+        </div>
+      )}
     </header>
   );
-
-//   return (
-
-//   <header className="sticky top-0 z-[99999] w-full border-b border-[#edf0f5] bg-white">
-
-//     <div className="flex items-center justify-between px-4 py-3 md:px-6">
-
-//       {/* ================================================= */}
-//       {/* LEFT */}
-//       {/* ================================================= */}
-
-//       <div className="flex items-center gap-4">
-
-//         {/* TOGGLE */}
-
-//         <button
-//           onClick={handleToggle}
-//           className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#e5e7eb] bg-white text-[#374151] hover:bg-[#f9fafb] transition"
-//         >
-
-//           <ArrowRightLeft size={20} />
-
-//         </button>
-
-//         {/* SEARCH */}
-
-//         <div className="hidden lg:block">
-
-//           <div className="relative">
-
-//             <Search
-//               size={20}
-//               className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]"
-//             />
-
-//             <input
-//               ref={inputRef}
-//               type="text"
-//               placeholder="Search or type command..."
-//               className="h-[52px] w-[520px] rounded-2xl border border-[#e5e7eb] bg-white pl-12 pr-5 text-[14px] text-[#111827] placeholder:text-[#9ca3af] outline-none focus:ring-4 focus:ring-blue-100 focus:border-[#2563eb] transition"
-//             />
-
-//           </div>
-
-//         </div>
-
-//       </div>
-
-//       {/* ================================================= */}
-//       {/* RIGHT */}
-//       {/* ================================================= */}
-
-//       <div className="flex items-center gap-3">
-
-//         {/* DARK MODE */}
-
-//         <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#e5e7eb] bg-white">
-
-//           <ThemeToggleButton />
-
-//         </div>
-
-//         {/* USER */}
-
-//         <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2">
-
-//           <div className="hidden sm:block text-right">
-
-//             <p className="text-[13px] font-semibold text-[#111827]">
-//               Faizy
-//             </p>
-
-//             <p className="text-[11px] text-[#6b7280]">
-//               Admin
-//             </p>
-
-//           </div>
-
-//           <UserDropdown />
-
-//         </div>
-
-//       </div>
-
-//     </div>
-
-//   </header>
-// );
 };
 
 export default AppHeader;

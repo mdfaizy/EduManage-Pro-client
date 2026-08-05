@@ -1,358 +1,300 @@
-// ======================================================
-// CollectFeeModal.tsx
-// ======================================================
-
 "use client";
 
 import { useState } from "react";
 import {
   X,
-  User,
   CreditCard,
-  IndianRupee,
-  Calendar,
-  Clock,
   AlertCircle,
   CheckCircle,
+  Mail,
+  BookOpen,
+  Award,
   Wallet,
-  Building2,
   Banknote,
-  Smartphone,
-  Landmark,
-  Receipt,
-  Printer,
+  QrCode,
+  Loader2,
 } from "lucide-react";
-import toast from "react-hot-toast";
+import type { StudentFee } from "@/components/types/feeTypes";
 
-interface CollectFeeModalProps {
+interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  studentData: {
-    name: string;
-    admissionNo: string;
-    className: string;
-    section: string;
-    fatherName: string;
-    invoiceNo: string;
-    totalAmount: number;
-    scholarship: number;
-    scholarshipName: string;
-    lateFee: number;
-    payableAmount: number;
-    paidEarlier: number;
-    balanceDue: number;
-  };
-  onCollect: (data: {
-    amount: number;
-    paymentMode: string;
-    transactionId: string;
-    remarks: string;
-    printReceipt: boolean;
-  }) => void;
+  fee: StudentFee | null;
+  onPay: (amount: number, method: string) => Promise<void>;
 }
 
-const PAYMENT_MODES = [
-  { id: "CASH", label: "Cash", icon: Banknote },
-  { id: "UPI", label: "UPI", icon: Smartphone },
-  { id: "CARD", label: "Card", icon: CreditCard },
-  { id: "BANK_TRANSFER", label: "Bank Transfer", icon: Landmark },
-  { id: "CHEQUE", label: "Cheque", icon: Receipt },
-];
+const PAYMENT_METHODS = [
+  { id: "card", label: "Card", icon: CreditCard, color: "blue" },
+  { id: "upi", label: "UPI", icon: QrCode, color: "purple" },
+  { id: "cash", label: "Cash", icon: Banknote, color: "emerald" },
+] as const;
 
-export default function CollectFeeModal({
-  isOpen,
-  onClose,
-  studentData,
-  onCollect,
-}: CollectFeeModalProps) {
-  const [amountReceived, setAmountReceived] = useState<number>(studentData.balanceDue);
-  const [paymentMode, setPaymentMode] = useState<string>("CASH");
-  const [transactionId, setTransactionId] = useState<string>("");
-  const [remarks, setRemarks] = useState<string>("");
-  const [printReceipt, setPrintReceipt] = useState<boolean>(true);
+const COLOR_CLASSES: Record<string, string> = {
+  blue: "border-blue-500 bg-blue-50 text-blue-600",
+  purple: "border-purple-500 bg-purple-50 text-purple-600",
+  emerald: "border-emerald-500 bg-emerald-50 text-emerald-600",
+};
 
-  if (!isOpen) return null;
+function PaymentModal({ isOpen, onClose, fee, onPay }: PaymentModalProps) {
+  const [paymentAmount, setPaymentAmount] = useState<number>(0);
+  const [paymentMethod, setPaymentMethod] = useState<string>("card");
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-  const remainingBalance = Math.max(studentData.balanceDue - amountReceived, 0);
-  const isOverPayment = amountReceived > studentData.balanceDue;
+  if (!isOpen || !fee) return null;
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value) || 0;
-    setAmountReceived(Math.max(value, 0));
+  const maxAmount = fee.dueAmount;
+  const isFullPayment = paymentAmount >= maxAmount && maxAmount > 0;
+  const exceedsMax = paymentAmount > maxAmount;
+  const isValidAmount = paymentAmount > 0 && !exceedsMax;
+
+  const resetForm = () => {
+    setPaymentAmount(0);
+    setPaymentMethod("card");
   };
 
-  const handleSubmit = () => {
-    if (amountReceived <= 0) {
-      toast.error("Please enter a valid amount");
-      return;
-    }
+  const handleClose = () => {
+    if (isProcessing) return;
+    resetForm();
+    onClose();
+  };
 
-    if (amountReceived > studentData.balanceDue + studentData.paidEarlier) {
-      toast.error("Amount exceeds the payable amount");
-      return;
-    }
+  const handlePayment = async () => {
+    if (!isValidAmount || isProcessing) return;
 
-    onCollect({
-      amount: amountReceived,
-      paymentMode,
-      transactionId,
-      remarks,
-      printReceipt,
-    });
+    setIsProcessing(true);
+    try {
+      await onPay(paymentAmount, paymentMethod);
+      // Parent closes the modal on success (via `isOpen`); just reset the form.
+      resetForm();
+    } catch {
+      // Parent already surfaces the error via toast — keep the modal open so
+      // the user can correct the amount/method and retry instead of losing
+      // their input to a payment that never actually completed.
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-200">
-        
-        {/* HEADER */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white/95 backdrop-blur-sm p-5 rounded-t-2xl">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <CreditCard size={22} className="text-blue-600" />
-              Collect Fee - {studentData.invoiceNo}
-            </h2>
-            <p className="text-sm text-gray-500 mt-0.5">
-              Complete the payment details below
-            </p>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={handleClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 rounded-t-2xl flex items-center justify-between z-10">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-emerald-50 p-2">
+              <Wallet size={20} className="text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-800">Collect Payment</h3>
+              <p className="text-xs text-slate-400">Fee payment processing</p>
+            </div>
           </div>
           <button
-            onClick={onClose}
-            className="rounded-lg p-2 hover:bg-gray-100 transition-colors"
+            type="button"
+            onClick={handleClose}
+            aria-label="Close"
+            disabled={isProcessing}
+            className="rounded-full hover:bg-slate-100 p-2 transition disabled:opacity-50"
           >
-            <X size={20} className="text-gray-500" />
+            <X size={18} className="text-slate-500" />
           </button>
         </div>
 
-        {/* CONTENT */}
-        <div className="p-6 space-y-6">
-          
-          {/* STUDENT INFO */}
-          <div className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-5 border border-blue-100">
-            <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-xl font-bold text-white shadow-sm">
-                {studentData.name?.charAt(0)?.toUpperCase() || "?"}
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900">{studentData.name}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Admission No.:</span> {studentData.admissionNo}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Class:</span> {studentData.className} - Section {studentData.section}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Father Name:</span> {studentData.fatherName}
-                  </p>
-                </div>
-              </div>
+        {/* Student Info */}
+        <div className="px-6 py-4 border-b border-slate-100">
+          <div className="flex items-start gap-4">
+            <div className="h-14 w-14 shrink-0 rounded-full bg-slate-800 flex items-center justify-center text-white font-semibold text-xl">
+              {fee.student?.name?.charAt(0)?.toUpperCase() ?? "?"}
             </div>
-          </div>
-
-          {/* INVOICE SUMMARY */}
-          <div>
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">Invoice Summary</h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              <div className="rounded-xl bg-gray-50 p-4">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</p>
-                <p className="text-lg font-bold text-gray-900 mt-1">
-                  ₹{studentData.totalAmount.toLocaleString("en-IN")}
-                </p>
-              </div>
-              <div className="rounded-xl bg-purple-50 p-4">
-                <p className="text-xs font-medium text-purple-600 uppercase tracking-wider">Scholarship</p>
-                <p className="text-lg font-bold text-purple-700 mt-1">
-                  ₹{studentData.scholarship.toLocaleString("en-IN")}
-                </p>
-                <p className="text-[10px] text-purple-500">{studentData.scholarshipName}</p>
-              </div>
-              <div className="rounded-xl bg-gray-50 p-4">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Late Fee</p>
-                <p className="text-lg font-bold text-red-600 mt-1">
-                  ₹{studentData.lateFee.toLocaleString("en-IN")}
-                </p>
-              </div>
-              <div className="rounded-xl bg-blue-50 p-4">
-                <p className="text-xs font-medium text-blue-600 uppercase tracking-wider">Payable Amount</p>
-                <p className="text-lg font-bold text-blue-700 mt-1">
-                  ₹{studentData.payableAmount.toLocaleString("en-IN")}
-                </p>
-              </div>
-              <div className="rounded-xl bg-emerald-50 p-4">
-                <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider">Paid Earlier</p>
-                <p className="text-lg font-bold text-emerald-700 mt-1">
-                  ₹{studentData.paidEarlier.toLocaleString("en-IN")}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* BALANCE DUE */}
-          <div className="rounded-xl bg-orange-50 border-2 border-orange-200 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-200">
-                <AlertCircle size={20} className="text-orange-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-orange-800">Balance Due</p>
-                <p className="text-xs text-orange-600">Amount yet to be paid</p>
-              </div>
-            </div>
-            <p className="text-2xl font-bold text-orange-700">
-              ₹{studentData.balanceDue.toLocaleString("en-IN")}
-            </p>
-          </div>
-
-          {/* PAYMENT DETAILS */}
-          <div>
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">Payment Details</h4>
-            
-            <div className="space-y-4">
-              {/* Amount Received */}
-              <div>
-                <label className="text-sm font-medium text-gray-600 block mb-1.5">
-                  Amount Received
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">₹</span>
-                  <input
-                    type="number"
-                    value={amountReceived}
-                    onChange={handleAmountChange}
-                    className="w-full rounded-xl border border-gray-200 pl-8 pr-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
-                    placeholder="Enter amount"
-                    min={0}
-                    step={100}
-                  />
-                </div>
-                {isOverPayment && (
-                  <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                    <AlertCircle size={12} />
-                    Amount exceeds the balance due
-                  </p>
-                )}
-              </div>
-
-              {/* Remaining Balance */}
-              <div className="flex justify-between items-center bg-gray-50 rounded-xl px-4 py-3">
-                <span className="text-sm text-gray-600">Remaining Balance</span>
-                <span className="text-lg font-bold text-gray-900">
-                  ₹{remainingBalance.toLocaleString("en-IN")}
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-slate-800 text-lg truncate">
+                {fee.student?.name ?? "—"}
+              </h4>
+              <div className="flex flex-wrap gap-2 mt-1">
+                <span className="inline-flex items-center gap-1 text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded-full">
+                  <BookOpen size={12} />
+                  Class {fee.student?.className ?? "—"}
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded-full">
+                  <Award size={12} />
+                  {fee.student?.admissionNo ?? "—"}
                 </span>
               </div>
-
-              {/* Payment Mode */}
-              <div>
-                <label className="text-sm font-medium text-gray-600 block mb-1.5">
-                  Payment Mode
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                  {PAYMENT_MODES.map((mode) => {
-                    const Icon = mode.icon;
-                    const isActive = paymentMode === mode.id;
-                    return (
-                      <button
-                        key={mode.id}
-                        onClick={() => setPaymentMode(mode.id)}
-                        className={`
-                          flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all
-                          ${isActive 
-                            ? "border-blue-500 bg-blue-50 text-blue-700" 
-                            : "border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50"
-                          }
-                        `}
-                      >
-                        <Icon size={18} />
-                        <span className="text-[10px] font-medium">{mode.label}</span>
-                      </button>
-                    );
-                  })}
+              {fee.student?.email && (
+                <div className="flex items-center gap-1 mt-1 text-xs text-slate-400">
+                  <Mail size={12} />
+                  {fee.student.email}
                 </div>
-              </div>
-
-              {/* Transaction ID */}
-              <div>
-                <label className="text-sm font-medium text-gray-600 block mb-1.5">
-                  Transaction ID / Reference No.
-                  <span className="text-gray-400 text-xs ml-1">(optional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={transactionId}
-                  onChange={(e) => setTransactionId(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
-                  placeholder="Enter transaction id (optional)"
-                />
-              </div>
-
-              {/* Remarks */}
-              <div>
-                <label className="text-sm font-medium text-gray-600 block mb-1.5">
-                  Remarks <span className="text-gray-400 text-xs ml-1">(optional)</span>
-                </label>
-                <textarea
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
-                  placeholder="Add any remarks..."
-                  rows={2}
-                />
-              </div>
-
-              {/* Print Receipt */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setPrintReceipt(!printReceipt)}
-                  className={`
-                    relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out
-                    ${printReceipt ? "bg-blue-600" : "bg-gray-300"}
-                  `}
-                >
-                  <span
-                    className={`
-                      inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ease-in-out
-                      ${printReceipt ? "translate-x-5" : "translate-x-0"}
-                    `}
-                  />
-                </button>
-                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Printer size={16} className="text-gray-500" />
-                  Print Receipt Automatically
-                </span>
-              </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* FOOTER / ACTIONS */}
-        <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm border-t p-5 rounded-b-2xl">
-          <div className="flex flex-col sm:flex-row gap-3">
+        {/* Fee Summary */}
+        <div className="px-6 py-4 border-b border-slate-100">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-slate-50 rounded-xl p-3">
+              <p className="text-xs text-slate-400">Total</p>
+              <p className="text-base font-bold text-slate-800">
+                ₹{fee.totalAmount.toLocaleString("en-IN")}
+              </p>
+            </div>
+            <div className="bg-emerald-50 rounded-xl p-3">
+              <p className="text-xs text-emerald-600">Paid</p>
+              <p className="text-base font-bold text-emerald-600">
+                ₹{fee.paidAmount.toLocaleString("en-IN")}
+              </p>
+            </div>
+            <div className="bg-red-50 rounded-xl p-3">
+              <p className="text-xs text-red-600">Due</p>
+              <p className="text-base font-bold text-red-600">
+                ₹{fee.dueAmount.toLocaleString("en-IN")}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Amount */}
+        <div className="px-6 py-4 border-b border-slate-100">
+          <label htmlFor="payment-amount" className="text-sm font-medium text-slate-700 block mb-2">
+            Enter Amount
+          </label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-lg">
+              ₹
+            </span>
+            <input
+              id="payment-amount"
+              type="number"
+              value={paymentAmount || ""}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setPaymentAmount(Number.isFinite(val) && val >= 0 ? val : 0);
+              }}
+              className={`w-full pl-8 pr-4 py-3.5 border-2 rounded-xl focus:ring-2 outline-none text-lg font-semibold transition ${
+                exceedsMax
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-100"
+                  : "border-slate-200 focus:border-blue-500 focus:ring-blue-100"
+              }`}
+              placeholder="0"
+              min={0}
+              autoFocus
+            />
+          </div>
+
+          {exceedsMax ? (
+            <div className="mt-2 text-xs text-red-500 flex items-center gap-1">
+              <AlertCircle size={12} />
+              Amount cannot exceed the due amount of ₹{maxAmount.toLocaleString("en-IN")}
+            </div>
+          ) : (
+            <div className="mt-2 text-xs text-slate-400 flex items-center gap-1">
+              <AlertCircle size={12} />
+              Maximum: ₹{maxAmount.toLocaleString("en-IN")}
+            </div>
+          )}
+        </div>
+
+        {/* Payment Method */}
+        <div className="px-6 py-4 border-b border-slate-100">
+          <label className="text-sm font-medium text-slate-700 block mb-3">
+            Payment Method
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {PAYMENT_METHODS.map((method) => {
+              const isSelected = paymentMethod === method.id;
+              return (
+                <button
+                  key={method.id}
+                  type="button"
+                  onClick={() => setPaymentMethod(method.id)}
+                  aria-pressed={isSelected}
+                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition ${
+                    isSelected
+                      ? COLOR_CLASSES[method.color]
+                      : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                  }`}
+                >
+                  <method.icon
+                    size={22}
+                    className={isSelected ? "text-current" : "text-slate-400"}
+                  />
+                  <span
+                    className={`text-xs font-medium ${
+                      isSelected ? "text-current" : "text-slate-500"
+                    }`}
+                  >
+                    {method.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="px-6 py-4 bg-slate-50 rounded-b-2xl">
+          <div className="flex gap-3">
             <button
-              onClick={onClose}
-              className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
+              type="button"
+              onClick={handleClose}
+              disabled={isProcessing}
+              className="flex-1 px-4 py-3 border-2 border-slate-200 rounded-xl text-slate-600 hover:bg-slate-100 transition font-medium disabled:opacity-50"
             >
               Cancel
             </button>
             <button
-              onClick={handleSubmit}
-              disabled={amountReceived <= 0 || isOverPayment}
-              className={`
-                flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200/50 transition-all
-                ${amountReceived > 0 && !isOverPayment 
-                  ? "hover:from-blue-700 hover:to-indigo-700" 
-                  : "opacity-50 cursor-not-allowed"
-                }
-              `}
+              type="button"
+              onClick={handlePayment}
+              disabled={!isValidAmount || isProcessing}
+              className={`flex-1 px-4 py-3 rounded-xl font-medium text-white transition ${
+                isValidAmount && !isProcessing
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-slate-300 cursor-not-allowed"
+              }`}
             >
-              <div className="flex items-center justify-center gap-2">
-                <Wallet size={18} />
-                Collect Payment
-              </div>
+              {isProcessing ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 size={18} className="animate-spin" />
+                  Processing...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <Wallet size={18} />
+                  Pay ₹{paymentAmount.toLocaleString("en-IN")}
+                </span>
+              )}
             </button>
           </div>
+          {isValidAmount && (
+            <p
+              className={`text-center text-xs mt-2 flex items-center justify-center gap-1 ${
+                isFullPayment ? "text-emerald-600" : "text-amber-600"
+              }`}
+            >
+              {isFullPayment ? (
+                <>
+                  <CheckCircle size={12} />
+                  Full payment will clear all dues
+                </>
+              ) : (
+                <>
+                  <AlertCircle size={12} />
+                  Partial payment will be recorded
+                </>
+              )}
+            </p>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+export default PaymentModal;

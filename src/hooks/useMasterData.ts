@@ -2,10 +2,17 @@ import { useState, useEffect, useMemo } from "react";
 import { apiConnector } from "@/services/apiConnecter";
 import { toast } from "react-hot-toast";
 
+export interface MasterDataItem {
+  id: number | string;
+  name: string;
+  classId?: number | string;
+  [key: string]: unknown;
+}
+
 export const useMasterData = () => {
-  const [classes, setClasses] = useState([]);
-  const [sections, setSections] = useState([]);
-  const [years, setYears] = useState([]);
+  const [classes, setClasses] = useState<MasterDataItem[]>([]);
+  const [sections, setSections] = useState<MasterDataItem[]>([]);
+  const [years, setYears] = useState<MasterDataItem[]>([]);
   const [formClassId, setFormClassId] = useState("");
 
   useEffect(() => {
@@ -16,9 +23,6 @@ export const useMasterData = () => {
           apiConnector("GET", "/sections"),
           apiConnector("GET", "/academic-year"),
         ]);
-console.log("Classes:", cRes.data);
-console.log("Sections:", secRes.data);
-console.log("Years:", yRes.data);
         setClasses(cRes.data || []);
         setSections(secRes.data.data || []);
         setYears(yRes.data.data || []);
@@ -30,8 +34,8 @@ console.log("Years:", yRes.data);
     load();
   }, []);
 
-  const filteredSections = useMemo(() => 
-    sections.filter(s => String(s.classId) === formClassId),
+  const filteredSections = useMemo(
+    () => sections.filter((s) => String(s.classId) === formClassId),
     [sections, formClassId]
   );
 

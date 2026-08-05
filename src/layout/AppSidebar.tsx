@@ -31,19 +31,40 @@ const navItems: NavItem[] = [
   // =====================================================
 // FEES SIDEBAR MENU
 // =====================================================
+// {
+//   icon: <Wallet size={20} />,
+//   name: "Fees Management",
+//   subItems: [
+//     {name: "Fee Dashboard",path: "/admin/fees",},
+//     {name: "Fee Structure",path: "/admin/fees/structure",},
+//     {name: "Generate Student Fee",path: "/admin/fees/generate",},
+//     {name: "Collect Payment",path: "/admin/fees/pay",},
+//     {name: "Scholarship",path: "/admin/scholarship",},
+//     {name: "Student Scholarship",path: "/admin/student-scholarship",},
+//     {name: "Payment Receipts",path: "/admin/fees/receipts",},
+//     {name: "Fee Reports",path: "/admin/fees/reports",},
+//   ],
+// },
+
 {
   icon: <Wallet size={20} />,
-  name: "Fees Management",
+  name: "Fee Management",
   subItems: [
-    {name: "Fee Dashboard",path: "/admin/fees",},
-    {name: "Fee Structure",path: "/admin/fees/structure",},
-    {name: "Generate Student Fee",path: "/admin/fees/generate",},
-    {name: "Collect Payment",path: "/admin/fees/pay",},
-    {name: "Scholarship",path: "/admin/scholarship",},
-    {name: "Student Scholarship",path: "/admin/student-scholarship",},
-    {name: "Payment Receipts",path: "/admin/fees/receipts",},
-    {name: "Due Fees",path: "/admin/fees/due",},
-    {name: "Fee Reports",path: "/admin/fees/reports",},
+    {name: "Dashboard",path: "/admin/fees",},
+    {name: "Fee Structures",path: "/admin/fees/structure",},
+    {name: "Fee Generation",path: "/admin/fees/generate",},
+    {name: "Payment Collection",path: "/admin/fees/pay",},
+    {name: "Scholarships",path: "/admin/scholarship",},
+    {name: "Student Scholarships",path: "/admin/student-scholarship",
+    },
+    {
+      name: "Payment Receipts",
+      path: "/admin/fees/receipts",
+    },
+    {
+      name: "Reports",
+      path: "/admin/fees/reports",
+    },
   ],
 },
 // =====================================================
@@ -186,18 +207,6 @@ const navItems: NavItem[] = [
       { name: "Calendar", path: "/admin/calendar", },
     ],
   },
-
-  // 💰 FINANCE
-  {
-    name: "Finance",
-    icon: <CreditCard />,
-    subItems: [
-      { name: "Fee Collection", path: "/admin/fees" },
-      { name: "Fee Structure", path: "/admin/fee-structure" },
-      { name: "Expenses", path: "/admin/expenses" },
-    ],
-  },
-
   // 📊 REPORTS
   {
     name: "Reports",
@@ -426,108 +435,21 @@ const AppSidebar: React.FC = () => {
   };
 
   return (
-    // <aside
-    //   className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-    //     ${
-    //       isExpanded || isMobileOpen
-    //         ? "w-[290px]"
-    //         : isHovered
-    //         ? "w-[290px]"
-    //         : "w-[90px]"
-    //     }
-    //     ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-    //     lg:translate-x-0`}
-    //   onMouseEnter={() => !isExpanded && setIsHovered(true)}
-    //   onMouseLeave={() => setIsHovered(false)}
-    // >
-    //   <div
-    //     className={`py-8 flex  ${
-    //       !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-    //     }`}
-    //   >
-    //     <Link href="/admin">
-    //       {isExpanded || isHovered || isMobileOpen ? (
-    //         // <>
-    //         //   <Image
-    //         //     className="dark:hidden"
-    //         //     src="/images/logo/logo.svg"
-    //         //     alt="Logo"
-    //         //     width={150}
-    //         //     height={40}
-    //         //   />
-    //         //   <Image
-    //         //     className="hidden dark:block"
-    //         //     src="/images/logo/logo-dark.svg"
-    //         //     alt="Logo"
-    //         //     width={150}
-    //         //     height={40}
-    //         //   />
-    //         // </>
-    //         <><p>School</p></>
-
-    //       ) : (
-    //         // <Image
-    //         //   src="/images/logo/logo-icon.svg"
-    //         //   alt="Logo"
-    //         //   width={32}
-    //         //   height={32}
-    //         // />
-    //         <><p>School</p></>
-    //       )}
-    //     </Link>
-    //   </div>
-    //   <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
-    //     <nav className="mb-6">
-    //       <div className="flex flex-col gap-4">
-    //         <div>
-    //           <h2
-    //             className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-    //               !isExpanded && !isHovered
-    //                 ? "lg:justify-center"
-    //                 : "justify-start"
-    //             }`}
-    //           >
-    //             {isExpanded || isHovered || isMobileOpen ? (
-    //               "Menu"
-    //             ) : (
-    //               <MoreHorizontal />
-    //             )}
-    //           </h2>
-    //           {renderMenuItems(navItems, "main")}
-    //         </div>
-
-    //         <div className="">
-    //           <h2
-    //             className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-    //               !isExpanded && !isHovered
-    //                 ? "lg:justify-center"
-    //                 : "justify-start"
-    //             }`}
-    //           >
-    //             {isExpanded || isHovered || isMobileOpen ? (
-    //               "Others"
-    //             ) : (
-    //               <MoreHorizontal />
-    //             )}
-    //           </h2>
-    //           {renderMenuItems(othersItems, "others")}
-    //         </div>
-    //       </div>
-    //     </nav>
-    //     {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
-    //   </div>
-    // </aside>
-
     <aside
   className={`
     fixed
     top-0
     left-0
     z-50
-    mt-16
-    lg:mt-0
+    // mt-16
+    // lg:mt-0
   
-    h-screen
+top-16
+lg:top-0
+h-[calc(100vh-64px)]
+lg:h-screen
+
+    // h-screen
     bg-white
     dark:bg-gray-900
     border-r

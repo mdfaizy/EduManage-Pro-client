@@ -1,45 +1,3 @@
-// "use client";
-
-// import { useSidebar } from "@/context/SidebarContext";
-// import AppHeader from "@/layout/AppHeader";
-// import AppSidebar from "@/layout/AppSidebar";
-// import Backdrop from "@/layout/Backdrop";
-// import React from "react";
-
-// export default function AdminLayout({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-
-//   // Dynamic class for main content margin based on sidebar state
-//   const mainContentMargin = isMobileOpen
-//     ? "ml-0"
-//     : isExpanded || isHovered
-//     ? "lg:ml-[290px]"
-//     : "lg:ml-[90px]";
-
-//   return (
-//     <div className="min-h-screen xl:flex">
-//       {/* Sidebar and Backdrop */}
-//       <AppSidebar />
-//       <Backdrop />
-//       {/* Main Content Area */}
-//       <div
-//   className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin} overflow-x-hidden`}
-// >
-
-//         {/* Header */}
-//         <AppHeader />
-//         {/* Page Content */}
-//         <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import { useEffect } from "react";
@@ -82,23 +40,7 @@ export default function AdminLayout({
   : "lg:ml-[78px]";
 
   return (
-    // <div className="min-h-screen xl:flex">
-    // <div className="min-h-screen bg-[#f8fafc]">
-    <div
-  className="
-
-    w-full
-
-    pt-[90px]
-
-    px-4
-    pb-5
-
-    md:px-6
-    md:pb-6
-
-  "
->
+ <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <AppSidebar />
       <Backdrop />
 
@@ -108,10 +50,19 @@ export default function AdminLayout({
     
         <AppHeader />
 
-        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+       {/* <div className="px-6 py-4 mx-auto max-w-(--breakpoint-2xl)">
 
           {children}
-        </div>
+        </div> */}
+
+        {/* <main className="mt-6 px-6 pb-6 mx-auto max-w-(--breakpoint-2xl)">
+    {children}
+</main> */}
+
+
+<main className="mt-6 w-full px-4 lg:px-6 pb-6">
+    {children}
+</main>
       </div>
     </div>
   );

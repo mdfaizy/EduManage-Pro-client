@@ -1,648 +1,648 @@
-"use client";
+// "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+// import {
+//   useEffect,
+//   useMemo,
+//   useState,
+// } from "react";
 
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 
-import {
-  Download,
-  Search,
-  IndianRupee,
-  Wallet,
-  AlertCircle,
-  CheckCircle2,
-  CalendarDays,
-} from "lucide-react";
+// import {
+//   Download,
+//   Search,
+//   IndianRupee,
+//   Wallet,
+//   AlertCircle,
+//   CheckCircle2,
+//   CalendarDays,
+// } from "lucide-react";
 
-import {
-  getStudentFeesAPI,
-} from "@/services/feeService";
+// import {
+//   getStudentFeesAPI,
+// } from "@/services/feeService";
 
-export default function FeeReportsPage() {
+// export default function FeeReportsPage() {
 
-  // =====================================================
-  // STATES
-  // =====================================================
+//   // =====================================================
+//   // STATES
+//   // =====================================================
 
-  const [fees, setFees] =
-    useState<any[]>([]);
+//   const [fees, setFees] =
+//     useState<any[]>([]);
 
-  const [loading, setLoading] =
-    useState(false);
+//   const [loading, setLoading] =
+//     useState(false);
 
-  const [search, setSearch] =
-    useState("");
+//   const [search, setSearch] =
+//     useState("");
 
-  const [status, setStatus] =
-    useState("");
+//   const [status, setStatus] =
+//     useState("");
 
-  // =====================================================
-  // LOAD DATA
-  // =====================================================
+//   // =====================================================
+//   // LOAD DATA
+//   // =====================================================
 
-  const loadReports =
-    async () => {
+//   const loadReports =
+//     async () => {
 
-      try {
+//       try {
 
-        setLoading(true);
+//         setLoading(true);
 
-        const response =
-          await getStudentFeesAPI();
+//         const response =
+//           await getStudentFeesAPI();
 
-        setFees(
-          response.data.data || []
-        );
+//         setFees(
+//           response.data.data || []
+//         );
 
-      } catch (e: any) {
+//       } catch (e: any) {
 
-        toast.error(
-          e.response?.data?.message
-        );
+//         toast.error(
+//           e.response?.data?.message
+//         );
 
-      } finally {
+//       } finally {
 
-        setLoading(false);
-      }
-    };
+//         setLoading(false);
+//       }
+//     };
 
-  // =====================================================
-  // EFFECT
-  // =====================================================
+//   // =====================================================
+//   // EFFECT
+//   // =====================================================
 
-  useEffect(() => {
+//   useEffect(() => {
 
-    loadReports();
+//     loadReports();
 
-  }, []);
+//   }, []);
 
-  // =====================================================
-  // FILTERED DATA
-  // =====================================================
+//   // =====================================================
+//   // FILTERED DATA
+//   // =====================================================
 
-  const filteredFees =
-    useMemo(() => {
+//   const filteredFees =
+//     useMemo(() => {
 
-      let filtered =
-        [...fees];
+//       let filtered =
+//         [...fees];
 
-      // Search
-      if (search) {
+//       // Search
+//       if (search) {
 
-        filtered =
-          filtered.filter(
-            (item: any) =>
-              item.student?.name
-                ?.toLowerCase()
-                .includes(
-                  search.toLowerCase()
-                )
-          );
-      }
-
-      // Status
-      if (status) {
-
-        filtered =
-          filtered.filter(
-            (item: any) =>
-              item.status === status
-          );
-      }
-
-      return filtered;
-
-    }, [
-      fees,
-      search,
-      status,
-    ]);
-
-  // =====================================================
-  // STATS
-  // =====================================================
-
-  const totalCollection =
-    fees.reduce(
-      (acc, item) =>
-        acc + item.paidAmount,
-      0
-    );
+//         filtered =
+//           filtered.filter(
+//             (item: any) =>
+//               item.student?.name
+//                 ?.toLowerCase()
+//                 .includes(
+//                   search.toLowerCase()
+//                 )
+//           );
+//       }
+
+//       // Status
+//       if (status) {
+
+//         filtered =
+//           filtered.filter(
+//             (item: any) =>
+//               item.status === status
+//           );
+//       }
+
+//       return filtered;
+
+//     }, [
+//       fees,
+//       search,
+//       status,
+//     ]);
+
+//   // =====================================================
+//   // STATS
+//   // =====================================================
+
+//   const totalCollection =
+//     fees.reduce(
+//       (acc, item) =>
+//         acc + item.paidAmount,
+//       0
+//     );
 
-  const totalDue =
-    fees.reduce(
-      (acc, item) =>
-        acc + item.dueAmount,
-      0
-    );
+//   const totalDue =
+//     fees.reduce(
+//       (acc, item) =>
+//         acc + item.dueAmount,
+//       0
+//     );
 
-  const paidCount =
-    fees.filter(
-      (item) =>
-        item.status === "PAID"
-    ).length;
+//   const paidCount =
+//     fees.filter(
+//       (item) =>
+//         item.status === "PAID"
+//     ).length;
 
-  const pendingCount =
-    fees.filter(
-      (item) =>
-        item.status !== "PAID"
-    ).length;
+//   const pendingCount =
+//     fees.filter(
+//       (item) =>
+//         item.status !== "PAID"
+//     ).length;
 
-  const cards = [
+//   const cards = [
 
-    {
-      title:
-        "Total Collection",
+//     {
+//       title:
+//         "Total Collection",
 
-      value:
-        `₹ ${totalCollection.toLocaleString()}`,
+//       value:
+//         `₹ ${totalCollection.toLocaleString()}`,
 
-      icon:
-        IndianRupee,
+//       icon:
+//         IndianRupee,
 
-      iconBg:
-        "bg-[#edf9f1]",
+//       iconBg:
+//         "bg-[#edf9f1]",
 
-      iconColor:
-        "text-[#16a34a]",
-    },
+//       iconColor:
+//         "text-[#16a34a]",
+//     },
 
-    {
-      title:
-        "Pending Due",
+//     {
+//       title:
+//         "Pending Due",
 
-      value:
-        `₹ ${totalDue.toLocaleString()}`,
+//       value:
+//         `₹ ${totalDue.toLocaleString()}`,
 
-      icon:
-        AlertCircle,
+//       icon:
+//         AlertCircle,
 
-      iconBg:
-        "bg-[#fef2f2]",
+//       iconBg:
+//         "bg-[#fef2f2]",
 
-      iconColor:
-        "text-[#dc2626]",
-    },
+//       iconColor:
+//         "text-[#dc2626]",
+//     },
 
-    {
-      title:
-        "Paid Students",
+//     {
+//       title:
+//         "Paid Students",
 
-      value:
-        paidCount,
+//       value:
+//         paidCount,
 
-      icon:
-        CheckCircle2,
+//       icon:
+//         CheckCircle2,
 
-      iconBg:
-        "bg-[#edf4ff]",
+//       iconBg:
+//         "bg-[#edf4ff]",
 
-      iconColor:
-        "text-[#2563eb]",
-    },
+//       iconColor:
+//         "text-[#2563eb]",
+//     },
 
-    {
-      title:
-        "Pending Fees",
+//     {
+//       title:
+//         "Pending Fees",
 
-      value:
-        pendingCount,
+//       value:
+//         pendingCount,
 
-      icon:
-        Wallet,
+//       icon:
+//         Wallet,
 
-      iconBg:
-        "bg-[#fff7ed]",
+//       iconBg:
+//         "bg-[#fff7ed]",
 
-      iconColor:
-        "text-[#ea580c]",
-    },
-  ];
+//       iconColor:
+//         "text-[#ea580c]",
+//     },
+//   ];
 
-  // =====================================================
-  // UI
-  // =====================================================
+//   // =====================================================
+//   // UI
+//   // =====================================================
 
-  return (
+//   return (
 
-    <div className="space-y-5 p-4 md:p-6">
+//     <div className="space-y-5 p-4 md:p-6">
 
-      {/* ===================================================== */}
-      {/* HEADER */}
-      {/* ===================================================== */}
+//       {/* ===================================================== */}
+//       {/* HEADER */}
+//       {/* ===================================================== */}
 
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+//       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 
-        <div>
+//         <div>
 
-          <h1 className="text-[28px] md:text-[32px] font-bold tracking-tight text-[#111827]">
-            Fee Reports
-          </h1>
+//           <h1 className="text-[28px] md:text-[32px] font-bold tracking-tight text-[#111827]">
+//             Fee Reports
+//           </h1>
 
-          <p className="mt-2 text-[14px] text-[#6b7280]">
-            School fee reports and analytics
-          </p>
+//           <p className="mt-2 text-[14px] text-[#6b7280]">
+//             School fee reports and analytics
+//           </p>
 
-        </div>
+//         </div>
 
-        <button className="w-full sm:w-auto h-[44px] md:h-[46px] px-5 rounded-2xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] md:text-[14px] font-semibold flex items-center justify-center gap-2 transition">
+//         <button className="w-full sm:w-auto h-[44px] md:h-[46px] px-5 rounded-2xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] md:text-[14px] font-semibold flex items-center justify-center gap-2 transition">
 
-          <Download size={16} />
+//           <Download size={16} />
 
-          Export Report
+//           Export Report
 
-        </button>
+//         </button>
 
-      </div>
+//       </div>
 
-      {/* ===================================================== */}
-      {/* STATS */}
-      {/* ===================================================== */}
+//       {/* ===================================================== */}
+//       {/* STATS */}
+//       {/* ===================================================== */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-5">
+//       <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-5">
 
-        {cards.map(
-          (item, index) => {
+//         {cards.map(
+//           (item, index) => {
 
-            const Icon =
-              item.icon;
+//             const Icon =
+//               item.icon;
 
-            return (
-              <div
-                key={index}
-                className="bg-white border border-[#edf0f5] rounded-[24px] p-5 shadow-sm"
-              >
+//             return (
+//               <div
+//                 key={index}
+//                 className="bg-white border border-[#edf0f5] rounded-[24px] p-5 shadow-sm"
+//               >
 
-                <div className="flex items-start justify-between">
+//                 <div className="flex items-start justify-between">
 
-                  <div>
+//                   <div>
 
-                    <p className="text-[14px] font-medium text-[#6b7280]">
-                      {item.title}
-                    </p>
+//                     <p className="text-[14px] font-medium text-[#6b7280]">
+//                       {item.title}
+//                     </p>
 
-                    <h2 className="mt-3 text-[30px] font-bold leading-none tracking-tight text-[#111827]">
-                      {item.value}
-                    </h2>
+//                     <h2 className="mt-3 text-[30px] font-bold leading-none tracking-tight text-[#111827]">
+//                       {item.value}
+//                     </h2>
 
-                  </div>
+//                   </div>
 
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${item.iconBg}`}>
+//                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${item.iconBg}`}>
 
-                    <Icon
-                      size={26}
-                      className={
-                        item.iconColor
-                      }
-                    />
+//                     <Icon
+//                       size={26}
+//                       className={
+//                         item.iconColor
+//                       }
+//                     />
 
-                  </div>
+//                   </div>
 
-                </div>
+//                 </div>
 
-              </div>
-            );
-          }
-        )}
+//               </div>
+//             );
+//           }
+//         )}
 
-      </div>
+//       </div>
 
-      {/* ===================================================== */}
-      {/* FILTERS */}
-      {/* ===================================================== */}
+//       {/* ===================================================== */}
+//       {/* FILTERS */}
+//       {/* ===================================================== */}
 
-      <div className="bg-white border border-[#edf0f5] rounded-[24px] p-4 shadow-sm">
+//       <div className="bg-white border border-[#edf0f5] rounded-[24px] p-4 shadow-sm">
 
-        <div className="flex flex-col lg:flex-row gap-3">
+//         <div className="flex flex-col lg:flex-row gap-3">
 
-          {/* Search */}
-          <div className="relative flex-1">
+//           {/* Search */}
+//           <div className="relative flex-1">
 
-            <Search
-              size={16}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]"
-            />
+//             <Search
+//               size={16}
+//               className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]"
+//             />
 
-            <input
-              type="text"
-              placeholder="Search student..."
-              value={search}
-              onChange={(e) =>
-                setSearch(
-                  e.target.value
-                )
-              }
-              className="w-full h-[44px] pl-11 pr-4 rounded-2xl border border-[#e5e7eb] text-[14px] outline-none focus:ring-4 focus:ring-blue-100 focus:border-[#2563eb] transition"
-            />
+//             <input
+//               type="text"
+//               placeholder="Search student..."
+//               value={search}
+//               onChange={(e) =>
+//                 setSearch(
+//                   e.target.value
+//                 )
+//               }
+//               className="w-full h-[44px] pl-11 pr-4 rounded-2xl border border-[#e5e7eb] text-[14px] outline-none focus:ring-4 focus:ring-blue-100 focus:border-[#2563eb] transition"
+//             />
 
-          </div>
+//           </div>
 
-          {/* Status */}
-          <select
-            value={status}
-            onChange={(e) =>
-              setStatus(
-                e.target.value
-              )
-            }
-            className="h-[44px] px-4 rounded-2xl border border-[#e5e7eb] text-[14px] outline-none focus:ring-4 focus:ring-blue-100 focus:border-[#2563eb]"
-          >
+//           {/* Status */}
+//           <select
+//             value={status}
+//             onChange={(e) =>
+//               setStatus(
+//                 e.target.value
+//               )
+//             }
+//             className="h-[44px] px-4 rounded-2xl border border-[#e5e7eb] text-[14px] outline-none focus:ring-4 focus:ring-blue-100 focus:border-[#2563eb]"
+//           >
 
-            <option value="">
-              All Status
-            </option>
+//             <option value="">
+//               All Status
+//             </option>
 
-            <option value="PAID">
-              Paid
-            </option>
+//             <option value="PAID">
+//               Paid
+//             </option>
 
-            <option value="PARTIAL">
-              Partial
-            </option>
+//             <option value="PARTIAL">
+//               Partial
+//             </option>
 
-            <option value="PENDING">
-              Pending
-            </option>
+//             <option value="PENDING">
+//               Pending
+//             </option>
 
-          </select>
+//           </select>
 
-        </div>
+//         </div>
 
-      </div>
+//       </div>
 
-      {/* ===================================================== */}
-      {/* TABLE */}
-      {/* ===================================================== */}
+//       {/* ===================================================== */}
+//       {/* TABLE */}
+//       {/* ===================================================== */}
 
-      <div className="bg-white border border-[#edf0f5] rounded-[24px] shadow-sm overflow-hidden">
+//       <div className="bg-white border border-[#edf0f5] rounded-[24px] shadow-sm overflow-hidden">
 
-        {/* Top */}
-        <div className="px-5 py-4 border-b border-[#eef2f7] flex items-center justify-between">
+//         {/* Top */}
+//         <div className="px-5 py-4 border-b border-[#eef2f7] flex items-center justify-between">
 
-          <h2 className="text-[18px] font-bold text-[#111827]">
-            Fee Reports
-          </h2>
+//           <h2 className="text-[18px] font-bold text-[#111827]">
+//             Fee Reports
+//           </h2>
 
-          <div className="hidden md:flex items-center gap-2 text-[13px] text-[#6b7280]">
+//           <div className="hidden md:flex items-center gap-2 text-[13px] text-[#6b7280]">
 
-            <CalendarDays size={15} />
+//             <CalendarDays size={15} />
 
-            Current Session
+//             Current Session
 
-          </div>
+//           </div>
 
-        </div>
+//         </div>
 
-        {/* Desktop */}
-        <div className="hidden md:block overflow-x-auto no-scrollbar">
+//         {/* Desktop */}
+//         <div className="hidden md:block overflow-x-auto no-scrollbar">
 
-          <table className="w-full">
+//           <table className="w-full">
 
-            <thead>
+//             <thead>
 
-              <tr className="bg-[#fafbfc] border-b border-[#eef2f7]">
+//               <tr className="bg-[#fafbfc] border-b border-[#eef2f7]">
 
-                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
-                  Student
-                </th>
+//                 <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
+//                   Student
+//                 </th>
 
-                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
-                  Class
-                </th>
+//                 <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
+//                   Class
+//                 </th>
 
-                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
-                  Total
-                </th>
+//                 <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
+//                   Total
+//                 </th>
 
-                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
-                  Paid
-                </th>
+//                 <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
+//                   Paid
+//                 </th>
 
-                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
-                  Due
-                </th>
+//                 <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
+//                   Due
+//                 </th>
 
-                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
-                  Status
-                </th>
+//                 <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#6b7280]">
+//                   Status
+//                 </th>
 
-              </tr>
+//               </tr>
 
-            </thead>
+//             </thead>
 
-            <tbody>
+//             <tbody>
 
-              {filteredFees.map(
-                (item: any) => (
+//               {filteredFees.map(
+//                 (item: any) => (
 
-                  <tr
-                    key={item.id}
-                    className="border-b border-[#f3f4f6] hover:bg-[#fafcff] transition"
-                  >
+//                   <tr
+//                     key={item.id}
+//                     className="border-b border-[#f3f4f6] hover:bg-[#fafcff] transition"
+//                   >
 
-                    <td className="px-4 py-3 text-[14px] font-semibold text-[#111827]">
-                      {
-                        item.student
-                          ?.name
-                      }
-                    </td>
+//                     <td className="px-4 py-3 text-[14px] font-semibold text-[#111827]">
+//                       {
+//                         item.student
+//                           ?.name
+//                       }
+//                     </td>
 
-                    <td className="px-4 py-3 text-[14px]">
-                      {
-                        item.student
-                          ?.class
-                          ?.name
-                      }
-                    </td>
+//                     <td className="px-4 py-3 text-[14px]">
+//                       {
+//                         item.student
+//                           ?.class
+//                           ?.name
+//                       }
+//                     </td>
 
-                    <td className="px-4 py-3 text-[14px]">
-                      ₹{
-                        item.totalAmount
-                      }
-                    </td>
+//                     <td className="px-4 py-3 text-[14px]">
+//                       ₹{
+//                         item.totalAmount
+//                       }
+//                     </td>
 
-                    <td className="px-4 py-3 text-[14px] font-semibold text-[#16a34a]">
-                      ₹{
-                        item.paidAmount
-                      }
-                    </td>
+//                     <td className="px-4 py-3 text-[14px] font-semibold text-[#16a34a]">
+//                       ₹{
+//                         item.paidAmount
+//                       }
+//                     </td>
 
-                    <td className="px-4 py-3 text-[14px] font-semibold text-[#dc2626]">
-                      ₹{
-                        item.dueAmount
-                      }
-                    </td>
+//                     <td className="px-4 py-3 text-[14px] font-semibold text-[#dc2626]">
+//                       ₹{
+//                         item.dueAmount
+//                       }
+//                     </td>
 
-                    <td className="px-4 py-3">
+//                     <td className="px-4 py-3">
 
-                      <span
-                        className={`
-                        inline-flex
-                        items-center
-                        rounded-full
-                        px-3
-                        py-1
-                        text-[11px]
-                        font-semibold
+//                       <span
+//                         className={`
+//                         inline-flex
+//                         items-center
+//                         rounded-full
+//                         px-3
+//                         py-1
+//                         text-[11px]
+//                         font-semibold
 
-                        ${
-                          item.status ===
-                          "PAID"
+//                         ${
+//                           item.status ===
+//                           "PAID"
 
-                            ? "bg-green-100 text-green-700"
+//                             ? "bg-green-100 text-green-700"
 
-                            : item.status ===
-                              "PARTIAL"
+//                             : item.status ===
+//                               "PARTIAL"
 
-                            ? "bg-yellow-100 text-yellow-700"
+//                             ? "bg-yellow-100 text-yellow-700"
 
-                            : "bg-red-100 text-red-700"
-                        }
-                        `}
-                      >
+//                             : "bg-red-100 text-red-700"
+//                         }
+//                         `}
+//                       >
 
-                        {
-                          item.status
-                        }
+//                         {
+//                           item.status
+//                         }
 
-                      </span>
+//                       </span>
 
-                    </td>
+//                     </td>
 
-                  </tr>
-                )
-              )}
+//                   </tr>
+//                 )
+//               )}
 
-            </tbody>
+//             </tbody>
 
-          </table>
+//           </table>
 
-        </div>
+//         </div>
 
-        {/* Mobile */}
-        <div className="md:hidden divide-y divide-[#eef2f7]">
+//         {/* Mobile */}
+//         <div className="md:hidden divide-y divide-[#eef2f7]">
 
-          {filteredFees.map(
-            (item: any) => (
+//           {filteredFees.map(
+//             (item: any) => (
 
-              <div
-                key={item.id}
-                className="p-4 space-y-3"
-              >
+//               <div
+//                 key={item.id}
+//                 className="p-4 space-y-3"
+//               >
 
-                <div className="flex items-center justify-between">
+//                 <div className="flex items-center justify-between">
 
-                  <div>
+//                   <div>
 
-                    <h3 className="text-[15px] font-bold text-[#111827]">
-                      {
-                        item.student
-                          ?.name
-                      }
-                    </h3>
+//                     <h3 className="text-[15px] font-bold text-[#111827]">
+//                       {
+//                         item.student
+//                           ?.name
+//                       }
+//                     </h3>
 
-                    <p className="mt-1 text-[12px] text-[#6b7280]">
-                      {
-                        item.student
-                          ?.class
-                          ?.name
-                      }
-                    </p>
+//                     <p className="mt-1 text-[12px] text-[#6b7280]">
+//                       {
+//                         item.student
+//                           ?.class
+//                           ?.name
+//                       }
+//                     </p>
 
-                  </div>
+//                   </div>
 
-                  <span
-                    className={`
-                    inline-flex
-                    items-center
-                    rounded-full
-                    px-3
-                    py-1
-                    text-[11px]
-                    font-semibold
+//                   <span
+//                     className={`
+//                     inline-flex
+//                     items-center
+//                     rounded-full
+//                     px-3
+//                     py-1
+//                     text-[11px]
+//                     font-semibold
 
-                    ${
-                      item.status ===
-                      "PAID"
+//                     ${
+//                       item.status ===
+//                       "PAID"
 
-                        ? "bg-green-100 text-green-700"
+//                         ? "bg-green-100 text-green-700"
 
-                        : item.status ===
-                          "PARTIAL"
+//                         : item.status ===
+//                           "PARTIAL"
 
-                        ? "bg-yellow-100 text-yellow-700"
+//                         ? "bg-yellow-100 text-yellow-700"
 
-                        : "bg-red-100 text-red-700"
-                    }
-                    `}
-                  >
+//                         : "bg-red-100 text-red-700"
+//                     }
+//                     `}
+//                   >
 
-                    {
-                      item.status
-                    }
+//                     {
+//                       item.status
+//                     }
 
-                  </span>
+//                   </span>
 
-                </div>
+//                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+//                 <div className="grid grid-cols-3 gap-3">
 
-                  <div>
+//                   <div>
 
-                    <p className="text-[11px] text-[#6b7280]">
-                      Total
-                    </p>
+//                     <p className="text-[11px] text-[#6b7280]">
+//                       Total
+//                     </p>
 
-                    <h4 className="mt-1 text-[14px] font-semibold">
-                      ₹{
-                        item.totalAmount
-                      }
-                    </h4>
+//                     <h4 className="mt-1 text-[14px] font-semibold">
+//                       ₹{
+//                         item.totalAmount
+//                       }
+//                     </h4>
 
-                  </div>
+//                   </div>
 
-                  <div>
+//                   <div>
 
-                    <p className="text-[11px] text-[#6b7280]">
-                      Paid
-                    </p>
+//                     <p className="text-[11px] text-[#6b7280]">
+//                       Paid
+//                     </p>
 
-                    <h4 className="mt-1 text-[14px] font-semibold text-[#16a34a]">
-                      ₹{
-                        item.paidAmount
-                      }
-                    </h4>
+//                     <h4 className="mt-1 text-[14px] font-semibold text-[#16a34a]">
+//                       ₹{
+//                         item.paidAmount
+//                       }
+//                     </h4>
 
-                  </div>
+//                   </div>
 
-                  <div>
+//                   <div>
 
-                    <p className="text-[11px] text-[#6b7280]">
-                      Due
-                    </p>
+//                     <p className="text-[11px] text-[#6b7280]">
+//                       Due
+//                     </p>
 
-                    <h4 className="mt-1 text-[14px] font-semibold text-[#dc2626]">
-                      ₹{
-                        item.dueAmount
-                      }
-                    </h4>
+//                     <h4 className="mt-1 text-[14px] font-semibold text-[#dc2626]">
+//                       ₹{
+//                         item.dueAmount
+//                       }
+//                     </h4>
 
-                  </div>
+//                   </div>
 
-                </div>
+//                 </div>
 
-              </div>
-            )
-          )}
+//               </div>
+//             )
+//           )}
 
-        </div>
+//         </div>
 
-      </div>
+//       </div>
 
-    </div>
-  );
-}
+//     </div>
+//   );
+// }

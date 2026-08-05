@@ -49,17 +49,13 @@ export const getFeeStructuresAPI =
 
       export const deleteFeeStructureAPI =
   (
-    id: number,
-
-    data: any
+    id: number
   ) =>
     apiConnector(
 
       "DELETE",
 
-      `/fee-structures/${id}`,
-
-      data
+      `/fee-structures/${id}`
     );
 // =====================================================
 // STUDENT FEES
@@ -119,7 +115,7 @@ export const getReceiptsAPI =
   () =>
     apiConnector(
       "GET",
-      "/payment-receipt"
+      "/payments"
     );
 
 export const getReceiptByIdAPI =
