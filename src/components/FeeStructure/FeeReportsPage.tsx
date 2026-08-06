@@ -646,3 +646,301 @@
 //     </div>
 //   );
 // }
+
+
+"use client";
+
+import { useMemo, useState } from "react";
+import {
+  Search,
+  Users,
+  Wallet,
+  AlertTriangle,
+  Clock3,
+  Download,
+  Printer,
+  FileSpreadsheet,
+} from "lucide-react";
+
+interface DueReportItem {
+  id: number;
+  studentName: string;
+  admissionNo: string;
+  className: string;
+  section: string;
+  totalFee: number;
+  paidAmount: number;
+  dueAmount: number;
+  dueDate: string;
+  status: "PENDING" | "PARTIAL" | "OVERDUE";
+}
+
+const dueData: DueReportItem[] = [
+  {
+    id: 1,
+    studentName: "Ali",
+    admissionNo: "ADM001",
+    className: "Class 5",
+    section: "A",
+    totalFee: 5000,
+    paidAmount: 2500,
+    dueAmount: 2500,
+    dueDate: "2026-08-10",
+    status: "PARTIAL",
+  },
+  {
+    id: 2,
+    studentName: "Ahmed",
+    admissionNo: "ADM002",
+    className: "Class 5",
+    section: "A",
+    totalFee: 4000,
+    paidAmount: 0,
+    dueAmount: 4000,
+    dueDate: "2026-07-10",
+    status: "OVERDUE",
+  },
+  {
+    id: 3,
+    studentName: "Faizy",
+    admissionNo: "ADM003",
+    className: "Class 4",
+    section: "B",
+    totalFee: 3000,
+    paidAmount: 0,
+    dueAmount: 3000,
+    dueDate: "2026-08-15",
+    status: "PENDING",
+  },
+];
+
+export default function DueReportTable() {
+  const [search, setSearch] = useState("");
+
+  const [selectedClass, setSelectedClass] = useState("");
+
+  const [selectedStatus, setSelectedStatus] = useState("");
+
+  const filteredData = useMemo(() => {
+    return dueData.filter((item) => {
+      const matchSearch =
+        item.studentName.toLowerCase().includes(search.toLowerCase()) ||
+        item.admissionNo.toLowerCase().includes(search.toLowerCase());
+
+      const matchClass =
+        !selectedClass || item.className === selectedClass;
+
+      const matchStatus =
+        !selectedStatus || item.status === selectedStatus;
+
+      return matchSearch && matchClass && matchStatus;
+    });
+  }, [search, selectedClass, selectedStatus]);
+
+  const summary = useMemo(() => {
+    return {
+      totalStudents: filteredData.length,
+
+      pendingStudents: filteredData.filter(
+        (x) => x.status === "PENDING"
+      ).length,
+
+      partialStudents: filteredData.filter(
+        (x) => x.status === "PARTIAL"
+      ).length,
+
+      overdueStudents: filteredData.filter(
+        (x) => x.status === "OVERDUE"
+      ).length,
+
+      totalDue: filteredData.reduce(
+        (sum, item) => sum + item.dueAmount,
+        0
+      ),
+    };
+  }, [filteredData]);
+
+  return (
+    <div className="space-y-6">
+
+      {/* ================= SUMMARY ================= */}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
+
+        <SummaryCard
+          title="Total Students"
+          value={summary.totalStudents}
+          icon={<Users size={22} />}
+        />
+
+        <SummaryCard
+          title="Pending"
+          value={summary.pendingStudents}
+          icon={<Clock3 size={22} />}
+        />
+
+        <SummaryCard
+          title="Partial"
+          value={summary.partialStudents}
+          icon={<Wallet size={22} />}
+        />
+
+        <SummaryCard
+          title="Overdue"
+          value={summary.overdueStudents}
+          icon={<AlertTriangle size={22} />}
+        />
+
+        <SummaryCard
+          title="Total Due"
+          value={`₹${summary.totalDue.toLocaleString()}`}
+          icon={<Wallet size={22} />}
+        />
+
+      </div>
+
+      {/* ================= FILTERS ================= */}
+
+      <div className="bg-white rounded-xl border border-gray-200 p-5">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
+
+          {/* Search */}
+
+          <div className="relative xl:col-span-2">
+
+            <Search
+              size={18}
+              className="absolute left-3 top-3 text-gray-400"
+            />
+
+            <input
+              value={search}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
+              placeholder="Search Student..."
+              className="w-full pl-10 h-11 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+          </div>
+
+          {/* Class */}
+
+          <select
+            className="h-11 rounded-lg border border-gray-300 px-3"
+            value={selectedClass}
+            onChange={(e) =>
+              setSelectedClass(e.target.value)
+            }
+          >
+            <option value="">All Classes</option>
+
+            <option>Class 4</option>
+
+            <option>Class 5</option>
+
+          </select>
+
+          {/* Status */}
+
+          <select
+            className="h-11 rounded-lg border border-gray-300 px-3"
+            value={selectedStatus}
+            onChange={(e) =>
+              setSelectedStatus(e.target.value)
+            }
+          >
+            <option value="">All Status</option>
+
+            <option value="PENDING">
+              Pending
+            </option>
+
+            <option value="PARTIAL">
+              Partial
+            </option>
+
+            <option value="OVERDUE">
+              Overdue
+            </option>
+
+          </select>
+
+          {/* Export */}
+
+          <button className="h-11 rounded-lg border flex items-center justify-center gap-2 hover:bg-gray-50">
+
+            <FileSpreadsheet size={18} />
+
+            Excel
+
+          </button>
+
+          <div className="flex gap-2">
+
+            <button className="flex-1 h-11 rounded-lg border hover:bg-gray-50 flex items-center justify-center">
+
+              <Download size={18} />
+
+            </button>
+
+            <button className="flex-1 h-11 rounded-lg border hover:bg-gray-50 flex items-center justify-center">
+
+              <Printer size={18} />
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* ================= TABLE ================= */}
+
+      {/* Part-2 */}
+
+    </div>
+  );
+}
+
+/* ================= SUMMARY CARD ================= */
+
+function SummaryCard({
+  title,
+  value,
+  icon,
+}: {
+  title: string;
+  value: any;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-5">
+
+      <div className="flex justify-between">
+
+        <div>
+
+          <p className="text-sm text-gray-500">
+            {title}
+          </p>
+
+          <h2 className="text-2xl font-bold mt-2">
+            {value}
+          </h2>
+
+        </div>
+
+        <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+
+          {icon}
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
