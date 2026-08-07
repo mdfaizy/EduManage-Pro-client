@@ -10,10 +10,10 @@ import {
   Calendar,
   DollarSign
 } from 'lucide-react';
-import { PaymentSummary } from '@/types/payment-report.types';
+import { PaymentDashboardSummary } from '@/components/types/payment-report.types';
 
 interface PaymentSummaryCardsProps {
-  summary: PaymentSummary;
+  summary: PaymentDashboardSummary;
 }
 
 export const PaymentSummaryCards: React.FC<PaymentSummaryCardsProps> = ({ summary }) => {
@@ -26,68 +26,95 @@ export const PaymentSummaryCards: React.FC<PaymentSummaryCardsProps> = ({ summar
     }).format(amount);
   };
 
-  const cards = [
-    {
-      title: 'Total Receipts',
-      value: summary.totalReceipts,
-      subtitle: 'Total payment receipts',
-      icon: Receipt,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
-      valueColor: 'text-blue-700',
-    },
-    {
-      title: 'Total Collection',
-      value: formatCurrency(summary.totalAmount),
-      subtitle: `Avg: ${formatCurrency(summary.averageAmount)} per receipt`,
-      icon: IndianRupee,
-      iconBg: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
-      valueColor: 'text-emerald-700',
-    },
-    {
-      title: 'Cash Collection',
-      value: formatCurrency(summary.cashAmount),
-      subtitle: `${summary.cashPercentage}% of total`,
-      icon: Wallet,
-      iconBg: 'bg-amber-50',
-      iconColor: 'text-amber-600',
-      valueColor: 'text-amber-700',
-    },
-    {
-      title: 'Online Collection',
-      value: formatCurrency(summary.onlineAmount),
-      subtitle: `${summary.onlinePercentage}% of total`,
-      icon: CreditCard,
-      iconBg: 'bg-purple-50',
-      iconColor: 'text-purple-600',
-      valueColor: 'text-purple-700',
-    },
-  ];
+const cards = [
+  {
+    title: "Total Students",
+    value: summary.totalStudents,
+    subtitle: "Students with fee records",
+    icon: Receipt,
+    iconBg: "bg-blue-50",
+    iconColor: "text-blue-600",
+    valueColor: "text-blue-700",
+  },
+  {
+    title: "Total Fee Amount",
+    value: formatCurrency(summary.totalFeeAmount),
+    subtitle: "Assigned fee amount",
+    icon: IndianRupee,
+    iconBg: "bg-emerald-50",
+    iconColor: "text-emerald-600",
+    valueColor: "text-emerald-700",
+  },
+  {
+    title: "Collected",
+    value: formatCurrency(summary.totalCollected),
+    subtitle: `${summary.collectionRate}% collected`,
+    icon: Wallet,
+    iconBg: "bg-green-50",
+    iconColor: "text-green-600",
+    valueColor: "text-green-700",
+  },
+  {
+    title: "Pending",
+    value: formatCurrency(summary.totalPending),
+    subtitle: `${summary.pendingRate}% pending`,
+    icon: CreditCard,
+    iconBg: "bg-amber-50",
+    iconColor: "text-amber-600",
+    valueColor: "text-amber-700",
+  },
+  {
+    title: "Discount",
+    value: formatCurrency(summary.totalDiscount),
+    subtitle: "Total discounts",
+    icon: TrendingUp,
+    iconBg: "bg-purple-50",
+    iconColor: "text-purple-600",
+    valueColor: "text-purple-700",
+  },
+  {
+    title: "Overdue",
+    value: formatCurrency(summary.totalOverdue),
+    subtitle: "Past due amount",
+    icon: Calendar,
+    iconBg: "bg-red-50",
+    iconColor: "text-red-600",
+    valueColor: "text-red-700",
+  },
+  {
+    title: "Late Fee",
+    value: formatCurrency(summary.totalLateFee),
+    subtitle: "Late fee collected",
+    icon: DollarSign,
+    iconBg: "bg-orange-50",
+    iconColor: "text-orange-600",
+    valueColor: "text-orange-700",
+  },
+];
 
-  const todayCards = [
-    {
-      title: "Today's Collection",
-      value: formatCurrency(summary.todayCollection),
-      icon: Calendar,
-      iconBg: 'bg-indigo-50',
-      iconColor: 'text-indigo-600',
-    },
-    {
-      title: 'This Week',
-      value: formatCurrency(summary.weekCollection),
-      icon: TrendingUp,
-      iconBg: 'bg-cyan-50',
-      iconColor: 'text-cyan-600',
-    },
-    {
-      title: 'This Month',
-      value: formatCurrency(summary.monthCollection),
-      icon: DollarSign,
-      iconBg: 'bg-rose-50',
-      iconColor: 'text-rose-600',
-    },
-  ];
+const todayCards = [
+  {
+    title: "Today's Collection",
+    value: formatCurrency(summary.todayCollection),
+    icon: Calendar,
+    iconBg: 'bg-indigo-50',
+    iconColor: 'text-indigo-600',
+  },
+  {
+    title: 'This Week',
+    value: formatCurrency(summary.weekCollection),
+    icon: TrendingUp,
+    iconBg: 'bg-cyan-50',
+    iconColor: 'text-cyan-600',
+  },
+  {
+    title: 'This Month',
+    value: formatCurrency(summary.monthCollection),
+    icon: DollarSign,
+    iconBg: 'bg-rose-50',
+    iconColor: 'text-rose-600',
+  },
+];
 
   return (
     <div className="space-y-4 mb-6">

@@ -1,9 +1,7 @@
 // services/payment-report.service.ts
 
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
 import { PaymentReportFilters, PaymentReportData } from '@/components/types/payment-report.types';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 export const paymentReportService = {
   // =====================================================
@@ -11,10 +9,18 @@ export const paymentReportService = {
   // =====================================================
 
   async getPaymentReport(filters: PaymentReportFilters): Promise<PaymentReportData> {
-    const response = await axios.get(`${API_BASE_URL}/reports/payments`, {
+    const response = await axiosInstance.get('/reports/payments', {
       params: filters,
     });
-    return response.data.data;
+    const result = response.data.data;
+
+return {
+  payments: result.data,
+  pagination: result.pagination,
+  summary: result.summary,
+  methodSummary: result.methodSummary,
+  dailyCollection: result.dailyCollection,
+};
   },
 
   // =====================================================
@@ -22,7 +28,7 @@ export const paymentReportService = {
   // =====================================================
 
   async getPaymentSummary(filters: PaymentReportFilters) {
-    const response = await axios.get(`${API_BASE_URL}/reports/payments/summary`, {
+    const response = await axiosInstance.get('/reports/summary', {
       params: filters,
     });
     return response.data.data;
@@ -33,7 +39,7 @@ export const paymentReportService = {
   // =====================================================
 
   async getPaymentMethodSummary(filters: PaymentReportFilters) {
-    const response = await axios.get(`${API_BASE_URL}/reports/payments/methods`, {
+    const response = await axiosInstance.get('/reports/payments/methods', {
       params: filters,
     });
     return response.data.data;
@@ -44,7 +50,7 @@ export const paymentReportService = {
   // =====================================================
 
   async getDailyCollection(filters: PaymentReportFilters) {
-    const response = await axios.get(`${API_BASE_URL}/reports/payments/daily`, {
+    const response = await axiosInstance.get('/reports/payments/daily', {
       params: filters,
     });
     return response.data.data;
@@ -55,7 +61,7 @@ export const paymentReportService = {
   // =====================================================
 
   async exportExcel(filters: PaymentReportFilters): Promise<Blob> {
-    const response = await axios.get(`${API_BASE_URL}/reports/payments/export/excel`, {
+    const response = await axiosInstance.get('/reports/payments/export/excel', {
       params: filters,
       responseType: 'blob',
     });
@@ -67,7 +73,7 @@ export const paymentReportService = {
   // =====================================================
 
   async exportCSV(filters: PaymentReportFilters): Promise<Blob> {
-    const response = await axios.get(`${API_BASE_URL}/reports/payments/export/csv`, {
+    const response = await axiosInstance.get('/reports/payments/export/csv', {
       params: filters,
       responseType: 'blob',
     });
@@ -79,7 +85,7 @@ export const paymentReportService = {
   // =====================================================
 
   async generatePDF(filters: PaymentReportFilters): Promise<string> {
-    const response = await axios.get(`${API_BASE_URL}/reports/payments/export/pdf`, {
+    const response = await axiosInstance.get('/reports/payments/export/pdf', {
       params: filters,
     });
     return response.data;

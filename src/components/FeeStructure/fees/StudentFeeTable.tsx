@@ -987,7 +987,18 @@ export default function StudentFeeTable() {
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50/50 border-b border-gray-200">
-                {["Student", "ID", "Class", "Due Date", "Total", "Paid", "Due", "Status", "Actions"].map((item) => (
+                {[
+  "Invoice No",
+  "Student",
+  "Admission No",
+  "Class",
+  "Due Date",
+  "Total",
+  "Paid",
+  "Balance",
+  "Status",
+  "Actions",
+].map((item) => (
                   <TableCell key={item} isHeader className="px-1 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     {item}
                   </TableCell>
@@ -1022,27 +1033,27 @@ export default function StudentFeeTable() {
                       key={fee.id}
                       className={`border-b border-gray-100 hover:bg-gray-50/50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
                     >
+                      <TableCell className="px-4 py-3">
+  <code className="text-xs font-mono bg-blue-50 text-blue-700 px-2 py-1 rounded">
+    {fee?.invoiceNo}
+  </code>
+</TableCell>
                       {/* Student */}
                       <TableCell className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-medium text-xs flex-shrink-0">
-                            {fee.student.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900 text-[12px]">{fee.student.name}</p>
-                            {fee.student.parentName && (
-                              <p className="text-xs text-gray-400">{fee.student.parentName}</p>
-                            )}
-                          </div>
-                        </div>
+                        <div>
+  <p className="font-medium text-gray-900">
+    {fee.student.name}
+  </p>
+</div>
                       </TableCell>
-
+{/* Admission No */}
+<TableCell className="px-4 py-3">
+  <span className="text-sm text-gray-700">
+    {fee.student.admissionNo}
+  </span>
+</TableCell>
                       {/* ID */}
-                      <TableCell className="px-2 py-3">
-                        <code className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-600">
-                          {fee.student.studentCode}
-                        </code>
-                      </TableCell>
+                      
 
                       {/* Class */}
                       <TableCell className="px-4 py-3">

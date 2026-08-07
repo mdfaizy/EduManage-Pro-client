@@ -9,20 +9,24 @@ export interface PaymentReportFilters {
   endDate?: string;
   paymentMethod?: 'CASH' | 'ONLINE' | 'UPI' | 'CARD' | 'BANK_TRANSFER' | 'ALL';
   status?: 'SUCCESS' | 'FAILED' | 'PENDING' | 'ALL';
+  search?: string;
   page?: number;
   limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
 
-export interface PaymentSummary {
-  totalReceipts: number;
-  totalAmount: number;
-  averageAmount: number;
-  cashAmount: number;
-  onlineAmount: number;
-  cashPercentage: number;
-  onlinePercentage: number;
+export interface PaymentDashboardSummary {
+  totalStudents: number;
+  totalFeeAmount: number;
+  totalCollected: number;
+  totalPending: number;
+  totalDiscount: number;
+  totalLateFee: number;
+  totalOverdue: number;
+  collectionRate: number;
+  pendingRate: number;
+
   todayCollection: number;
   weekCollection: number;
   monthCollection: number;
@@ -42,7 +46,7 @@ export interface DailyCollection {
 }
 
 export interface PaymentReportData {
-  summary: PaymentSummary;
+  summary: PaymentDashboardSummary;
   methodSummary: PaymentMethodSummary[];
   dailyCollection: DailyCollection[];
   payments: PaymentHistoryReport[];

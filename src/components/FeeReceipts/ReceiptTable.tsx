@@ -201,204 +201,170 @@ export const ReceiptTable: React.FC<ReceiptTableProps> = ({
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1400px]">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              {/* Receipt No */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Receipt No
-              </th>
+         <thead className="bg-gray-50 border-b">
+  <tr>
+    {/* Receipt No */}
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Receipt No
+    </th>
 
-              {/* Student */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Student
-              </th>
+    {/* Payment Date */}
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Payment Date
+    </th>
 
-              {/* Student ID */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Student ID
-              </th>
+    {/* Student */}
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Student
+    </th>
 
-              {/* Admission No */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Admission No
-              </th>
+    {/* Admission No */}
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Admission No
+    </th>
 
-              {/* Class */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Class
-              </th>
+    {/* Invoice No */}
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Invoice No
+    </th>
 
-              {/* Section */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Section
-              </th>
+    {/* Paid Amount */}
+    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Paid Amount
+    </th>
 
-              {/* Invoice No */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Invoice No
-              </th>
+    {/* Method */}
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Method
+    </th>
 
-              {/* Payment Date */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Payment Date
-              </th>
+    {/* Received By */}
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Received By
+    </th>
 
-              {/* Paid Amount */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Paid Amount
-              </th>
+    {/* Status */}
+    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Status
+    </th>
 
-              {/* Remaining Due */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Remaining Due
-              </th>
+    {/* Actions */}
+    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+      Actions
+    </th>
+  </tr>
+</thead>
+         <tbody className="divide-y divide-gray-200">
+  {receipts.map((receipt) => (
+    <tr key={receipt.id} className="hover:bg-gray-50 transition-colors">
 
-              {/* Method */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Method
-              </th>
+      {/* Receipt No */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <span className="font-semibold text-gray-900">
+          {receipt.receiptNo}
+        </span>
+      </td>
 
-              {/* Received By */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Received By
-              </th>
+      {/* Payment Date */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <span className="text-sm text-gray-600">
+          {formatDate(receipt.paymentDate)}
+        </span>
+      </td>
 
-              {/* Status */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Status
-              </th>
+      {/* Student */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <div className="font-medium text-gray-900">
+          {getStudentName(receipt)}
+        </div>
+      </td>
 
-              {/* Actions */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {receipts.map((receipt) => (
-              <tr key={receipt.id} className="hover:bg-gray-50 transition-colors">
-                {/* Receipt No */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="font-medium text-gray-900 text-sm">
-                    {receipt.receiptNo || 'N/A'}
-                  </span>
-                </td>
+      {/* Admission No */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <span className="text-sm text-gray-600">
+          {getAdmissionNo(receipt)}
+        </span>
+      </td>
 
-                {/* Student */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {getStudentName(receipt)}
-                  </div>
-                </td>
+      {/* Invoice No */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <span className="font-mono text-sm text-blue-600">
+          {getInvoiceNo(receipt)}
+        </span>
+      </td>
 
-                {/* Student ID */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm text-gray-600">
-                    {getStudentId(receipt)}
-                  </span>
-                </td>
+      {/* Paid Amount */}
+      <td className="px-4 py-3 whitespace-nowrap text-right">
+        <span className="font-semibold text-emerald-600">
+          {formatCurrency(receipt.amount || 0)}
+        </span>
+      </td>
 
-                {/* Admission No */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm text-gray-600">
-                    {getAdmissionNo(receipt)}
-                  </span>
-                </td>
+      {/* Method */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <span
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${getPaymentMethodColor(receipt.paymentMethod)}`}
+        >
+          {getPaymentMethodIcon(receipt.paymentMethod)}
+          {receipt.paymentMethod?.replace("_", " ")}
+        </span>
+      </td>
 
-                {/* Class */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">
-                    {getClassName(receipt)}
-                  </span>
-                </td>
+      {/* Received By */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <span className="text-sm text-gray-600">
+          {getReceivedBy(receipt)}
+        </span>
+      </td>
 
-                {/* Section */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm text-gray-600">
-                    {getSection(receipt)}
-                  </span>
-                </td>
+      {/* Status */}
+      <td className="px-4 py-3 whitespace-nowrap text-center">
+        <span
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(receipt.status)}`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${getStatusDotColor(
+              receipt.status
+            )}`}
+          />
+          {receipt.status}
+        </span>
+      </td>
 
-                {/* Invoice No */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm text-gray-600">
-                    {getInvoiceNo(receipt)}
-                  </span>
-                </td>
+      {/* Actions */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <div className="flex items-center justify-center gap-2">
 
-                {/* Payment Date */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm text-gray-600">
-                    {formatDate(receipt.paymentDate)}
-                  </span>
-                </td>
+          <button
+            onClick={() => onView(receipt)}
+            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+            title="View Receipt"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
 
-                {/* Paid Amount */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm font-semibold text-emerald-600">
-                    {formatCurrency(receipt.amount || 0)}
-                  </span>
-                </td>
+          <button
+            onClick={() => onDownload(receipt)}
+            className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg"
+            title="Download Receipt"
+          >
+            <Download className="w-4 h-4" />
+          </button>
 
-                {/* Remaining Due */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm font-semibold text-red-600">
-                    {formatCurrency(getDueAmount(receipt))}
-                  </span>
-                </td>
+          <button
+            onClick={() => onPrint(receipt)}
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            title="Print Receipt"
+          >
+            <Printer className="w-4 h-4" />
+          </button>
 
-                {/* Method */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${getPaymentMethodColor(receipt.paymentMethod)}`}>
-                    {getPaymentMethodIcon(receipt.paymentMethod)}
-                    {receipt.paymentMethod?.replace('_', ' ') || 'N/A'}
-                  </span>
-                </td>
+        </div>
+      </td>
 
-                {/* Received By */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm text-gray-600">
-                    {getReceivedBy(receipt)}
-                  </span>
-                </td>
-
-                {/* Status */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(receipt.status)}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotColor(receipt.status)}`}></span>
-                    {receipt.status || 'N/A'}
-                  </span>
-                </td>
-
-                {/* Actions */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => onView(receipt)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="View Receipt"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onDownload(receipt)}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Download Receipt"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onPrint(receipt)}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Print Receipt"
-                    >
-                      <Printer className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+    </tr>
+  ))}
+</tbody>
         </table>
       </div>
     </div>

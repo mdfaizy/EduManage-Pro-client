@@ -1,11 +1,27 @@
 // components/PaymentReport/DailyCollectionChart.tsx
 
 import React from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Chart } from 'react-chartjs-2';
 
+import { DailyCollection } from '@/components/types/payment-report.types';
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Tooltip, Legend);
 
+interface DailyCollectionChartProps {
+  data: DailyCollection[];
+}
 
-export const DailyCollectionChart: React.FC<any> = ({ data }) => {
+export const DailyCollectionChart: React.FC<DailyCollectionChartProps> = ({ data }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -36,23 +52,6 @@ export const DailyCollectionChart: React.FC<any> = ({ data }) => {
     count: item.count,
   }));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-medium text-gray-900">{label}</p>
-          <p className="text-emerald-600">
-            Collection: {formatCurrency(payload[0].value)}
-          </p>
-          <p className="text-gray-600">
-            Receipts: {payload[0].payload.count}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
       <div className="flex items-center justify-between mb-4">
@@ -70,7 +69,64 @@ export const DailyCollectionChart: React.FC<any> = ({ data }) => {
           </div>
         </div>
       </div>
-   
+      <div className="h-[300px]">
+        <Chart
+          type="bar"
+          data={{
+            labels: chartData.map((item) => item.date),
+            datasets: [
+              {
+                type: 'bar' as const,
+                label: 'Amount',
+                data: chartData.map((item) => item.amount),
+                backgroundColor: '#10b981',
+                borderRadius: 6,
+                yAxisID: 'y',
+              },
+              {
+                type: 'line' as const,
+                label: 'Count',
+                data: chartData.map((item) => item.count),
+                borderColor: '#3b82f6',
+                backgroundColor: '#3b82f6',
+                tension: 0.3,
+                yAxisID: 'y1',
+              },
+            ],
+          }}
+          options={{
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => {
+                    if (ctx.dataset.label === 'Amount') {
+                      return `Collection: ${formatCurrency(ctx.parsed.y ?? 0)}`;
+                    }
+                    return `Receipts: ${ctx.parsed.y}`;
+                  },
+                },
+              },
+            },
+            scales: {
+              y: {
+                type: 'linear',
+                position: 'left',
+                beginAtZero: true,
+                ticks: { callback: (value) => formatCurrency(Number(value)) },
+              },
+              y1: {
+                type: 'linear',
+                position: 'right',
+                beginAtZero: true,
+                grid: { drawOnChartArea: false },
+                ticks: { precision: 0 },
+              },
+            },
+          }}
+        />
+      </div>
     </div>
   );
 };

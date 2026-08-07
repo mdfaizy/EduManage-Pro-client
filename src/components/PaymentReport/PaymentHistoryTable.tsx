@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Eye, Download, Printer } from 'lucide-react';
-import { PaymentHistoryReport } from '@/types/payment-report.types';
+import { PaymentHistoryReport } from '@/components/types/payment-report.types';
 
 interface PaymentHistoryTableProps {
   data: PaymentHistoryReport[];
@@ -69,117 +69,154 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1200px]">
           <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Receipt No
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Student
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Class
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Amount
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Method
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Received By
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
+  <tr>
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      Receipt No
+    </th>
+
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      Invoice No
+    </th>
+
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      Payment Date
+    </th>
+
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      Student
+    </th>
+
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      Admission No
+    </th>
+
+    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      Amount
+    </th>
+
+    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      Method
+    </th>
+
+    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      Status
+    </th>
+
+    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      Actions
+    </th>
+  </tr>
+</thead>
           <tbody className="divide-y divide-gray-200">
-            {data.map((payment) => (
-              <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="font-medium text-gray-900">
-                    {payment.receiptNo}
-                  </span>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">
-                      {payment.studentName}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {payment.admissionNo}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-gray-600">
-                    {payment.className}
-                    {payment.section && ` - ${payment.section}`}
-                  </span>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm text-gray-600">
-                    {formatDate(payment.paymentDate)}
-                  </span>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="font-semibold text-emerald-600">
-                    {formatCurrency(payment.amount)}
-                  </span>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${getMethodBadge(payment.paymentMethod)}`}>
-                    {payment.paymentMethod.replace('_', ' ')}
-                  </span>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadge(payment.status)}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${
-                      payment.status === 'SUCCESS' ? 'bg-emerald-500' :
-                      payment.status === 'PENDING' ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}></span>
-                    {payment.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="text-sm text-gray-600">
-                    {payment.receivedBy}
-                  </span>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => onView?.(payment)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="View Payment"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onDownload?.(payment)}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Download Receipt"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onPrint?.(payment)}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Print Receipt"
-                    >
-                      <Printer className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {data.map((payment) => (
+    <tr
+      key={payment.id}
+      className="hover:bg-gray-50 transition-colors"
+    >
+      {/* Receipt */}
+      <td className="px-4 py-3">
+        <span className="font-semibold text-gray-900">
+          {payment.receiptNo}
+        </span>
+      </td>
+
+      {/* Invoice */}
+      <td className="px-4 py-3">
+        <span className="font-mono text-sm text-blue-600">
+          {payment.invoiceNo}
+        </span>
+      </td>
+
+      {/* Date */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <span className="text-sm text-gray-600">
+          {formatDate(payment.paymentDate)}
+        </span>
+      </td>
+
+      {/* Student */}
+      <td className="px-4 py-3">
+        <span className="font-medium text-gray-900">
+          {payment.studentName}
+        </span>
+      </td>
+
+      {/* Admission */}
+      <td className="px-4 py-3">
+        <span className="text-sm text-gray-600">
+          {payment.admissionNo}
+        </span>
+      </td>
+
+      {/* Amount */}
+      <td className="px-4 py-3 text-right">
+        <span className="font-bold text-emerald-600">
+          {formatCurrency(payment.amount)}
+        </span>
+      </td>
+
+      {/* Method */}
+      <td className="px-4 py-3 text-center">
+        <span
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getMethodBadge(
+            payment.paymentMethod
+          )}`}
+        >
+          {payment.paymentMethod.replace("_", " ")}
+        </span>
+      </td>
+
+      {/* Status */}
+      <td className="px-4 py-3 text-center">
+        <span
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadge(
+            payment.status
+          )}`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              payment.status === "SUCCESS"
+                ? "bg-emerald-500"
+                : payment.status === "PENDING"
+                ? "bg-yellow-500"
+                : "bg-red-500"
+            }`}
+          />
+          {payment.status}
+        </span>
+      </td>
+
+      {/* Actions */}
+      <td className="px-4 py-3">
+        <div className="flex items-center justify-center gap-1">
+          <button
+            onClick={() => onView?.(payment)}
+            className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"
+            title="View"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => onDownload?.(payment)}
+            className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50"
+            title="Download"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => onPrint?.(payment)}
+            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+            title="Print"
+          >
+            <Printer className="w-4 h-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
         </table>
       </div>
     </div>

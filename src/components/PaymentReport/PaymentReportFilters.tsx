@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { Search, Filter, X, Calendar } from 'lucide-react';
-import { PaymentReportFilters } from '@/types/payment-report.types';
+import { PaymentReportFilters as PaymentReportFiltersType } from '@/components/types/payment-report.types';
 
 interface PaymentReportFiltersProps {
-  filters: PaymentReportFilters;
-  onFilterChange: (filters: PaymentReportFilters) => void;
+  filters: PaymentReportFiltersType;
+  onFilterChange: (filters: PaymentReportFiltersType) => void;
   onApply: () => void;
   onReset: () => void;
   showReset: boolean;
@@ -40,8 +40,8 @@ export const PaymentReportFilters: React.FC<PaymentReportFiltersProps> = ({
   ];
 
   const handleInputChange = (
-    key: keyof PaymentReportFilters,
-    value: string | number
+    key: keyof PaymentReportFiltersType,
+    value: string | number | undefined
   ) => {
     onFilterChange({ ...filters, [key]: value });
   };

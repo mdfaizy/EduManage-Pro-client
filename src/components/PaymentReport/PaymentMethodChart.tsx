@@ -1,8 +1,20 @@
 // components/PaymentReport/PaymentMethodChart.tsx
 
 import React from 'react';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Pie, Bar } from 'react-chartjs-2';
 
 import { PaymentMethodSummary } from '@/components/types/payment-report.types';
+
+ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 interface PaymentMethodChartProps {
   data: PaymentMethodSummary[];
@@ -28,25 +40,43 @@ export const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({ data }) 
     );
   }
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-medium text-gray-900">{data.method}</p>
-          <p className="text-gray-600">Count: {data.count}</p>
-          <p className="text-gray-600">Total: {formatCurrency(data.total)}</p>
-          <p className="text-gray-600">Percentage: {data.percentage}%</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   const chartData = data.map((item) => ({
     ...item,
     method: item.method.replace('_', ' '),
   }));
+
+  const labels = chartData.map((item) => item.method);
+  const colors = chartData.map((_, i) => COLORS[i % COLORS.length]);
+
+  const pieData = {
+    labels,
+    datasets: [
+      {
+        data: chartData.map((item) => item.total),
+        backgroundColor: colors,
+        borderWidth: 0,
+      },
+    ],
+  };
+
+  const barData = {
+    labels,
+    datasets: [
+      {
+        label: 'Receipts',
+        data: chartData.map((item) => item.count),
+        backgroundColor: colors,
+        borderRadius: 6,
+      },
+    ],
+  };
+
+  const tooltipCallback = {
+    label: (ctx: any) => {
+      const item = chartData[ctx.dataIndex];
+      return [`Count: ${item.count}`, `Total: ${formatCurrency(item.total)}`, `Share: ${item.percentage}%`];
+    },
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -55,11 +85,34 @@ export const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({ data }) 
       </h3>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pie Chart */}
-        
+        <div className="h-[300px]">
+          <Pie
+            data={pieData}
+            options={{
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { callbacks: tooltipCallback },
+              },
+            }}
+          />
+        </div>
 
         {/* Bar Chart */}
         <div className="h-[300px]">
-         
+          <Bar
+            data={barData}
+            options={{
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: tooltipCallback },
+              },
+              scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+              },
+            }}
+          />
         </div>
       </div>
     </div>

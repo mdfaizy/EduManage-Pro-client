@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import { FileSpreadsheet, FileText, Printer, RefreshCw } from 'lucide-react';
 
 // Components
-import { PaymentSummaryCards } from '@/components/PaymentReport/PaymentSummaryCards';
+import {PaymentSummaryCards} from '@/components/PaymentReport/PaymentSummaryCards';
 import { PaymentReportFilters } from '@/components/PaymentReport/PaymentReportFilters';
 import { PaymentMethodChart } from '@/components/PaymentReport/PaymentMethodChart';
 import { DailyCollectionChart } from '@/components/PaymentReport/DailyCollectionChart';
@@ -17,8 +17,7 @@ import { PaymentHistoryTable } from '@/components/PaymentReport/PaymentHistoryTa
 import { paymentReportService } from '@/services/payment-report.service';
 
 // Types
-import { PaymentReportData } from '@/components/types/payment-report.types';
-// import { PaymentHistoryReport } from '@/components/types/';
+import { PaymentReportData, PaymentReportFilters as PaymentReportFiltersType, PaymentHistoryReport } from '@/components/types/payment-report.types';
 
 export default function PaymentReportPage() {
   // =====================================================
@@ -27,7 +26,7 @@ export default function PaymentReportPage() {
 
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState<PaymentReportData | null>(null);
-  const [filters, setFilters] = useState<PaymentReportFilters>({
+  const [filters, setFilters] = useState<PaymentReportFiltersType>({
     schoolId: 1,
     status: 'ALL',
     paymentMethod: 'ALL',
@@ -74,8 +73,20 @@ export default function PaymentReportPage() {
   const loadReport = async () => {
     try {
       setLoading(true);
-      const data = await paymentReportService.getPaymentReport(filters);
-      setReportData(data);
+      // const data = await paymentReportService.getPaymentReport(filters);
+      //    console.log("Payment Report API Response:", data); // 👈 ADD THIS
+      // setReportData(data);
+      const [report, summary] = await Promise.all([
+  paymentReportService.getPaymentReport(filters),
+  paymentReportService.getPaymentSummary(filters),
+]);
+
+console.log("Payment Report API Response:", report); // 👈 ADD THIS
+console.log("Payment Summary API Response:", summary); // 👈 ADD THIS
+setReportData({
+  ...report,
+  summary,
+});
     } catch (error: any) {
       toast.error(error?.response?.data?.message || 'Failed to load payment report');
     } finally {
@@ -87,7 +98,7 @@ export default function PaymentReportPage() {
   // HANDLERS
   // =====================================================
 
-  const handleFilterChange = (newFilters: PaymentReportFilters) => {
+  const handleFilterChange = (newFilters: PaymentReportFiltersType) => {
     setFilters(newFilters);
   };
 
@@ -164,7 +175,7 @@ export default function PaymentReportPage() {
   };
 
   const handleViewPayment = (payment: PaymentHistoryReport) => {
-    toast.info(`Viewing payment: ${payment.receiptNo}`);
+    toast(`Viewing payment: ${payment.receiptNo}`);
   };
 
   const handleDownloadReceipt = (payment: PaymentHistoryReport) => {
@@ -172,7 +183,7 @@ export default function PaymentReportPage() {
   };
 
   const handlePrintReceipt = (payment: PaymentHistoryReport) => {
-    toast.info(`Printing receipt: ${payment.receiptNo}`);
+    toast(`Printing receipt: ${payment.receiptNo}`);
   };
 
   // =====================================================
@@ -188,14 +199,15 @@ export default function PaymentReportPage() {
   // UI
   // =====================================================
 
-  const showReset =
+  const showReset = Boolean(
     filters.classId !== undefined ||
     filters.academicYearId !== undefined ||
     filters.status !== 'ALL' ||
     filters.paymentMethod !== 'ALL' ||
     filters.startDate ||
     filters.endDate ||
-    filters.search;
+    filters.search
+  );
 
   if (loading && !reportData) {
     return (
@@ -250,6 +262,10 @@ export default function PaymentReportPage() {
         </div>
       </div>
 
+ {/* Summary Cards */}
+      {reportData?.summary && (
+        <PaymentSummaryCards summary={reportData.summary} />
+      )}
       {/* Filters */}
       <PaymentReportFilters
         filters={filters}
@@ -261,10 +277,7 @@ export default function PaymentReportPage() {
         academicYears={academicYears}
       />
 
-      {/* Summary Cards */}
-      {reportData?.summary && (
-        <PaymentSummaryCards summary={reportData.summary} />
-      )}
+     
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
