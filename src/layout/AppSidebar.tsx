@@ -50,21 +50,12 @@ const navItems: NavItem[] = [
   icon: <Wallet size={20} />,
   name: "Fee Management",
   subItems: [
-    {
-      name: "Payment Report",path: "/admin/reports/payments",
-    },
-    {name: "Dashboard",path: "/admin/fees",},
+    {name: "Payment Report",path: "/admin/reports/payments",},
+    {name: "Payment Collection",path: "/admin/fees/pay",},
     {name: "Fee Structures",path: "/admin/fees/structure",},
     {name: "Fee Generation",path: "/admin/fees/generate",},
-    {name: "Payment Collection",path: "/admin/fees/pay",},
     {name: "Scholarships",path: "/admin/scholarship",},
-    {name: "Student Scholarships",path: "/admin/student-scholarship",
-    },
-    {
-      name: "Payment Receipts",
-      path: "/admin/fees/receipts",
-    },
-    
+    {name: "Student Scholarships",path: "/admin/student-scholarship",},
   ],
 },
 // =====================================================

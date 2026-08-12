@@ -179,25 +179,38 @@ export function useFeeTable() {
     setIsViewModalOpen(true);
   }, [dispatch]);
 
-  const handlePayment = useCallback(async (amount: number, method: string) => {
+  const handlePayment = useCallback(
+  async (amount: number, method: string) => {
     if (!selectedFee) return;
 
     try {
-      await payStudentFeeAPI({
+      const response = await payStudentFeeAPI({
         studentFeeId: selectedFee.id,
         amount,
-        paymentMethod: method,
+        paymentMethod: method.toUpperCase(),
       });
 
+      console.log("Payment Response:", response);
+
       toast.success("Payment Collected Successfully");
+
       setIsPaymentModalOpen(false);
       dispatch(clearSelectedFee());
+
       await refreshFees();
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Payment Failed");
+      console.error("Payment Error:", error);
+      console.error("Response:", error?.response?.data);
+
+      toast.error(
+        error?.response?.data?.message || "Payment Failed"
+      );
+
       throw error;
     }
-  }, [selectedFee, dispatch, refreshFees]);
+  },
+  [selectedFee, dispatch, refreshFees]
+);
 
   const handleClosePaymentModal = useCallback(() => {
     setIsPaymentModalOpen(false);

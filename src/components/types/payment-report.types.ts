@@ -1,77 +1,131 @@
-// types/payment-report.types.ts
+// // types/payment-report.types.ts
 
-export interface PaymentReportFilters {
-  schoolId: number;
-  academicYearId?: number;
-  classId?: number;
-  studentId?: number;
-  startDate?: string;
-  endDate?: string;
-  paymentMethod?: 'CASH' | 'ONLINE' | 'UPI' | 'CARD' | 'BANK_TRANSFER' | 'ALL';
-  status?: 'SUCCESS' | 'FAILED' | 'PENDING' | 'ALL';
-  search?: string;
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
+// export interface PaymentReportFilters {
+//   schoolId: number;
+//   academicYearId?: number;
+//   classId?: number;
+//   studentId?: number;
+//   startDate?: string;
+//   endDate?: string;
+//   paymentMethod?: 'CASH' | 'ONLINE' | 'UPI' | 'CARD' | 'BANK_TRANSFER' | 'ALL';
+//   status?: 'SUCCESS' | 'FAILED' | 'PENDING' | 'ALL';
+//   search?: string;
+//   page?: number;
+//   limit?: number;
+//   sortBy?: string;
+//   sortOrder?: 'asc' | 'desc';
+// }
 
-export interface PaymentDashboardSummary {
-  totalStudents: number;
-  totalFeeAmount: number;
-  totalCollected: number;
-  totalPending: number;
-  totalDiscount: number;
-  totalLateFee: number;
-  totalOverdue: number;
-  collectionRate: number;
-  pendingRate: number;
+// export interface PaymentDashboardSummary {
+//   totalStudents: number;
+//   totalFeeAmount: number;
+//   totalCollected: number;
+//   totalPending: number;
+//   totalDiscount: number;
+//   totalLateFee: number;
+//   totalOverdue: number;
+//   collectionRate: number;
+//   pendingRate: number;
 
-  todayCollection: number;
-  weekCollection: number;
-  monthCollection: number;
-}
+//   todayCollection: number;
+//   weekCollection: number;
+//   monthCollection: number;
+// }
 
-export interface PaymentMethodSummary {
-  method: string;
-  count: number;
-  total: number;
-  percentage: number;
-}
+// export interface PaymentMethodSummary {
+//   method: string;
+//   count: number;
+//   total: number;
+//   percentage: number;
+// }
 
-export interface DailyCollection {
-  date: string;
-  total: number;
-  count: number;
-}
+// export interface DailyCollection {
+//   date: string;
+//   total: number;
+//   count: number;
+// }
 
-export interface PaymentReportData {
-  summary: PaymentDashboardSummary;
-  methodSummary: PaymentMethodSummary[];
-  dailyCollection: DailyCollection[];
-  payments: PaymentHistoryReport[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
+// export interface PaymentReportData {
+//   summary: PaymentDashboardSummary;
+//   methodSummary: PaymentMethodSummary[];
+//   dailyCollection: DailyCollection[];
+//   payments: PaymentHistoryReport[];
+//   pagination: {
+//     total: number;
+//     page: number;
+//     limit: number;
+//     totalPages: number;
+//   };
+// }
 
-export interface PaymentHistoryReport {
-  id: number;
-  receiptNo: string;
-  studentName: string;
-  studentId: number;
-  admissionNo: string;
-  className: string;
-  section?: string;
-  amount: number;
-  paymentMethod: string;
-  paymentDate: string;
-  status: string;
-  receivedBy: string;
-  invoiceNo?: string;
-  transactionId?: string;
-  remarks?: string;
-}
+// // export interface PaymentHistoryReport {
+// //   id: number;
+// //   receiptNo: string;
+// //   studentName: string;
+// //   studentId: number;
+// //   admissionNo: string;
+// //   className: string;
+// //   section?: string;
+// //   amount: number;
+// //   paymentMethod: string;
+// //   paymentDate: string;
+// //   status: string;
+// //   receivedBy: string;
+// //   invoiceNo?: string;
+// //   transactionId?: string;
+// //   remarks?: string;
+// // }
+
+
+// export interface PaymentHistoryReport {
+//   id: number;
+//   schoolId: number;
+//   studentFeeId: number;
+
+//   receiptNo: string;
+//   amount: number;
+//   paymentDate: string;
+//   paymentMethod: string;
+//   transactionId?: string | null;
+//   remarks?: string | null;
+//   status: string;
+
+//   studentFee: {
+//     id: number;
+//     invoiceNo: string;
+
+//     studentId: number;
+
+//     totalAmount: number | string;
+//     paidAmount: number | string;
+//     dueAmount: number | string;
+
+//     student: {
+//       id: number;
+//       name: string;
+//       studentCode: string;
+//       profilePhoto?: string | null;
+//       phoneNumber?: string | null;
+//       email?: string | null;
+//     };
+
+//     feeStructure?: {
+//       id: number;
+//       name: string;
+//       class?: {
+//         id: number;
+//         name: string;
+//       } | null;
+//       academicYear?: {
+//         id: number;
+//         name: string;
+//       } | null;
+//     } | null;
+//   };
+
+//   receivedBy?: {
+//     id: number;
+//     name: string;
+//     email: string;
+//   } | null;
+// }

@@ -107,7 +107,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
     </th>
   </tr>
 </thead>
-          <tbody className="divide-y divide-gray-200">
+<tbody className="divide-y divide-gray-200">
   {data.map((payment) => (
     <tr
       key={payment.id}
@@ -123,7 +123,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
       {/* Invoice */}
       <td className="px-4 py-3">
         <span className="font-mono text-sm text-blue-600">
-          {payment.invoiceNo}
+          {payment.studentFee?.invoiceNo || "-"}
         </span>
       </td>
 
@@ -136,22 +136,28 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
 
       {/* Student */}
       <td className="px-4 py-3">
-        <span className="font-medium text-gray-900">
-          {payment.studentName}
-        </span>
+        <div>
+          <p className="font-medium text-gray-900">
+            {payment.studentFee?.student?.name || "-"}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            {payment.studentFee?.student?.studentCode || "-"}
+          </p>
+        </div>
       </td>
 
-      {/* Admission */}
+      {/* Student Code */}
       <td className="px-4 py-3">
         <span className="text-sm text-gray-600">
-          {payment.admissionNo}
+          {payment.studentFee?.student?.studentCode || "-"}
         </span>
       </td>
 
       {/* Amount */}
       <td className="px-4 py-3 text-right">
         <span className="font-bold text-emerald-600">
-          {formatCurrency(payment.amount)}
+          {formatCurrency(Number(payment.amount))}
         </span>
       </td>
 
@@ -182,6 +188,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
                 : "bg-red-500"
             }`}
           />
+
           {payment.status}
         </span>
       </td>
@@ -192,7 +199,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
           <button
             onClick={() => onView?.(payment)}
             className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"
-            title="View"
+            title="View Receipt"
           >
             <Eye className="w-4 h-4" />
           </button>
@@ -200,7 +207,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
           <button
             onClick={() => onDownload?.(payment)}
             className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50"
-            title="Download"
+            title="Download Receipt"
           >
             <Download className="w-4 h-4" />
           </button>
@@ -208,7 +215,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
           <button
             onClick={() => onPrint?.(payment)}
             className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
-            title="Print"
+            title="Print Receipt"
           >
             <Printer className="w-4 h-4" />
           </button>

@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { FileSpreadsheet, FileText, Printer, RefreshCw } from 'lucide-react';
-
+import { useMasterData } from "@/hooks/useMasterData";
 // Components
 import {PaymentSummaryCards} from '@/components/PaymentReport/PaymentSummaryCards';
 import { PaymentReportFilters } from '@/components/PaymentReport/PaymentReportFilters';
@@ -13,17 +13,37 @@ import { PaymentMethodChart } from '@/components/PaymentReport/PaymentMethodChar
 import { DailyCollectionChart } from '@/components/PaymentReport/DailyCollectionChart';
 import { PaymentHistoryTable } from '@/components/PaymentReport/PaymentHistoryTable';
 
+import {
+  getPaymentsAPI,
+  getPaymentSummaryAPI,
+  getPaymentAnalyticsAPI,
+  downloadReceiptAPI,
+  getPaymentByIdAPI,
+  getClassPaymentReportAPI,
+} from "@/services/paymentService";
+
 // Services
 import { paymentReportService } from '@/services/payment-report.service';
 
 // Types
 import { PaymentReportData, PaymentReportFilters as PaymentReportFiltersType, PaymentHistoryReport } from '@/components/types/payment-report.types';
+import { PaymentReceiptViewModal } from '@/components/common/PaymentReceiptViewModal';
+import { getClassesAPI } from '@/services/classService';
+import { fetchAcademicYears } from '@/services/academicYearsServices';
+import { ClassPaymentReport } from '@/components/PaymentReport/ClassPaymentReport';
 
 export default function PaymentReportPage() {
   // =====================================================
   // STATES
   // =====================================================
+const [selectedPayment, setSelectedPayment] =
+  useState<any>(null);
 
+const [isViewModalOpen, setIsViewModalOpen] =
+  useState(false);
+
+const [viewLoading, setViewLoading] =
+  useState(false);
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState<PaymentReportData | null>(null);
   const [filters, setFilters] = useState<PaymentReportFiltersType>({
@@ -35,64 +55,261 @@ export default function PaymentReportPage() {
     sortBy: 'paymentDate',
     sortOrder: 'desc',
   });
-  const [classes, setClasses] = useState<Array<{ id: number; name: string }>>([]);
-  const [academicYears, setAcademicYears] = useState<Array<{ id: number; name: string }>>([]);
+
+  const [classPaymentReport, setClassPaymentReport] = useState<any[]>([]);
+const [classReportLoading, setClassReportLoading] = useState(false);
+
+
+const loadClassPaymentReport = async () => {
+  if (!filters.classId) {
+    setClassPaymentReport([]);
+    return;
+  }
+
+  try {
+    setClassReportLoading(true);
+
+    const response = await getClassPaymentReportAPI({
+      classId: Number(filters.classId),
+      academicYearId: filters.academicYearId
+        ? Number(filters.academicYearId)
+        : undefined,
+    });
+
+    setClassPaymentReport(
+      response.data?.students || []
+    );
+  } catch (error: any) {
+    console.error("Class payment report error:", error);
+
+    toast.error(
+      error?.response?.data?.message ||
+        "Failed to load class payment report"
+    );
+
+    setClassPaymentReport([]);
+  } finally {
+    setClassReportLoading(false);
+  }
+};
+
 
   // =====================================================
   // LOAD DROPDOWN DATA
   // =====================================================
+const {
+  classes,
+  years: academicYears,
+} = useMasterData();
+ const handleView = async (
+  payment: PaymentHistoryReport
+) => {
+  try {
+    setViewLoading(true);
 
-  const loadDropdownData = async () => {
-    try {
-      // In real app, fetch from API
-      setClasses([
-        { id: 1, name: 'Class 1' },
-        { id: 2, name: 'Class 2' },
-        { id: 3, name: 'Class 3' },
-        { id: 4, name: 'Class 4' },
-        { id: 5, name: 'Class 5' },
-        { id: 6, name: 'Class 6' },
-        { id: 7, name: 'Class 7' },
-        { id: 8, name: 'Class 8' },
-        { id: 9, name: 'Class 9' },
-        { id: 10, name: 'Class 10' },
-      ]);
-      setAcademicYears([
-        { id: 1, name: '2024-2025' },
-        { id: 2, name: '2025-2026' },
-      ]);
-    } catch (error: any) {
-      toast.error('Failed to load dropdown data');
+    const response = await getPaymentByIdAPI(payment.id);
+
+    const paymentData =
+      response.data?.data ??
+      response.data;
+
+    setSelectedPayment(paymentData);
+    setIsViewModalOpen(true);
+  } catch (error) {
+    console.error("Failed to fetch payment details:", error);
+  } finally {
+    setViewLoading(false);
+  }
+};
+const handleDownload = async (payment: PaymentHistoryReport) => {
+  try {
+    const response = await downloadReceiptAPI(payment.id);
+
+    const html = response.data?.html;
+
+    if (!html) {
+      throw new Error("Receipt HTML not received");
     }
-  };
+
+    const blob = new Blob([html], {
+      type: "text/html;charset=utf-8",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `receipt-${payment.receiptNo}.html`;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Failed to download receipt:", error);
+  }
+};
+
+
+  // const loadDropdownData = async () => {
+
+
+  //   try {
+  //     // In real app, fetch from API
+  //     setClasses([
+  //       { id: 1, name: 'Class 1' },
+  //       { id: 2, name: 'Class 2' },
+  //       { id: 3, name: 'Class 3' },
+  //       { id: 4, name: 'Class 4' },
+  //       { id: 5, name: 'Class 5' },
+  //       { id: 6, name: 'Class 6' },
+  //       { id: 7, name: 'Class 7' },
+  //       { id: 8, name: 'Class 8' },
+  //       { id: 9, name: 'Class 9' },
+  //       { id: 10, name: 'Class 10' },
+  //     ]);
+  //     setAcademicYears([
+  //       { id: 1, name: '2024-2025' },
+  //       { id: 2, name: '2025-2026' },
+  //     ]);
+  //   } catch (error: any) {
+  //     toast.error('Failed to load dropdown data');
+  //   }
+  // };
 
   // =====================================================
   // LOAD REPORT
   // =====================================================
 
-  const loadReport = async () => {
-    try {
-      setLoading(true);
-      // const data = await paymentReportService.getPaymentReport(filters);
-      //    console.log("Payment Report API Response:", data); // 👈 ADD THIS
-      // setReportData(data);
-      const [report, summary] = await Promise.all([
-  paymentReportService.getPaymentReport(filters),
-  paymentReportService.getPaymentSummary(filters),
-]);
+const loadReport = async () => {
+  try {
+    setLoading(true);
 
-console.log("Payment Report API Response:", report); // 👈 ADD THIS
-console.log("Payment Summary API Response:", summary); // 👈 ADD THIS
-setReportData({
-  ...report,
-  summary,
-});
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to load payment report');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const [
+      paymentsResponse,
+      summaryResponse,
+      analyticsResponse,
+    ] = await Promise.all([
+      getPaymentsAPI({
+        page: filters.page,
+        limit: filters.limit,
+        classId: filters.classId,
+        academicYearId: filters.academicYearId,
+        status: filters.status,
+        paymentMethod: filters.paymentMethod,
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+        search: filters.search,
+      }),
+
+      getPaymentSummaryAPI({
+        classId: filters.classId,
+        academicYearId: filters.academicYearId,
+        status: filters.status,
+        paymentMethod: filters.paymentMethod,
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+      }),
+
+      getPaymentAnalyticsAPI({
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+      }),
+    ]);
+
+    const payments =
+      paymentsResponse.data?.payments ?? [];
+
+    const pagination =
+      paymentsResponse.data?.pagination;
+
+    const summary =
+      summaryResponse.data ?? {};
+
+    // const analytics =
+    //   analyticsResponse.data ?? {};
+
+    const analytics =
+  analyticsResponse.data?.data ??
+  analyticsResponse.data ??
+  {};
+
+    setReportData({
+      payments,
+
+      summary: {
+        ...summary,
+
+        totalCollected:
+          summary.totalCollected ??
+          summary.totalCollection ??
+          0,
+
+        totalFeeAmount:
+          summary.totalFeeAmount ?? 0,
+
+        totalPending:
+          summary.totalPending ?? 0,
+
+        totalDiscount:
+          summary.totalDiscount ?? 0,
+
+        totalOverdue:
+          summary.totalOverdue ?? 0,
+
+        totalLateFee:
+          summary.totalLateFee ?? 0,
+
+        weekCollection:
+          summary.weekCollection ?? 0,
+
+        todayCollection:
+          summary.todayCollection ?? 0,
+
+        monthCollection:
+          summary.monthCollection ?? 0,
+
+        collectionRate:
+          summary.collectionRate ?? 0,
+
+        pendingRate:
+          summary.pendingRate ?? 0,
+      },
+
+      // dailyCollection:
+      //   analytics.daily ?? [],
+
+      // methodSummary:
+      //   analytics.byMethod ?? [],
+      dailyCollection:
+  analytics.daily ??
+  analytics.dailyCollection ??
+  [],
+
+methodSummary:
+  analytics.byMethod ??
+  analytics.paymentMethods ??
+  analytics.methodSummary ??
+  [],
+
+      pagination,
+    });
+
+  } catch (error: any) {
+    console.error(
+      "Payment report error:",
+      error
+    );
+
+    toast.error(
+      error?.response?.data?.error ||
+      "Failed to load payment report"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =====================================================
   // HANDLERS
@@ -102,8 +319,9 @@ setReportData({
     setFilters(newFilters);
   };
 
-  const handleApplyFilters = () => {
-    loadReport();
+  const handleApplyFilters = async () => {
+    await loadReport();
+    await loadClassPaymentReport();
   };
 
   const handleResetFilters = () => {
@@ -174,24 +392,13 @@ setReportData({
     }
   };
 
-  const handleViewPayment = (payment: PaymentHistoryReport) => {
-    toast(`Viewing payment: ${payment.receiptNo}`);
-  };
-
-  const handleDownloadReceipt = (payment: PaymentHistoryReport) => {
-    toast.success(`Downloading receipt: ${payment.receiptNo}`);
-  };
-
-  const handlePrintReceipt = (payment: PaymentHistoryReport) => {
-    toast(`Printing receipt: ${payment.receiptNo}`);
-  };
 
   // =====================================================
   // EFFECTS
   // =====================================================
 
   useEffect(() => {
-    loadDropdownData();
+      // loadDropdownData();
     loadReport();
   }, []);
 
@@ -273,11 +480,60 @@ setReportData({
         onApply={handleApplyFilters}
         onReset={handleResetFilters}
         showReset={showReset}
-        classes={classes}
-        academicYears={academicYears}
+         classes={classes}
+  academicYears={academicYears}
       />
 
-     
+
+
+{filters.classId && (
+  <div className="mb-6">
+    <ClassPaymentReport
+      data={classPaymentReport}
+      className={
+        classes.find(
+          (item) =>
+            String(item.id) === String(filters.classId)
+        )?.name
+      }
+      academicYearName={
+        academicYears.find(
+          (item) =>
+            String(item.id) ===
+            String(filters.academicYearId)
+        )?.name
+      }
+      loading={classReportLoading}
+      onView={(student) => {
+        console.log("View student payment:", student);
+      }}
+      onPrint={(student) => {
+        console.log("Print student report:", student);
+      }}
+    />
+  </div>
+)}
+  <ClassPaymentReport
+  data={[]}
+  className={
+    classes.find(
+      (item) => String(item.id) === String(filters.classId)
+    )?.name || ""
+  }
+  academicYearName={
+    academicYears.find(
+      (item) =>
+        String(item.id) === String(filters.academicYearId)
+    )?.name || ""
+  }
+  loading={false}
+  onView={(student) => {
+    console.log("View:", student);
+  }}
+  onPrint={(student) => {
+    console.log("Print:", student);
+  }}
+/>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -303,12 +559,28 @@ setReportData({
             )}
           </div>
           <PaymentHistoryTable
-            data={reportData.payments}
-            onView={handleViewPayment}
-            onDownload={handleDownloadReceipt}
-            onPrint={handlePrintReceipt}
+              data={reportData.payments}
+  onView={handleView}
+  onDownload={handleDownload}
+  onPrint={handlePrint}
           />
 
+
+<PaymentReceiptViewModal
+  open={isViewModalOpen}
+  payment={selectedPayment}
+  onClose={() => setIsViewModalOpen(false)}
+  onDownload={() => {
+    if (selectedPayment) {
+      handleDownload(selectedPayment);
+    }
+  }}
+  onPrint={() => {
+    if (selectedPayment) {
+      handlePrint(selectedPayment);
+    }
+  }}
+/>
           {/* Pagination */}
           {reportData.pagination && reportData.pagination.totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between">
