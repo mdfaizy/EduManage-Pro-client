@@ -65,11 +65,16 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
+    <div className="bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden">
+      <div className="overflow-x-auto scrollbar-hide">
         <table className="w-full min-w-[1200px]">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-300 border-b border-gray-200">
+
+            
   <tr>
+     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+      # No
+    </th>
     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
       Receipt No
     </th>
@@ -108,12 +113,17 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
   </tr>
 </thead>
 <tbody className="divide-y divide-gray-200">
-  {data.map((payment) => (
+  {data.map((payment,index) => (
     <tr
       key={payment.id}
       className="hover:bg-gray-50 transition-colors"
     >
       {/* Receipt */}
+        <td className="px-4 py-3">
+        <span className="font-semibold text-gray-900">
+          {index + 1}
+        </span>
+      </td>
       <td className="px-4 py-3">
         <span className="font-semibold text-gray-900">
           {payment.receiptNo}

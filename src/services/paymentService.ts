@@ -119,11 +119,28 @@ export interface UpdatePaymentDTO {
   status?: string;
 }
 
+// export interface PaymentFilters {
+//   page?: number;
+//   limit?: number;
+
+//   classId?: number;
+//   academicYearId?: number;
+
+//   status?: string;
+//   paymentMethod?: string;
+
+//   startDate?: string;
+//   endDate?: string;
+
+//   search?: string;
+// }
+
 export interface PaymentFilters {
   page?: number;
   limit?: number;
 
   classId?: number;
+  sectionId?: number;
   academicYearId?: number;
 
   status?: string;
@@ -288,12 +305,10 @@ export const deletePaymentAPI = (
 /* PAYMENT REPORT */
 /* GET /payments/report */
 /* -------------------------------------------------------------------------- */
-
 export const getPaymentReportAPI = (
   filters?: PaymentFilters
 ) => {
-  const params =
-    new URLSearchParams();
+  const params = new URLSearchParams();
 
   if (filters?.page) {
     params.set(
@@ -313,6 +328,13 @@ export const getPaymentReportAPI = (
     params.set(
       "classId",
       String(filters.classId)
+    );
+  }
+
+  if (filters?.sectionId) {
+    params.set(
+      "sectionId",
+      String(filters.sectionId)
     );
   }
 
@@ -364,8 +386,12 @@ export const getPaymentReportAPI = (
     );
   }
 
-  const query =
-    params.toString();
+  const query = params.toString();
+
+  console.log(
+    "PAYMENT REPORT API QUERY:",
+    query
+  );
 
   return apiConnector(
     "GET",
@@ -374,6 +400,95 @@ export const getPaymentReportAPI = (
       : "/payments/report"
   );
 };
+
+
+// export const getPaymentReportAPI = (
+
+
+//   filters?: PaymentFilters
+// ) => {
+//   const params =
+//     new URLSearchParams();
+
+//   if (filters?.page) {
+//     params.set(
+//       "page",
+//       String(filters.page)
+//     );
+//   }
+
+//   if (filters?.limit) {
+//     params.set(
+//       "limit",
+//       String(filters.limit)
+//     );
+//   }
+
+//   if (filters?.classId) {
+//     params.set(
+//       "classId",
+//       String(filters.classId)
+//     );
+//   }
+
+//   if (filters?.academicYearId) {
+//     params.set(
+//       "academicYearId",
+//       String(filters.academicYearId)
+//     );
+//   }
+
+//   if (
+//     filters?.status &&
+//     filters.status !== "ALL"
+//   ) {
+//     params.set(
+//       "status",
+//       filters.status
+//     );
+//   }
+
+//   if (
+//     filters?.paymentMethod &&
+//     filters.paymentMethod !== "ALL"
+//   ) {
+//     params.set(
+//       "paymentMethod",
+//       filters.paymentMethod
+//     );
+//   }
+
+//   if (filters?.startDate) {
+//     params.set(
+//       "startDate",
+//       filters.startDate
+//     );
+//   }
+
+//   if (filters?.endDate) {
+//     params.set(
+//       "endDate",
+//       filters.endDate
+//     );
+//   }
+
+//   if (filters?.search) {
+//     params.set(
+//       "search",
+//       filters.search
+//     );
+//   }
+
+//   const query =
+//     params.toString();
+
+//   return apiConnector(
+//     "GET",
+//     query
+//       ? `/payments/report?${query}`
+//       : "/payments/report"
+//   );
+// };
 
 
 export const getClassPaymentReportAPI = async (params: {
@@ -387,6 +502,9 @@ export const getClassPaymentReportAPI = async (params: {
     params
   );
 };
+
+
+
 
 
 /* -------------------------------------------------------------------------- */

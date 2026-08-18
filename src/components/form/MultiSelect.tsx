@@ -166,29 +166,81 @@
 // export default MultiSelect;
 
 
+// "use client";
+// import React from "react";
+// import Select, { MultiValue } from "react-select";
+
+// export interface PrivilegeOption {
+//   value: string;
+//   label: string;
+// }
+
+// interface Props {
+//   options: PrivilegeOption[];
+//   value: PrivilegeOption[];
+//   onChange: (selected: PrivilegeOption[]) => void;
+//   placeholder?: string;
+//   isDisabled?: boolean;
+//   isLoading?: boolean;
+// }
+
+// const MultiSelecterInput: React.FC<Props> = ({
+//   options,
+//   value,
+//   onChange,
+//   placeholder = "Select privileges",
+//   isDisabled = false,
+//   isLoading = false,
+// }) => {
+//   return (
+//     <Select
+//       isMulti
+//       isSearchable
+//       closeMenuOnSelect={false}
+//       options={options}
+//       value={value}
+//       onChange={(val: MultiValue<PrivilegeOption>) =>
+//         onChange(val as PrivilegeOption[])
+//       }
+//       placeholder={placeholder}
+//       isDisabled={isDisabled}
+//       isLoading={isLoading}
+//       classNamePrefix="react-select"
+//     />
+//   );
+// };
+
+// export default MultiSelecterInput;
+
+
+
+
+
 "use client";
+
 import React from "react";
 import Select, { MultiValue } from "react-select";
 
-export interface PrivilegeOption {
-  value: string;
+export interface SelectOption {
+  value: string | number;
   label: string;
+  [key: string]: any;
 }
 
-interface Props {
-  options: PrivilegeOption[];
-  value: PrivilegeOption[];
-  onChange: (selected: PrivilegeOption[]) => void;
+interface MultiSelectProps {
+  options: SelectOption[];
+  value: SelectOption[];
+  onChange: (selected: SelectOption[]) => void;
   placeholder?: string;
   isDisabled?: boolean;
   isLoading?: boolean;
 }
 
-const MultiSelecterInput: React.FC<Props> = ({
+const MultiSelect: React.FC<MultiSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = "Select privileges",
+  placeholder = "Select...",
   isDisabled = false,
   isLoading = false,
 }) => {
@@ -199,15 +251,15 @@ const MultiSelecterInput: React.FC<Props> = ({
       closeMenuOnSelect={false}
       options={options}
       value={value}
-      onChange={(val: MultiValue<PrivilegeOption>) =>
-        onChange(val as PrivilegeOption[])
+      onChange={(selected: MultiValue<SelectOption>) =>
+        onChange([...selected])
       }
       placeholder={placeholder}
       isDisabled={isDisabled}
       isLoading={isLoading}
-      classNamePrefix="react-select"
+      classNamePrefix="multi-select"
     />
   );
 };
 
-export default MultiSelecterInput;
+export default MultiSelect;

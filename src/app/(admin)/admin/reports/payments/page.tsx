@@ -1,642 +1,482 @@
-// app/(admin)/admin/reports/payments/page.tsx
-
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { FileSpreadsheet, FileText, Printer, RefreshCw } from 'lucide-react';
+import { useState,useRef } from "react";
+import ClassPaymentReport from "@/components/PaymentReport/ClassPaymentReport";
 import { useMasterData } from "@/hooks/useMasterData";
-// Components
-import {PaymentSummaryCards} from '@/components/PaymentReport/PaymentSummaryCards';
-import { PaymentReportFilters } from '@/components/PaymentReport/PaymentReportFilters';
-import { PaymentMethodChart } from '@/components/PaymentReport/PaymentMethodChart';
-import { DailyCollectionChart } from '@/components/PaymentReport/DailyCollectionChart';
-import { PaymentHistoryTable } from '@/components/PaymentReport/PaymentHistoryTable';
-
+import { usePaymentReport } from "@/hooks/usePaymentReport";
 import {
-  getPaymentsAPI,
-  getPaymentSummaryAPI,
-  getPaymentAnalyticsAPI,
-  downloadReceiptAPI,
-  getPaymentByIdAPI,
-  getClassPaymentReportAPI,
-} from "@/services/paymentService";
-
-// Services
-import { paymentReportService } from '@/services/payment-report.service';
-
-// Types
-import { PaymentReportData, PaymentReportFilters as PaymentReportFiltersType, PaymentHistoryReport } from '@/components/types/payment-report.types';
-import { PaymentReceiptViewModal } from '@/components/common/PaymentReceiptViewModal';
-import { getClassesAPI } from '@/services/classService';
-import { fetchAcademicYears } from '@/services/academicYearsServices';
-import { ClassPaymentReport } from '@/components/PaymentReport/ClassPaymentReport';
-
-export default function PaymentReportPage() {
-  // =====================================================
-  // STATES
-  // =====================================================
-const [selectedPayment, setSelectedPayment] =
-  useState<any>(null);
-
-const [isViewModalOpen, setIsViewModalOpen] =
-  useState(false);
-
-const [viewLoading, setViewLoading] =
-  useState(false);
-  const [loading, setLoading] = useState(false);
-  const [reportData, setReportData] = useState<PaymentReportData | null>(null);
-  const [filters, setFilters] = useState<PaymentReportFiltersType>({
-    schoolId: 1,
-    status: 'ALL',
-    paymentMethod: 'ALL',
-    page: 1,
-    limit: 10,
-    sortBy: 'paymentDate',
-    sortOrder: 'desc',
-  });
-
-  const [classPaymentReport, setClassPaymentReport] = useState<any[]>([]);
-const [classReportLoading, setClassReportLoading] = useState(false);
-
-
-const loadClassPaymentReport = async () => {
-  if (!filters.classId) {
-    setClassPaymentReport([]);
-    return;
-  }
-
-  try {
-    setClassReportLoading(true);
-
-    const response = await getClassPaymentReportAPI({
-      classId: Number(filters.classId),
-      academicYearId: filters.academicYearId
-        ? Number(filters.academicYearId)
-        : undefined,
-    });
-
-    setClassPaymentReport(
-      response.data?.students || []
-    );
-  } catch (error: any) {
-    console.error("Class payment report error:", error);
-
-    toast.error(
-      error?.response?.data?.message ||
-        "Failed to load class payment report"
-    );
-
-    setClassPaymentReport([]);
-  } finally {
-    setClassReportLoading(false);
-  }
-};
-
-
-  // =====================================================
-  // LOAD DROPDOWN DATA
-  // =====================================================
-const {
-  classes,
-  years: academicYears,
-} = useMasterData();
- const handleView = async (
-  payment: PaymentHistoryReport
-) => {
-  try {
-    setViewLoading(true);
-
-    const response = await getPaymentByIdAPI(payment.id);
-
-    const paymentData =
-      response.data?.data ??
-      response.data;
-
-    setSelectedPayment(paymentData);
-    setIsViewModalOpen(true);
-  } catch (error) {
-    console.error("Failed to fetch payment details:", error);
-  } finally {
-    setViewLoading(false);
-  }
-};
-const handleDownload = async (payment: PaymentHistoryReport) => {
-  try {
-    const response = await downloadReceiptAPI(payment.id);
-
-    const html = response.data?.html;
-
-    if (!html) {
-      throw new Error("Receipt HTML not received");
-    }
-
-    const blob = new Blob([html], {
-      type: "text/html;charset=utf-8",
-    });
-
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `receipt-${payment.receiptNo}.html`;
-
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Failed to download receipt:", error);
-  }
-};
-
-
-  // const loadDropdownData = async () => {
-
-
-  //   try {
-  //     // In real app, fetch from API
-  //     setClasses([
-  //       { id: 1, name: 'Class 1' },
-  //       { id: 2, name: 'Class 2' },
-  //       { id: 3, name: 'Class 3' },
-  //       { id: 4, name: 'Class 4' },
-  //       { id: 5, name: 'Class 5' },
-  //       { id: 6, name: 'Class 6' },
-  //       { id: 7, name: 'Class 7' },
-  //       { id: 8, name: 'Class 8' },
-  //       { id: 9, name: 'Class 9' },
-  //       { id: 10, name: 'Class 10' },
-  //     ]);
-  //     setAcademicYears([
-  //       { id: 1, name: '2024-2025' },
-  //       { id: 2, name: '2025-2026' },
-  //     ]);
-  //   } catch (error: any) {
-  //     toast.error('Failed to load dropdown data');
-  //   }
-  // };
-
-  // =====================================================
-  // LOAD REPORT
-  // =====================================================
-
-const loadReport = async () => {
-  try {
-    setLoading(true);
-
-    const [
-      paymentsResponse,
-      summaryResponse,
-      analyticsResponse,
-    ] = await Promise.all([
-      getPaymentsAPI({
-        page: filters.page,
-        limit: filters.limit,
-        classId: filters.classId,
-        academicYearId: filters.academicYearId,
-        status: filters.status,
-        paymentMethod: filters.paymentMethod,
-        startDate: filters.startDate,
-        endDate: filters.endDate,
-        search: filters.search,
-      }),
-
-      getPaymentSummaryAPI({
-        classId: filters.classId,
-        academicYearId: filters.academicYearId,
-        status: filters.status,
-        paymentMethod: filters.paymentMethod,
-        startDate: filters.startDate,
-        endDate: filters.endDate,
-      }),
-
-      getPaymentAnalyticsAPI({
-        startDate: filters.startDate,
-        endDate: filters.endDate,
-      }),
-    ]);
-
-    const payments =
-      paymentsResponse.data?.payments ?? [];
-
-    const pagination =
-      paymentsResponse.data?.pagination;
-
-    const summary =
-      summaryResponse.data ?? {};
-
-    // const analytics =
-    //   analyticsResponse.data ?? {};
-
-    const analytics =
-  analyticsResponse.data?.data ??
-  analyticsResponse.data ??
-  {};
-
-    setReportData({
-      payments,
-
-      summary: {
-        ...summary,
-
-        totalCollected:
-          summary.totalCollected ??
-          summary.totalCollection ??
-          0,
-
-        totalFeeAmount:
-          summary.totalFeeAmount ?? 0,
-
-        totalPending:
-          summary.totalPending ?? 0,
-
-        totalDiscount:
-          summary.totalDiscount ?? 0,
-
-        totalOverdue:
-          summary.totalOverdue ?? 0,
-
-        totalLateFee:
-          summary.totalLateFee ?? 0,
-
-        weekCollection:
-          summary.weekCollection ?? 0,
-
-        todayCollection:
-          summary.todayCollection ?? 0,
-
-        monthCollection:
-          summary.monthCollection ?? 0,
-
-        collectionRate:
-          summary.collectionRate ?? 0,
-
-        pendingRate:
-          summary.pendingRate ?? 0,
-      },
-
-      // dailyCollection:
-      //   analytics.daily ?? [],
-
-      // methodSummary:
-      //   analytics.byMethod ?? [],
-      dailyCollection:
-  analytics.daily ??
-  analytics.dailyCollection ??
-  [],
-
-methodSummary:
-  analytics.byMethod ??
-  analytics.paymentMethods ??
-  analytics.methodSummary ??
-  [],
-
-      pagination,
-    });
-
-  } catch (error: any) {
-    console.error(
-      "Payment report error:",
-      error
-    );
-
-    toast.error(
-      error?.response?.data?.error ||
-      "Failed to load payment report"
-    );
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // =====================================================
-  // HANDLERS
-  // =====================================================
-
-  const handleFilterChange = (newFilters: PaymentReportFiltersType) => {
-    setFilters(newFilters);
-  };
-
-  const handleApplyFilters = async () => {
-    await loadReport();
-    await loadClassPaymentReport();
-  };
-
-  const handleResetFilters = () => {
-    setFilters({
-      schoolId: 1,
-      status: 'ALL',
-      paymentMethod: 'ALL',
-      page: 1,
-      limit: 10,
-      sortBy: 'paymentDate',
-      sortOrder: 'desc',
-    });
-    loadReport();
-  };
-
-  const handlePageChange = (page: number) => {
-    setFilters({ ...filters, page });
-    loadReport();
-  };
-
-  const handleExportExcel = async () => {
-    try {
-      const blob = await paymentReportService.exportExcel(filters);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `payment-report-${Date.now()}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      toast.success('Report exported successfully');
-    } catch (error: any) {
-      toast.error('Failed to export report');
-    }
-  };
-
-  const handleExportCSV = async () => {
-    try {
-      const blob = await paymentReportService.exportCSV(filters);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `payment-report-${Date.now()}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      toast.success('Report exported successfully');
-    } catch (error: any) {
-      toast.error('Failed to export report');
-    }
-  };
-
-  const handlePrint = async () => {
-    try {
-      const html = await paymentReportService.generatePDF(filters);
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(html);
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
-      }
-    } catch (error: any) {
-      toast.error('Failed to generate PDF');
-    }
-  };
-
-
-  // =====================================================
-  // EFFECTS
-  // =====================================================
-
-  useEffect(() => {
-      // loadDropdownData();
-    loadReport();
-  }, []);
-
-  // =====================================================
-  // UI
-  // =====================================================
-
-  const showReset = Boolean(
-    filters.classId !== undefined ||
-    filters.academicYearId !== undefined ||
-    filters.status !== 'ALL' ||
-    filters.paymentMethod !== 'ALL' ||
-    filters.startDate ||
-    filters.endDate ||
-    filters.search
+  Home,
+  CreditCard,
+  Bell,
+  Download,
+  BarChart3,
+  Filter,
+  X,
+  Calendar,
+  Users,
+  GraduationCap,
+  Wallet,
+  TrendingUp,
+  FileSpreadsheet,
+  Printer,
+  RefreshCw,
+} from "lucide-react";
+
+export default function FeeManagementPage() {
+  // ---------------------------------------------------------------------------
+  // MASTER DATA
+  // ---------------------------------------------------------------------------
+
+  const {
+    classes,
+    filteredSections,
+    years,
+    setFormClassId,
+  } = useMasterData();
+
+  // ---------------------------------------------------------------------------
+  // PAYMENT REPORT
+  // ---------------------------------------------------------------------------
+
+  const {
+    report,
+    loading: paymentReportLoading,
+    generateReport,
+  } = usePaymentReport();
+
+  // ---------------------------------------------------------------------------
+  // FILTER STATE
+  // ---------------------------------------------------------------------------
+
+  const [classId, setClassId] = useState("");
+  const [sectionId, setSectionId] = useState("");
+  const [academicYearId, setAcademicYearId] = useState("");
+  const [dateRange, setDateRange] = useState("THIS_MONTH");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
+const startDateRef =
+  useRef<HTMLInputElement>(null);
+
+const endDateRef =
+  useRef<HTMLInputElement>(null);
+  // ---------------------------------------------------------------------------
+  // SELECTED NAMES
+  // ---------------------------------------------------------------------------
+
+  const selectedClass = classes.find(
+    (item) => String(item.id) === classId
   );
 
-  if (loading && !reportData) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-500">Loading payment report...</p>
-        </div>
-      </div>
-    );
-  }
+  const selectedSection = filteredSections.find(
+    (item) => String(item.id) === sectionId
+  );
+
+  const selectedAcademicYear = years.find(
+    (item) => String(item.id) === academicYearId
+  );
+
+  // ---------------------------------------------------------------------------
+  // DATE FORMAT HELPER
+  // ---------------------------------------------------------------------------
+
+  const formatLocalDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // ---------------------------------------------------------------------------
+  // GET DATE FILTERS
+  // ---------------------------------------------------------------------------
+
+  const getDateFilters = () => {
+    if (dateRange === "THIS_MONTH") {
+      const today = new Date();
+      const startDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+      const endDate = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      );
+      return {
+        startDate: formatLocalDate(startDate),
+        endDate: formatLocalDate(endDate),
+      };
+    }
+
+    if (dateRange === "CUSTOM") {
+      return {
+        startDate: customStartDate,
+        endDate: customEndDate,
+      };
+    }
+
+    return {};
+  };
+
+  // ---------------------------------------------------------------------------
+  // APPLY FILTER
+  // ---------------------------------------------------------------------------
+
+  const handleApplyFilter = async () => {
+    if (!classId) {
+      console.log("Class is required");
+      return;
+    }
+
+    if (!sectionId) {
+      console.log("Section is required");
+      return;
+    }
+
+    if (!academicYearId) {
+      console.log("Academic year is required");
+      return;
+    }
+
+    const dateFilters = getDateFilters();
+
+    const filters = {
+      classId: Number(classId),
+      sectionId: Number(sectionId),
+      academicYearId: Number(academicYearId),
+      ...dateFilters,
+    };
+
+    console.log("PAYMENT REPORT FILTER:", filters);
+
+    await generateReport(filters);
+  };
+
+  // ---------------------------------------------------------------------------
+  // CLEAR FILTER
+  // ---------------------------------------------------------------------------
+
+  const handleClearFilter = () => {
+    setClassId("");
+    setSectionId("");
+    setAcademicYearId("");
+    setDateRange("THIS_MONTH");
+    setCustomStartDate("");
+    setCustomEndDate("");
+    setFormClassId("");
+  };
+
+  // ---------------------------------------------------------------------------
+  // RENDER
+  // ---------------------------------------------------------------------------
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+  
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* =================================================================== */}
+        {/* PAGE HEADER                                                          */}
+        {/* =================================================================== */}
+
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Payment Report</h1>
-            <p className="text-gray-600 mt-1">Detailed payment collection analysis</p>
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+              <Home className="w-4 h-4" />
+              <span>Dashboard</span>
+              <span className="text-gray-300">/</span>
+              <span className="text-gray-900 font-medium">
+                Fee Management
+              </span>
+            </div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              Payment Reports
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Monitor and manage all student fee transactions
+            </p>
           </div>
-          <div className="flex items-center gap-3">
+
+          {/* Header Actions */}
+          <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={loadReport}
-              className="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors flex items-center gap-2 text-sm font-medium"
+              type="button"
+              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm hover:shadow-md"
             >
-              <RefreshCw className="w-4 h-4" />
-              Refresh
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              Export Excel
             </button>
+
             <button
-              onClick={handleExportExcel}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors flex items-center gap-2 text-sm font-medium"
+              type="button"
+              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm hover:shadow-md"
             >
-              <FileSpreadsheet className="w-4 h-4" />
-              Excel
-            </button>
-            <button
-              onClick={handleExportCSV}
-              className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-medium"
-            >
-              <FileText className="w-4 h-4" />
-              CSV
-            </button>
-            <button
-              onClick={handlePrint}
-              className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors flex items-center gap-2 text-sm font-medium"
-            >
-              <Printer className="w-4 h-4" />
+              <Printer className="w-4 h-4 text-gray-600" />
               Print
             </button>
+
+            <button
+              type="button"
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-sm font-medium text-white hover:from-blue-700 hover:to-indigo-700 transition shadow-lg shadow-blue-500/20 hover:shadow-xl"
+            >
+              <Download className="w-4 h-4" />
+              Download Report
+            </button>
           </div>
         </div>
-      </div>
 
- {/* Summary Cards */}
-      {reportData?.summary && (
-        <PaymentSummaryCards summary={reportData.summary} />
-      )}
-      {/* Filters */}
-      <PaymentReportFilters
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onApply={handleApplyFilters}
-        onReset={handleResetFilters}
-        showReset={showReset}
-         classes={classes}
-  academicYears={academicYears}
-      />
+        {/* =================================================================== */}
+        {/* FILTER CARD                                                          */}
+        {/* =================================================================== */}
 
-
-
-{filters.classId && (
-  <div className="mb-6">
-    <ClassPaymentReport
-      data={classPaymentReport}
-      className={
-        classes.find(
-          (item) =>
-            String(item.id) === String(filters.classId)
-        )?.name
-      }
-      academicYearName={
-        academicYears.find(
-          (item) =>
-            String(item.id) ===
-            String(filters.academicYearId)
-        )?.name
-      }
-      loading={classReportLoading}
-      onView={(student) => {
-        console.log("View student payment:", student);
-      }}
-      onPrint={(student) => {
-        console.log("Print student report:", student);
-      }}
-    />
-  </div>
-)}
-  <ClassPaymentReport
-  data={[]}
-  className={
-    classes.find(
-      (item) => String(item.id) === String(filters.classId)
-    )?.name || ""
-  }
-  academicYearName={
-    academicYears.find(
-      (item) =>
-        String(item.id) === String(filters.academicYearId)
-    )?.name || ""
-  }
-  loading={false}
-  onView={(student) => {
-    console.log("View:", student);
-  }}
-  onPrint={(student) => {
-    console.log("Print:", student);
-  }}
-/>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {reportData?.methodSummary && (
-          <PaymentMethodChart data={reportData.methodSummary} />
-        )}
-        {reportData?.dailyCollection && (
-          <DailyCollectionChart data={reportData.dailyCollection} />
-        )}
-      </div>
-
-      {/* Payment History Table */}
-      {reportData?.payments && reportData.payments.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Payment History
-            </h2>
-            {reportData.pagination && (
-              <span className="text-sm text-gray-500">
-                Showing {reportData.payments.length} of {reportData.pagination.total} payments
-              </span>
-            )}
-          </div>
-          <PaymentHistoryTable
-              data={reportData.payments}
-  onView={handleView}
-  onDownload={handleDownload}
-  onPrint={handlePrint}
-          />
-
-
-<PaymentReceiptViewModal
-  open={isViewModalOpen}
-  payment={selectedPayment}
-  onClose={() => setIsViewModalOpen(false)}
-  onDownload={() => {
-    if (selectedPayment) {
-      handleDownload(selectedPayment);
-    }
-  }}
-  onPrint={() => {
-    if (selectedPayment) {
-      handlePrint(selectedPayment);
-    }
-  }}
-/>
-          {/* Pagination */}
-          {reportData.pagination && reportData.pagination.totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                Page {reportData.pagination.page} of {reportData.pagination.totalPages}
-              </p>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handlePageChange(reportData.pagination.page - 1)}
-                  disabled={reportData.pagination.page === 1}
-                  className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Previous
-                </button>
-                {Array.from({ length: Math.min(5, reportData.pagination.totalPages) }, (_, i) => {
-                  const page = i + 1;
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                        page === reportData.pagination.page
-                          ? 'bg-blue-600 text-white'
-                          : 'border border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() => handlePageChange(reportData.pagination.page + 1)}
-                  disabled={reportData.pagination.page === reportData.pagination.totalPages}
-                  className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Next
-                </button>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-xl shadow-gray-100/50 overflow-hidden mb-6">
+          {/* Filter Header */}
+          <div className="bg-gradient-to-r from-slate-50 to-blue-50/50 px-6 py-5 border-b border-gray-200 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <Filter className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">
+                  Filter Reports
+                </h3>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  Select criteria to generate payment reports
+                </p>
               </div>
             </div>
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="p-2 rounded-lg hover:bg-white/50 transition"
+            >
+              {isFilterOpen ? (
+                <X className="w-5 h-5 text-gray-600" />
+              ) : (
+                <RefreshCw className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+          </div>
+
+          {isFilterOpen && (
+            <>
+              {/* Filters */}
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Class */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <Users className="w-4 h-4 text-blue-600" />
+                      Class
+                    </label>
+                    <select
+                      value={classId}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setClassId(value);
+                        setSectionId("");
+                        setFormClassId(value);
+                      }}
+                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-sm"
+                    >
+                      <option value="">Select Class</option>
+                      {classes.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Section */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <GraduationCap className="w-4 h-4 text-indigo-600" />
+                      Section
+                    </label>
+                    <select
+                      value={sectionId}
+                      onChange={(e) => setSectionId(e.target.value)}
+                      disabled={!classId}
+                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-sm disabled:bg-gray-50 disabled:text-gray-400"
+                    >
+                      <option value="">Select Section</option>
+                      {filteredSections.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Academic Year */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <Calendar className="w-4 h-4 text-purple-600" />
+                      Academic Year
+                    </label>
+                    <select
+                      value={academicYearId}
+                      onChange={(e) => setAcademicYearId(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-sm"
+                    >
+                      <option value="">Select Academic Year</option>
+                      {years.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Date Range */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <TrendingUp className="w-4 h-4 text-emerald-600" />
+                      Date Range
+                    </label>
+                    <select
+                      value={dateRange}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setDateRange(value);
+                        if (value !== "CUSTOM") {
+                          setCustomStartDate("");
+                          setCustomEndDate("");
+                        }
+                      }}
+                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-sm"
+                    >
+                      <option value="THIS_MONTH">This Month</option>
+                      <option value="CUSTOM">Custom Date</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Custom Date */}
+             {dateRange === "CUSTOM" && (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+
+    {/* FROM DATE */}
+    <div className="space-y-2">
+      <label className="text-sm font-semibold text-gray-700">
+        From Date
+      </label>
+
+      <div
+        className="relative cursor-pointer"
+        onClick={() => {
+          startDateRef.current?.showPicker?.();
+        }}
+      >
+        <Calendar
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+        />
+
+        <input
+          ref={startDateRef}
+          type="date"
+          value={customStartDate}
+          onChange={(e) =>
+            setCustomStartDate(e.target.value)
+          }
+          className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-sm cursor-pointer"
+        />
+      </div>
+    </div>
+
+    {/* TO DATE */}
+    <div className="space-y-2">
+      <label className="text-sm font-semibold text-gray-700">
+        To Date
+      </label>
+
+      <div
+        className="relative cursor-pointer"
+        onClick={() => {
+          endDateRef.current?.showPicker?.();
+        }}
+      >
+        <Calendar
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+        />
+
+        <input
+          ref={endDateRef}
+          type="date"
+          value={customEndDate}
+          onChange={(e) =>
+            setCustomEndDate(e.target.value)
+          }
+          className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-sm cursor-pointer"
+        />
+      </div>
+    </div>
+
+  </div>
+)}
+
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={handleClearFilter}
+                    disabled={
+                      !classId &&
+                      !sectionId &&
+                      !academicYearId &&
+                      dateRange === "THIS_MONTH" &&
+                      !customStartDate &&
+                      !customEndDate
+                    }
+                    className="px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm"
+                  >
+                    Clear Filters
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleApplyFilter}
+                    disabled={
+                      !classId ||
+                      !sectionId ||
+                      !academicYearId ||
+                      paymentReportLoading ||
+                      (dateRange === "CUSTOM" &&
+                        (!customStartDate || !customEndDate))
+                    }
+                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg shadow-blue-500/20 hover:shadow-xl"
+                  >
+                    {paymentReportLoading ? (
+                      <span className="flex items-center gap-2">
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Generating...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4" />
+                        Generate Report
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </>
           )}
         </div>
-      )}
 
-      {/* No Data */}
-      {reportData && 
-        !reportData.payments?.length && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-16 text-center">
-          <div className="text-4xl mb-4">💳</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            No Payment Data Available
-          </h3>
-          <p className="text-gray-500">
-            Try adjusting your filters or date range
-          </p>
-        </div>
-      )}
+        {/* =================================================================== */}
+        {/* PAYMENT REPORT                                                       */}
+        {/* =================================================================== */}
+
+        <ClassPaymentReport
+          data={report?.payments?.data || []}
+          className={selectedClass?.name || ""}
+          sectionName={selectedSection?.name || ""}
+          academicYearName={selectedAcademicYear?.name || ""}
+          loading={paymentReportLoading}
+        />
+      </div>
     </div>
   );
 }

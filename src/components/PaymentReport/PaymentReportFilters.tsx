@@ -1,7 +1,7 @@
 // components/PaymentReport/PaymentReportFilters.tsx
 
-import React from 'react';
-import { Search, Filter, X, Calendar } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Search, Filter, X,  Calendar } from 'lucide-react';
 import { PaymentReportFilters as PaymentReportFiltersType } from '@/components/types/payment-report.types';
 
 interface PaymentReportFiltersProps {
@@ -38,7 +38,11 @@ export const PaymentReportFilters: React.FC<PaymentReportFiltersProps> = ({
     { value: 'PENDING', label: 'Pending' },
     { value: 'FAILED', label: 'Failed' },
   ];
+const startDateRef =
+  useRef<HTMLInputElement>(null);
 
+const endDateRef =
+  useRef<HTMLInputElement>(null);
   const handleInputChange = (
     key: keyof PaymentReportFiltersType,
     value: string | number | undefined
@@ -57,7 +61,7 @@ export const PaymentReportFilters: React.FC<PaymentReportFiltersProps> = ({
             placeholder="Search by receipt no., student..."
             value={filters.search || ''}
             onChange={(e) => handleInputChange('search', e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+            className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
           />
         </div>
 
@@ -68,7 +72,7 @@ export const PaymentReportFilters: React.FC<PaymentReportFiltersProps> = ({
             onChange={(e) =>
               handleInputChange('classId', e.target.value ? parseInt(e.target.value) : undefined)
             }
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm bg-white"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm bg-white"
           >
             <option value="">All Classes</option>
             {classes.map((cls) => (
@@ -86,7 +90,7 @@ export const PaymentReportFilters: React.FC<PaymentReportFiltersProps> = ({
             onChange={(e) =>
               handleInputChange('academicYearId', e.target.value ? parseInt(e.target.value) : undefined)
             }
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm bg-white"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm bg-white"
           >
             <option value="">All Years</option>
             {academicYears.map((year) => (
@@ -104,7 +108,7 @@ export const PaymentReportFilters: React.FC<PaymentReportFiltersProps> = ({
             onChange={(e) =>
               handleInputChange('paymentMethod', e.target.value as any)
             }
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm bg-white"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm bg-white"
           >
             {paymentMethods.map((method) => (
               <option key={method.value} value={method.value}>
@@ -121,7 +125,7 @@ export const PaymentReportFilters: React.FC<PaymentReportFiltersProps> = ({
             onChange={(e) =>
               handleInputChange('status', e.target.value as any)
             }
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm bg-white"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm bg-white"
           >
             {statusOptions.map((status) => (
               <option key={status.value} value={status.value}>
@@ -132,21 +136,63 @@ export const PaymentReportFilters: React.FC<PaymentReportFiltersProps> = ({
         </div>
 
         {/* Date Range */}
-        <div className="flex items-center gap-2">
-          <input
-            type="date"
-            value={filters.startDate || ''}
-            onChange={(e) => handleInputChange('startDate', e.target.value)}
-            className="px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
-          />
-          <span className="text-gray-400 text-sm">to</span>
-          <input
-            type="date"
-            value={filters.endDate || ''}
-            onChange={(e) => handleInputChange('endDate', e.target.value)}
-            className="px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
-          />
-        </div>
+      {/* Date Range */}
+<div className="flex items-center gap-2">
+  {/* Start Date */}
+  <div
+    className="relative cursor-pointer"
+    onClick={() => {
+      startDateRef.current?.showPicker?.();
+    }}
+  >
+    <Calendar
+      className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+    />
+
+    <input
+      ref={startDateRef}
+      type="date"
+      value={filters.startDate || ""}
+      onChange={(e) =>
+        handleInputChange(
+          "startDate",
+          e.target.value
+        )
+      }
+      className="w-[125px] cursor-pointer pl-9 pr-3 py-2.5 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-[13px] bg-white"
+    />
+  </div>
+
+  {/* Separator */}
+  <span className="text-gray-400 text-sm">
+    to
+  </span>
+
+  {/* End Date */}
+  <div
+    className="relative cursor-pointer"
+    onClick={() => {
+      endDateRef.current?.showPicker?.();
+    }}
+  >
+    <Calendar
+      className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+    />
+
+    <input
+      ref={endDateRef}
+      type="date"
+      value={filters.endDate || ""}
+      onChange={(e) =>
+        handleInputChange(
+          "endDate",
+          e.target.value
+        )
+      }
+      className="w-[125px] cursor-pointer pl-9 pr-3 py-2.5 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-[13px] bg-white"
+    />
+  </div>
+</div>
 
         {/* Apply Button */}
         <button

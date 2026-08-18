@@ -840,3 +840,182 @@ a:focus-visible {
   animation: dropdown-in 0.15s ease-out;
   transform-origin: top;
 }
+
+
+
+
+
+
+@media print {
+  /* =========================================
+     PRINT PAGE
+  ========================================= */
+
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+
+  html,
+  body {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: white !important;
+
+    overflow: visible !important;
+  }
+
+  /* =========================================
+     HIDE EVERYTHING EXCEPT REPORT
+  ========================================= */
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #class-payment-report,
+  #class-payment-report * {
+    visibility: visible !important;
+  }
+
+  /* =========================================
+     IMPORTANT:
+     Don't keep original page height
+  ========================================= */
+
+  #class-payment-report {
+    position: absolute !important;
+
+    left: 0 !important;
+    top: 0 !important;
+
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: white !important;
+
+    border: none !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    overflow: visible !important;
+  }
+
+  /* =========================================
+     HIDE SCREEN-ONLY ELEMENTS
+  ========================================= */
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* =========================================
+     TABLE
+  ========================================= */
+
+  #class-payment-report table {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    border-collapse: collapse !important;
+
+    table-layout: auto !important;
+  }
+
+  #class-payment-report th,
+  #class-payment-report td {
+    border: 1px solid #d1d5db !important;
+
+    padding: 5px 7px !important;
+
+    color: #111827 !important;
+
+    background: white !important;
+
+    font-size: 9px !important;
+  }
+
+  #class-payment-report th {
+    background: #f3f4f6 !important;
+
+    font-weight: 700 !important;
+  }
+
+  /* =========================================
+     TABLE ROWS SHOULD NOT SPLIT
+  ========================================= */
+
+  #class-payment-report tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* =========================================
+     SUMMARY CARDS
+  ========================================= */
+
+  #class-payment-report .grid {
+    break-inside: avoid !important;
+  }
+
+  /* =========================================
+     PRINT FOOTER
+  ========================================= */
+
+  #class-payment-report
+    .print\:block {
+    display: block !important;
+  }
+
+  /* =========================================
+     REMOVE EXCESSIVE SPACING
+  ========================================= */
+
+  #class-payment-report .p-6 {
+    padding: 12px !important;
+  }
+
+  #class-payment-report .p-5 {
+    padding: 10px !important;
+  }
+
+  #class-payment-report .mb-6 {
+    margin-bottom: 10px !important;
+  }
+
+  #class-payment-report .mt-6 {
+    margin-top: 10px !important;
+  }
+
+  /* =========================================
+     NO EXTRA PAGE AFTER REPORT
+  ========================================= */
+
+  #class-payment-report {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+}
+
+
+/* Hide scrollbar but keep scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
